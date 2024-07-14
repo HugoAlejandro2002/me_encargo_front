@@ -1,8 +1,7 @@
-// Sidebar.tsx
 import { Link } from 'react-router-dom';
-import './Sidebar.css'; // Asegúrate de crear un archivo de estilo para Sidebar
-import boxIcon from '../../src/assets/boxIcon.svg';
-import sellerIcon from '../../src/assets/sellersIcon.svg';
+import './Sidebar.css';
+import boxIcon from '../../../src/assets/boxIcon.svg';
+import sellerIcon from '../../../src/assets/sellersIcon.svg';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -17,7 +16,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             </button>
             <div className="menu-items">
                 <Link to="/product">
-                    <img src={boxIcon} alt='Inventario' className='icon text-white' />
+                    <img src={boxIcon} alt='Inventario' className='icon' />
                     {isOpen && <span>Inventario</span>}
                 </Link>
                 <Link to="/seller">

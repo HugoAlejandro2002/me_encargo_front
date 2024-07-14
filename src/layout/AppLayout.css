@@ -4,26 +4,9 @@
     width: 100%;
 }
 
-.site-layout {
-    flex: 1;
-    transition: margin-left 0.3s, width 0.3s;
-    width: calc(100% - 60px);
-    /* Default width when sidebar is closed */
-}
-
-.site-layout.open {
-    margin-left: 200px;
-    width: calc(100% - 200px);
-}
-
-.site-layout.closed {
-    margin-left: 60px;
-    width: calc(100% - 60px);
-}
-
 .site-layout-background {
     padding: 24px;
-    min-height: 100vh;
+    flex: 1;
     background-color: white;
     width: 100%;
 }

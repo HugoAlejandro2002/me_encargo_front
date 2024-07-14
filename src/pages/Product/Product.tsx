@@ -6,10 +6,7 @@ const Product = () => {
         console.log("productos cargados")
     }, [])
     return (
-        <div>
-            <h1>Products Page</h1>
-            <ProductTable />
-        </div>
+        <ProductTable />
     )
 }
 

@@ -1,5 +1,4 @@
-import React from 'react';
-import { Table, Tag } from 'antd';
+import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
 interface ProductoData {
@@ -11,8 +10,8 @@ interface ProductoData {
     medida: string;
     caja: number;
     nombre: string;
-    categorias: ICategoria[]; // Cambio en la estructura para incluir categorías
-    caracteristicas: ICaracteristica[]; // Cambio en la estructura para incluir características
+    categorias: ICategoria[]; 
+    caracteristicas: ICaracteristica[]; 
 }
 
 interface ICategoria {
@@ -26,55 +25,10 @@ interface ICaracteristica {
     valor: string;
 }
 
-const getUniqueCharacteristics = (data: ProductoData[]): string[] => {
+const getUniqueCharacteristics = (data: ProductoData[]) => {
     const allCharacteristics = data.flatMap(item => item.caracteristicas.map(c => c.caracteristica));
     return Array.from(new Set(allCharacteristics))
 }
-
-const uniqueCharacteristics = getUniqueCharacteristics(data);
-const columns: ColumnsType<ProductoData> = [
-    {
-        title: 'Producto',
-        dataIndex: 'producto',
-        key: 'producto',
-    },
-    {
-        title: 'Stock actual',
-        dataIndex: 'stockActual',
-        key: 'stockActual',
-    },
-    {
-        title: 'Precio de venta',
-        dataIndex: 'precioDeVenta',
-        key: 'precioDeVenta',
-    },
-    {
-        title: 'Categorías',
-        dataIndex: 'categorias',
-        key: 'categorias',
-        render: (categorias: ICategoria[]) => (
-            <>
-                {categorias.map(categoria => (
-                    <Tag key={categoria.key}>{categoria.categoria}</Tag>
-                ))}
-            </>
-        ),
-    },
-    {
-        title: 'Características',
-        dataIndex: 'caracteristicas',
-        key: 'caracteristicas',
-        render: (caracteristicas: ICaracteristica[]) => (
-            <>
-                {caracteristicas.map(caracteristica => (
-                    <Tag key={caracteristica.key}>
-                        {caracteristica.caracteristica}: {caracteristica.valor}
-                    </Tag>
-                ))}
-            </>
-        ),
-    },
-];
 
 const data: ProductoData[] = [
     {
@@ -104,8 +58,8 @@ const data: ProductoData[] = [
         categorias: [{ key: '2', categoria: 'Joyas' }],
         caracteristicas: [
             { key: '3', caracteristica: 'Material', valor: 'Plata' },
-            { key: '4', caracteristica: 'Material', valor: 'Plata' },
-            { key: '5', caracteristica: 'Material', valor: 'Plata' },
+            { key: '4', caracteristica: 'Prueba', valor: 'Plata' },
+            { key: '5', caracteristica: 'Prueba2', valor: 'Plata' },
             { key: '6', caracteristica: 'Material', valor: 'Plata' },
             { key: '7', caracteristica: 'Material', valor: 'Plata' },
             { key: '8', caracteristica: 'Tamaño', valor: 'Grande' },
@@ -114,13 +68,54 @@ const data: ProductoData[] = [
     // Agrega el resto de los datos aquí
 ];
 
-const ProductTable: React.FC = () => {
+const uniqueCharacteristics = getUniqueCharacteristics(data);
+
+const columns: ColumnsType<ProductoData> = [
+    {
+        title: 'Producto',
+        dataIndex: 'producto',
+        key: 'producto',
+    },
+    {
+        title: 'Stock actual',
+        dataIndex: 'stockActual',
+        key: 'stockActual',
+    },
+    {
+        title: 'Precio de venta',
+        dataIndex: 'precioDeVenta',
+        key: 'precioDeVenta',
+    },
+    {
+        title: 'Categorías',
+        dataIndex: 'categorias',
+        key: 'categorias',
+        render: (categorias: ICategoria[]) => (
+            <>
+                {categorias.map(categoria => (
+                    categoria.categoria
+                ))}
+            </>
+        ),
+    },
+    ...uniqueCharacteristics.map(caracteristica => ({
+        title: caracteristica,
+        dataIndex: caracteristica.toLowerCase(),
+        key: caracteristica.toLowerCase(),
+        render: (_: any, record: ProductoData) => {
+            const caract = record.caracteristicas.find(c => c.caracteristica === caracteristica);
+            return caract ? caract.valor : '-';
+        }
+    })),
+];
+
+const ProductTable = () => {
     return (
         <Table
             columns={columns}
             dataSource={data}
             pagination={false}
-            title={() => <h2>Products Page</h2>}
+            title={() => <h2>Inventario</h2>}
         />
     );
 };

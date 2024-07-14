@@ -1,5 +1,4 @@
 .sidebar {
-    position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
@@ -15,7 +14,7 @@
 }
 
 .sidebar.closed {
-    width: 60px;
+    width: 80px;
 }
 
 .hamburger {
@@ -48,5 +47,5 @@
 .icon {
     width: 24px;
     height: 24px;
-    margin-right: 10px;
+    margin-inline: 10px;
 }

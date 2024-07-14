@@ -1,20 +1,27 @@
-import Layout, { Content } from 'antd/es/layout/layout';
-import AppRoutes from '../routes/AppRoutes';
+import { Layout } from 'antd';
+import { useState } from 'react';
+import './AppLayout.css';
 import Sidebar from './Sidebar';
+import AppRoutes from '../routes/AppRoutes';
+
+const { Content } = Layout;
 
 const AppLayout = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleSidebar = () => {
+        setIsOpen(!isOpen);
+    };
+
     return (
-        <div>
-            <Layout
-                className='layout'
-                style={{ minHeight: '100vh', width: '100vw', maxWidth: '100%' }}
-            >
-                <Sidebar />
-                <Content>
+        <Layout className='layout'>
+            <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
+            <Layout className={isOpen ? 'open' : 'closed'}>
+                <Content className='site-layout-background'>
                     <AppRoutes />
                 </Content>
             </Layout>
-        </div>
+        </Layout>
     );
 };
 

@@ -1,17 +1,15 @@
-// Sidebar.js
-import { useState } from 'react';
+// Sidebar.tsx
 import { Link } from 'react-router-dom';
-import './Sidebar.css'; // Asegúrate de crear un archivo de estilo para el Sidebar
+import './Sidebar.css'; // Asegúrate de crear un archivo de estilo para Sidebar
 import boxIcon from '../../src/assets/boxIcon.svg';
-import sellerIcon from '../../src/assets/sellersIcon.svg'
+import sellerIcon from '../../src/assets/sellersIcon.svg';
 
-const Sidebar = () => {
-    const [isOpen, setIsOpen] = useState(false);
+interface SidebarProps {
+    isOpen: boolean;
+    toggleSidebar: () => void;
+}
 
-    const toggleSidebar = () => {
-        setIsOpen(!isOpen);
-    };
-
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     return (
         <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
             <button className="hamburger" onClick={toggleSidebar}>
@@ -19,14 +17,14 @@ const Sidebar = () => {
             </button>
             <div className="menu-items">
                 <Link to="/product">
-                    <img src={boxIcon} alt='Inventario' className='icon text-white'/>
+                    <img src={boxIcon} alt='Inventario' className='icon text-white' />
                     {isOpen && <span>Inventario</span>}
                 </Link>
                 <Link to="/seller">
-                    <img src={sellerIcon} alt='Vendedores' className='icon'/>
+                    <img src={sellerIcon} alt='Vendedores' className='icon' />
                     {isOpen && <span>Vendedores</span>}
                 </Link>
-                {/* TODO: agregar rutas de a poco... */}
+                {/* TODO: agregar más enlaces... */}
             </div>
         </div>
     );

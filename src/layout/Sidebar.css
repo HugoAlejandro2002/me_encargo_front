@@ -1,46 +1,52 @@
-/* Sidebar.css */
 .sidebar {
-    height: 100%;
-    width: 60px;
-    /* Ancho cuando está cerrado */
     position: fixed;
     top: 0;
     left: 0;
+    height: 100vh;
     background-color: #2C3048;
+    transition: width 0.3s;
     overflow-x: hidden;
-    transition: 0.5s;
+    white-space: nowrap;
+    z-index: 1000;
 }
 
 .sidebar.open {
-    width: 250px;
-    /* Ancho cuando está abierto */
+    width: 200px;
 }
 
-.sidebar .hamburger {
-    font-size: 30px;
-    cursor: pointer;
+.sidebar.closed {
+    width: 60px;
+}
+
+.hamburger {
+    background: none;
+    border: none;
     color: white;
-    background-color: #2C3048;
-    padding: 10px 15px;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
 }
 
-.sidebar .menu-items {
+.menu-items {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
+    padding-top: 20px;
 }
 
-.sidebar .menu-items a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: white;
+.menu-items a {
     display: flex;
     align-items: center;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
 }
 
-.sidebar .menu-items a .icon {
-    font-size: 24px;
+.menu-items a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Añadir más estilos según sea necesario */
+.icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}

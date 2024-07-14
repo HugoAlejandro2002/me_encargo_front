@@ -1,0 +1,46 @@
+/* Sidebar.css */
+.sidebar {
+    height: 100%;
+    width: 60px;
+    /* Ancho cuando está cerrado */
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #2C3048;
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+
+.sidebar.open {
+    width: 250px;
+    /* Ancho cuando está abierto */
+}
+
+.sidebar .hamburger {
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+    background-color: #2C3048;
+    padding: 10px 15px;
+}
+
+.sidebar .menu-items {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.sidebar .menu-items a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .menu-items a .icon {
+    font-size: 24px;
+}
+
+/* Añadir más estilos según sea necesario */

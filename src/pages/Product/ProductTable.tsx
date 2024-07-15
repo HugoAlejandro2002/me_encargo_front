@@ -115,7 +115,7 @@ const ProductTable = () => {
             columns={columns}
             dataSource={data}
             pagination={false}
-            title={() => <h2>Inventario</h2>}
+            title={() => <h1>Inventario</h1>}
         />
     );
 };

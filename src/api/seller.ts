@@ -14,9 +14,9 @@ export const getSellersAPI = async () => {
     }
 }
 
-export const registerSellerAPI = async () => {
+export const registerSellerAPI = async (sellerData: any) => {
     try {
-        const res = await apiClient.post(`/seller/register`)
+        const res = await apiClient.post(`/seller/register`, sellerData)
         return res.data
     } catch (error) {
         const err = error as AxiosError

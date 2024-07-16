@@ -1,81 +1,91 @@
 import { Table } from 'antd';
+import { useEffect, useState } from 'react';
+import { getSellersAPI } from '../../api/seller';
 
-const columns = [
-    {
-        title: 'Nombre',
-        dataIndex: 'nombre',
-        key: 'nombre',
-    },
-    {
-        title: 'Pago Total', // suma de ventas que no se le devolvieron
-        dataIndex: 'pago_total',
-        key: 'pago_total',
-    },
-    {
-        title: 'Fecha Final del Servicio',
-        dataIndex: 'fecha_vigencia',
-        key: 'fecha_vigencia',
-    },
-    {
-        title: 'Pago Mensual', // suma de delivery, exhibicion y alquiler
-        dataIndex: 'pago_mensual',
-        key: 'pago_mensual',
-    },
-    {
-        title: 'Porcentaje de comisión',
-        dataIndex: 'comision_porcentual',
-        key: 'comision_porcentual',
-    },
-    {
-        title: 'Comisión Bs',
-        dataIndex: 'comision_fija',
-        key: 'comision_fija',
-    },
-];
+const SellerTable = (refreshKey: any) => {
+    const [pendingPaymentData, setPendingPaymentData] = useState([]);
+    const [onTimePaymentData, setOnTimePaymentData] = useState([]);
 
-const pendingPaymentData = [
-    {
-        key: '1',
-        nombre: 'Javier Pepe',
-        pago_total: 'Bs200,00',
-        fecha_vigencia: '7/7/2024',
-        pago_mensual: 'Bs10,00',
-        comision_porcentual: '5%',
-        comision_fija: 'Bs10,00',
-    },
-    {
-        key: '2',
-        nombre: 'Fabian Tapia',
-        pago_total: 'Bs12,00',
-        fecha_vigencia: '15/7/2024',
-        pago_mensual: 'Bs7,00',
-        comision_porcentual: '5%',
-        comision_fija: 'Bs6,00',
-    },
-];
+    const getRandomInt = (min: number, max: number) => {
+        return Math.floor(Math.random() * (max - min + 1) + min)
+    }
 
-const onTimePaymentData = [
-    {
-        key: '1',
-        nombre: 'Adrian Rodriguez',
-        pago_total: 'Bs0,00',
-        fecha_vigencia: '8/5/2024',
-        pago_mensual: 'Bs0,00',
-        comision_porcentual: '8%',
-        comision_fija: 'Bs0,00',
-    },
-    {
-        key: '2',
-        nombre: 'Andres Mendoza',
-        pago_total: 'Bs0,00',
-        fecha_vigencia: '15/7/2024',
-        pago_mensual: 'Bs250,00',
-        comision_porcentual: '8%',
-        comision_fija: 'Bs0,00',
-    },
-];
 
-const SellerTable = () => {
+    async function fetchSellers() {
+        try {
+            const response = await getSellersAPI();
+
+            const sellersData = response.data || response;
+
+            // Verifica si sellersData es un array
+            if (!Array.isArray(sellersData)) {
+                console.error('Los datos de vendedores no son un array:', sellersData);
+                return;
+            }
+
+            // Aquí ajusta cómo mapeas los datos según la estructura de tu respuesta de la API
+            const formattedData = sellersData.map((seller: any) => {
+                const finish_date = new Date(seller.fecha_vigencia)
+                return {
+                    key: seller.id_Vendedor.toString(),
+                    nombre: `${seller.nombre} ${seller.apellido}`,
+                    pago_total: `Bs. ${getRandomInt(0, 8)}`,
+                    fecha_vigencia: finish_date.toLocaleDateString('es-ES'),
+                    pago_mensual: `Bs. ${seller.alquiler + seller.exhibicion + seller.delivery}`,
+                    comision_porcentual: `${seller.comision_porcentual}%`,
+                    comision_fija: `Bs. ${seller.comision_fija}`,
+                };
+            })
+
+            // Separar los datos según algún criterio (en este caso, si el pago es pendiente o al día)
+            const pendingPayments: any = formattedData.filter((seller: any) => seller.pago_total !== 'Bs. 0');
+            const onTimePayments: any = formattedData.filter((seller: any) => seller.pago_total === 'Bs. 0');
+
+            setPendingPaymentData(pendingPayments);
+            setOnTimePaymentData(onTimePayments);
+        } catch (error) {
+            console.error('Error al obtener los vendedores:', error);
+        }
+    }
+
+
+    useEffect(() => {
+        fetchSellers();
+    }, [refreshKey]);
+
+    const columns = [
+        {
+            title: 'Nombre',
+            dataIndex: 'nombre',
+            key: 'nombre',
+        },
+        {
+            title: 'Pago Total',
+            dataIndex: 'pago_total',
+            key: 'pago_total',
+        },
+        {
+            title: 'Fecha Vigencia',
+            dataIndex: 'fecha_vigencia',
+            key: 'fecha_vigencia',
+        },
+        {
+            title: 'Pago Mensual',
+            dataIndex: 'pago_mensual',
+            key: 'pago_mensual',
+        },
+        {
+            title: 'Comisión Porcentual',
+            dataIndex: 'comision_porcentual',
+            key: 'comision_porcentual',
+        },
+        {
+            title: 'Comisión Fija',
+            dataIndex: 'comision_fija',
+            key: 'comision_fija',
+        },
+    ];
+
     return (
         <div>
             <Table

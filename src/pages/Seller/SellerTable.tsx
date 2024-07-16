@@ -7,7 +7,7 @@ const columns = [
         key: 'nombre',
     },
     {
-        title: 'Pago Total',
+        title: 'Pago Total', // suma de ventas que no se le devolvieron
         dataIndex: 'pago_total',
         key: 'pago_total',
     },
@@ -17,7 +17,7 @@ const columns = [
         key: 'fecha_vigencia',
     },
     {
-        title: 'Pago Mensual',
+        title: 'Pago Mensual', // suma de delivery, exhibicion y alquiler
         dataIndex: 'pago_mensual',
         key: 'pago_mensual',
     },
@@ -52,7 +52,6 @@ const pendingPaymentData = [
         comision_porcentual: '5%',
         comision_fija: 'Bs6,00',
     },
-    // ... otros datos de ejemplo
 ];
 
 const onTimePaymentData = [
@@ -67,14 +66,13 @@ const onTimePaymentData = [
     },
     {
         key: '2',
-        nombre: 'Andres Quenta',
+        nombre: 'Andres Mendoza',
         pago_total: 'Bs0,00',
         fecha_vigencia: '15/7/2024',
         pago_mensual: 'Bs250,00',
         comision_porcentual: '8%',
         comision_fija: 'Bs0,00',
     },
-    // ... otros datos de ejemplo
 ];
 
 const SellerTable = () => {

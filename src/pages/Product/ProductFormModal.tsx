@@ -1,38 +1,60 @@
-import { Button, Form, Input, Modal, Select, message } from "antd"
+import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
 import { registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
+import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 
 const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [loading, setLoading] = useState(false)
     const [sellers, setSellers] = useState([])
+    const [categories, setCategories] = useState([])
 
     const handleFinish = async (productData: any) => {
         setLoading(true)
         productData.imagen = ''
-        productData.id_Categoria = 100
         productData.id_Caracteristica = 1
         const response = await registerProductAPI(productData)
         setLoading(false)
         if (response.status) {
             message.success('Producto registrado con éxito')
-            onSuccess()
+            fetchCategories()
         } else {
             message.error('Error al registrar el producto')
         }
     }
 
-    useEffect(() => {
-        const fetchSellers = async () => {
-            try {
-                const response = await getSellersAPI()
-                setSellers(response)
-            } catch (error) {
-                message.error('Error al obtener los vendedores')
-            }
+    const createCategory = async (categoryData: any) => {
+        const response = await registerCategoryAPI(categoryData)
+        if (response.status) {
+            message.success('Categoria creada con éxito')
+            onSuccess
+        } else {
+            message.error('Error al crear categoria')
         }
+    }
+
+    const fetchSellers = async () => {
+        try {
+            const response = await getSellersAPI()
+            setSellers(response)
+        } catch (error) {
+            message.error('Error al obtener los vendedores')
+        }
+    }
+
+    const fetchCategories = async () => {
+        try {
+            const response = await getCategoriesAPI()
+            setCategories(response)
+        } catch (error) {
+            message.error('Error al obtener las categorías')
+        }
+    }
+
+    useEffect(() => {
         fetchSellers()
-    })
+        fetchCategories()
+    }, [])
 
     return (
         <Modal
@@ -65,13 +87,34 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     label="Marca"
                     rules={[{ required: true, message: 'Por favor seleccione una marca' }]}
                 >
-                    <Select placeholder='Selecciona una marca' loading={loading}>
-                        {sellers.map((seller: any) => (
-                            <Select.Option key={seller.id_Vendedor} value={seller.id_Vendedor}>
-                                {seller.marca}
-                            </Select.Option>
-                        ))}
-                    </Select>
+                    <Select
+                        placeholder='Selecciona una marca'
+                        options={sellers.map((seller: any) => ({
+                            value: seller.id_Vendedor,
+                            label: seller.marca,
+                        }))}
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLowerCase().includes(input.toLowerCase())
+                        }
+                    />
+                </Form.Item>
+                <Form.Item
+                    name='id_Categoria'
+                    label='Categoría'
+                    rules={[{ required: true, message: 'Por favor seleccione una marca' }]}
+                >
+                    <Select
+                        placeholder='Selecciona una categoría'
+                        options={categories.map((category: any) => ({
+                            value: category.id_Categoria,
+                            label: category.categoria
+                        }))}
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLowerCase().includes(input.toLowerCase())
+                        }
+                    />
                 </Form.Item>
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>
@@ -80,7 +123,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 </Form.Item>
             </Form>
         </Modal>
-    );
+    )
 }
 
 export default ProductFormModal

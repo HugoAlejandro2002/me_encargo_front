@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ProductTable from "./ProductTable";
-import { getProductsAPI} from "../../api/product";
+import { getProductsAPI } from "../../api/product";
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
 
@@ -42,12 +42,12 @@ const Product = () => {
 
     useEffect(() => {
         fetchProducts();
-    }, [])
+    }, [refreshKey])
 
     return (
         <>
             <div>
-                <h1>Productos</h1>
+                <h1 className="text-red">Productos</h1>
                 <Button onClick={showModal} type='primary'>Agregar Producto</Button>
             </div>
             <ProductTable data={data} key={refreshKey} />

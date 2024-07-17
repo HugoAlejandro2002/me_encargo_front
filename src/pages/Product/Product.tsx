@@ -1,13 +1,32 @@
 import { useState, useEffect } from "react";
 import ProductTable from "./ProductTable";
-import { getProductsAPI } from "../../api/product";
+import { getProductsAPI} from "../../api/product";
+import Button from "antd/es/button";
+import ProductFormModal from "./ProductFormModal";
 
 const Product = () => {
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [refreshKey, setRefreshKey] = useState(0)
     const [data, setData] = useState<any>([]);
+
+    const showModal = () => {
+        setIsModalVisible(true)
+    }
+
+    const handleCancel = () => {
+        setIsModalVisible(false)
+    }
+
+    const handleSuccess = () => {
+        setIsModalVisible(false)
+        setRefreshKey(prevKey => prevKey + 1)
+    }
+
     const mapApiDataToProductoData = (apiData: any) => {
         return apiData.map((item: any) => ({
             key: item.id_Producto.toString(),
             producto: item.nombre_producto,
+            stockActual: 4,
             precioDeVenta: item.precio,
             nombre: item.nombre_producto,
             categorias: item.id_Categoria ? [{ key: item.id_Categoria.toString(), categoria: `Categoria ${item.id_Categoria}` }] : [],
@@ -23,10 +42,23 @@ const Product = () => {
 
     useEffect(() => {
         fetchProducts();
-    }, []);
+    }, [])
 
     return (
-        <ProductTable data={data} />
+        <>
+            <div>
+                <h1>Productos</h1>
+                <Button onClick={showModal} type='primary'>Agregar Producto</Button>
+            </div>
+            <ProductTable data={data} key={refreshKey} />
+            <ProductFormModal
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                onSuccess={handleSuccess}
+            >
+
+            </ProductFormModal>
+        </>
     );
 };
 

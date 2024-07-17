@@ -1,7 +1,8 @@
 import { Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { useEffect } from 'react';
 
-const ProductTable = ({ data }: any) => {
+const ProductTable = ({ data }: any, refreshKey: any) => {
     interface ProductoData {
         key: string;
         producto: string;
@@ -23,7 +24,6 @@ const ProductTable = ({ data }: any) => {
     }
 
     const getUniqueCharacteristics = (data: ProductoData[]) => {
-        console.log(data, 'xd?')
         const allCharacteristics = data.flatMap(item => item.caracteristicas.map(c => c.caracteristica));
         return Array.from(new Set(allCharacteristics))
     }
@@ -69,12 +69,16 @@ const ProductTable = ({ data }: any) => {
         })),
     ];
 
+    useEffect(() => {
+    }, [refreshKey])        
+    
+
     return (
         <Table
             columns={columns}
             dataSource={data}
             pagination={false}
-            title={() => <h1>Inventario</h1>}
+            // title={() => <h1>Inventario</h1>}
         />
     );
 };

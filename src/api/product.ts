@@ -3,7 +3,7 @@ import { apiClient } from "./apiClient"
 
 export const getProductsAPI = async () => {
     try {
-        const res = await apiClient.get(`/products`)
+        const res = await apiClient.get(`/product`)
         return res.data
     } catch (error) {
         const err = error as AxiosError
@@ -14,9 +14,9 @@ export const getProductsAPI = async () => {
     }
 }
 
-export const registerProductAPI = async () => {
+export const registerProductAPI = async (productData: any) => {
     try {
-        const res = await apiClient.post(`/product/register`)
+        const res = await apiClient.post(`/product/register`, productData)
         return res.data
     } catch (error) {
         const err = error as AxiosError

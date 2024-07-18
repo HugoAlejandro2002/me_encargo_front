@@ -1,6 +1,5 @@
 import { Layout } from 'antd';
 import { useState } from 'react';
-import './AppLayout.css';
 import Sidebar from './Sidebar/Sidebar';
 import AppRoutes from '../routes/AppRoutes';
 import Header from './Header/Header';
@@ -15,13 +14,13 @@ const AppLayout = () => {
     };
 
     return (
-        <Layout className="layout">
+        <Layout className="flex min-h-screen w-full">
             <Sider trigger={null} collapsible collapsed={!isOpen}>
                 <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
             </Sider>
             <Layout>
                 <Header />
-                <Content className='site-layout-background'>
+                <Content className='flex flex-col bg-white p-6'>
                     <AppRoutes />
                 </Content>
             </Layout>

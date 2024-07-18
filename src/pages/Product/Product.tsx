@@ -45,9 +45,9 @@ const Product = () => {
     }, [refreshKey])
 
     return (
-        <>
-            <div>
-                <h1 className="text-red">Productos</h1>
+        <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+                <h1 className="text-2xl font-bold">Productos</h1>
                 <Button onClick={showModal} type='primary'>Agregar Producto</Button>
             </div>
             <ProductTable data={data} key={refreshKey} />
@@ -58,7 +58,7 @@ const Product = () => {
             >
 
             </ProductFormModal>
-        </>
+        </div>
     );
 };
 

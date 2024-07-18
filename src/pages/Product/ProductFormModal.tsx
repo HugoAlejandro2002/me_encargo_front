@@ -8,6 +8,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [loading, setLoading] = useState(false)
     const [sellers, setSellers] = useState([])
     const [categories, setCategories] = useState([])
+    const [newCategory, setNewCategory] = useState('')
 
     const handleFinish = async (productData: any) => {
         setLoading(true)
@@ -18,18 +19,23 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         if (response.status) {
             message.success('Producto registrado con éxito')
             fetchCategories()
+            onSuccess()
         } else {
             message.error('Error al registrar el producto')
         }
     }
 
-    const createCategory = async (categoryData: any) => {
-        const response = await registerCategoryAPI(categoryData)
+    const createCategory = async () => {
+        if (!newCategory) return
+        setLoading(true)
+        const response = await registerCategoryAPI({ categoria: newCategory })
+        setLoading(false)
         if (response.status) {
-            message.success('Categoria creada con éxito')
-            onSuccess
+            message.success('Categoría creada con éxito')
+            fetchCategories()
+            setNewCategory('')
         } else {
-            message.error('Error al crear categoria')
+            message.error('Error al crear categoría')
         }
     }
 
@@ -58,7 +64,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
 
     return (
         <Modal
-            title='Agregar Producto'
+            title="Agregar Producto"
             open={visible}
             onCancel={onCancel}
             footer={null}
@@ -88,7 +94,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     rules={[{ required: true, message: 'Por favor seleccione una marca' }]}
                 >
                     <Select
-                        placeholder='Selecciona una marca'
+                        placeholder="Selecciona una marca"
                         options={sellers.map((seller: any) => ({
                             value: seller.id_Vendedor,
                             label: seller.marca,
@@ -100,15 +106,34 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     />
                 </Form.Item>
                 <Form.Item
-                    name='id_Categoria'
-                    label='Categoría'
-                    rules={[{ required: true, message: 'Por favor seleccione una marca' }]}
+                    name="id_Categoria"
+                    label="Categoría"
+                    rules={[{ required: true, message: 'Por favor seleccione una categoría' }]}
                 >
                     <Select
-                        placeholder='Selecciona una categoría'
+                        placeholder="Selecciona una categoría"
+                        dropdownRender={menu => (
+                            <>
+                                {menu}
+                                <div style={{ display: 'flex', padding: 8 }}>
+                                    <Input
+                                        style={{ flex: 'auto' }}
+                                        value={newCategory}
+                                        onChange={e => setNewCategory(e.target.value)}
+                                    />
+                                    <Button
+                                        type="link"
+                                        onClick={createCategory}
+                                        loading={loading}
+                                    >
+                                        Añadir categoría
+                                    </Button>
+                                </div>
+                            </>
+                        )}
                         options={categories.map((category: any) => ({
                             value: category.id_Categoria,
-                            label: category.categoria
+                            label: category.categoria,
                         }))}
                         showSearch
                         filterOption={(input, option: any) =>

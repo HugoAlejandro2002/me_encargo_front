@@ -91,13 +91,13 @@ const SellerTable = (refreshKey: any) => {
             <Table
                 columns={columns}
                 dataSource={pendingPaymentData}
-                title={() => <h2>Pago pendiente</h2>}
+                title={() => <h2 className='text-2xl font-bold'>Pago pendiente</h2>}
                 pagination={false}
             />
             <Table
                 columns={columns}
                 dataSource={onTimePaymentData}
-                title={() => <h2>Pago al día</h2>}
+                title={() => <h2 className='text-2xl font-bold'>Pago al día</h2>}
                 pagination={false}
             />
         </div>

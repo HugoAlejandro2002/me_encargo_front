@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ProductTable from "./ProductTable";
-import { getProductCategory, getProductFeatures, getProductsAPI } from "../../api/product";
+import { getProductCategoryAPI, getProductFeaturesAPI, getProductsAPI } from "../../api/product";
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
 
@@ -78,7 +78,7 @@ const Product = () => {
 
     const fetchProductFeatures = async (productId: any) => {
         try {
-            const res = await getProductFeatures(productId)
+            const res = await getProductFeaturesAPI(productId)
             return res
         } catch (error) {
             console.log(error, `Error al obtener las características con idProducto ${productId}`)
@@ -88,7 +88,7 @@ const Product = () => {
 
     const fetchProductCategory = async (productId: any) => {
         try {
-            const res = await getProductCategory(productId)
+            const res = await getProductCategoryAPI(productId)
             return res
         } catch (error) {
             console.log(error, `Error al obtener la categoría con idProducto ${productId}`)

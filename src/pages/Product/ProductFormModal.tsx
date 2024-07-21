@@ -3,12 +3,16 @@ import { useEffect, useState } from "react"
 import { registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
+import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"
 
 const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [loading, setLoading] = useState(false)
     const [sellers, setSellers] = useState([])
     const [categories, setCategories] = useState([])
     const [newCategory, setNewCategory] = useState('')
+    const [newFeature, setNewFeature] = useState('')
+    const [features, setFeatures] = useState([])
+    const [selectedFeatures, setSelectedFeatures] = useState([])
 
     const handleFinish = async (productData: any) => {
         setLoading(true)
@@ -39,6 +43,27 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         }
     }
 
+    const createFeature = async () => {
+        setLoading(true)
+        console.log(newFeature, typeof newFeature)
+        const res = await registerFeatureAPI({nombre: newFeature})
+        setLoading(false)
+        if (res.status) {
+            message.success('Caracteristica creada con exito')
+            fetchFeatures()
+            setNewFeature('')
+        } else {
+            message.error('Error al crear caracteristica')
+            console.log(res)
+        }
+    }
+
+    // const addFeaturesToProduct = async ( ) => {
+    //     selectedFeatures.forEach((item: any) => {
+    //         const res = await addProductFeatureAPI(productId, item.id_Caracteristicas, value)
+    //     })
+    // }
+
     const fetchSellers = async () => {
         try {
             const response = await getSellersAPI()
@@ -57,9 +82,20 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         }
     }
 
+    const fetchFeatures = async () => {
+        try {
+            const res = await getFeaturesAPI()
+            setFeatures(res)
+        } catch (error) {
+            message.error('Error al obtener las características')
+
+        }
+    }
+
     useEffect(() => {
         fetchSellers()
         fetchCategories()
+        fetchFeatures()
     }, [])
 
     return (
@@ -138,6 +174,44 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                         showSearch
                         filterOption={(input, option: any) =>
                             option.label.toLowerCase().includes(input.toLowerCase())
+                        }
+                    />
+                </Form.Item>
+                <Form.Item
+                    name='id_Caracteristica'
+                    label='Características'
+                >
+                    <Select
+                        placeholder='Selecciona una característica'
+                        mode="tags"
+                        value={selectedFeatures}
+                        onChange={((values: any) => setSelectedFeatures(values))}
+                        dropdownRender={menu => (
+                            <>
+                                {menu}
+                                <div className="flex p-2">
+                                    <Input
+                                        className="flex-auto"
+                                        value={newFeature}
+                                        onChange={e => setNewFeature(e.target.value)}
+                                    />
+                                    <Button
+                                        type="link"
+                                        onClick={createFeature}
+                                        loading={loading}
+                                    >
+                                        Añadir característica
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                        options={features.map((feature: any) => ({
+                            value: feature.id_Caracteristicas,
+                            label: feature.nombre,
+                        }))}
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLowerCase().includes(input.toLocaleLowerCase())
                         }
                     />
                 </Form.Item>

@@ -1,9 +1,10 @@
 import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
-import { registerProductAPI } from "../../api/product"
+import { addProductFeatureAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"
+import FeatureInputs from "./FeatureInputs"
 
 const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [loading, setLoading] = useState(false)
@@ -13,15 +14,18 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [newFeature, setNewFeature] = useState('')
     const [features, setFeatures] = useState([])
     const [selectedFeatures, setSelectedFeatures] = useState([])
+    const [featureValues, setFeatureValues] = useState({})
 
     const handleFinish = async (productData: any) => {
         setLoading(true)
         productData.imagen = ''
-        productData.id_Caracteristica = 1
         const response = await registerProductAPI(productData)
         setLoading(false)
         if (response.status) {
+            const newProduct = response.newProduct
             message.success('Producto registrado con éxito')
+            console.log(newProduct.id_Producto, featureValues, 'xdd')
+            await addFeaturesToProduct(newProduct.id_Producto, featureValues)
             fetchCategories()
             onSuccess()
         } else {
@@ -46,7 +50,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const createFeature = async () => {
         setLoading(true)
         console.log(newFeature, typeof newFeature)
-        const res = await registerFeatureAPI({nombre: newFeature})
+        const res = await registerFeatureAPI({ nombre: newFeature })
         setLoading(false)
         if (res.status) {
             message.success('Caracteristica creada con exito')
@@ -58,11 +62,25 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         }
     }
 
-    // const addFeaturesToProduct = async ( ) => {
-    //     selectedFeatures.forEach((item: any) => {
-    //         const res = await addProductFeatureAPI(productId, item.id_Caracteristicas, value)
-    //     })
-    // }
+    const addFeaturesToProduct = async (productId: any, featureValues: any) => {
+        setLoading(true)
+        // selectedFeatures.forEach(async (item: any) => {
+        //     const res = await addProductFeatureAPI({ product: productId, featureId: item.id_Caracteristicas, value: featureValue })
+        //     if(!(res.status)) {
+        //         message.success("Error al agregar las características")
+        //         console.log(res)
+        //     }
+        // })
+        for (const element of selectedFeatures) {
+            const feature: any = element
+            const featureId: any = feature.id_Caracteristicas
+            const value = featureValues[featureId]
+            const res = await addProductFeatureAPI({ productId: productId, featureId: featureId, value: value })
+        }
+        message.success('Características agregadas con éxito!')
+        setLoading(false)
+
+    }
 
     const fetchSellers = async () => {
         try {
@@ -215,6 +233,13 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                         }
                     />
                 </Form.Item>
+
+                <FeatureInputs
+                    selectedFeatures={selectedFeatures}
+                    featureValues={featureValues}
+                    setFeatureValues={setFeatureValues}
+                />
+
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>
                         Registrar Producto

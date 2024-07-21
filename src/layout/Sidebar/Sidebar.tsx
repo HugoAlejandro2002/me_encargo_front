@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import './Sidebar.css';
 import boxIcon from '../../../src/assets/boxIcon.svg';
 import sellerIcon from '../../../src/assets/sellersIcon.svg';
+import cartIcon from '../../../src/assets/cartIcon.svg';
 
 interface SidebarProps {
     isOpen: boolean;

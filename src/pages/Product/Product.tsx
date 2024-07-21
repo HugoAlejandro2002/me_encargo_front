@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ProductTable from "./ProductTable";
-import { getProductsAPI } from "../../api/product";
+import { getProductCategory, getProductFeatures, getProductsAPI } from "../../api/product";
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
 
@@ -22,22 +22,78 @@ const Product = () => {
         setRefreshKey(prevKey => prevKey + 1)
     }
 
-    const mapApiDataToProductoData = (apiData: any) => {
-        return apiData.map((item: any) => ({
-            key: item.id_Producto.toString(),
-            producto: item.nombre_producto,
-            stockActual: 4,
-            precioDeVenta: item.precio,
-            nombre: item.nombre_producto,
-            categorias: item.id_Categoria ? [{ key: item.id_Categoria.toString(), categoria: `Categoria ${item.id_Categoria}` }] : [],
-            caracteristicas: item.id_Caracteristicas ? [{ key: item.id_Caracteristicas.toString(), caracteristica: `Caracteristica ${item.id_Caracteristicas}`, valor: 'Valor' }] : [],
-        }));
-    }
+    const getCombinations = (features: any) => {
+        if (features.length === 0) return [[]];
+        const [firstFeature, ...restFeatures] = features;
+        const restCombinations = getCombinations(restFeatures);
+
+        const combinations = firstFeature.value.map((value: any) => {
+            return {
+                feature: firstFeature.feature,
+                value,
+            };
+        });
+
+        if (restCombinations.length === 0) return combinations;
+
+        return combinations.flatMap((comb: any) =>
+            restCombinations.map((restComb: any) => [comb].concat(restComb))
+        );
+    };
 
     async function fetchProducts() {
         const apiData = await getProductsAPI();
-        const productData = mapApiDataToProductoData(apiData);
-        setData(productData);
+        const productDataPromise = mapApiDataToProductoData(apiData);
+        const productData = await Promise.all(productDataPromise)
+        setData(productData.flat());
+    }
+
+    const mapApiDataToProductoData = (apiData: any) => {
+        return apiData.flatMap(async (item: any) => {
+            const category = await fetchProductCategory(item.id_Producto);
+            const features = await fetchProductFeatures(item.id_Producto);
+            const featureCombinations = await getCombinations(features);
+            console.log(featureCombinations.length, 'lengthealo')
+            if (featureCombinations.length === 0) {
+                return [{
+                    key: item.id_Producto.toString(),
+                    producto: item.nombre_producto,
+                    stockActual: 4,
+                    precioDeVenta: item.precio,
+                    nombre: item.nombre_producto,
+                    categoria: category.categoria,
+                }];
+            }
+
+            return featureCombinations.map((combination: any) => ({
+                key: item.id_Producto.toString(),
+                producto: `${item.nombre_producto} ${combination.map((item: any) => `${item.value}`).join(' ')}`,
+                stockActual: 4,
+                precioDeVenta: item.precio,
+                nombre: item.nombre_producto,
+                categoria: category.categoria,
+            }));
+        });
+    };
+
+    const fetchProductFeatures = async (productId: any) => {
+        try {
+            const res = await getProductFeatures(productId)
+            return res
+        } catch (error) {
+            console.log(error, `Error al obtener las características con idProducto ${productId}`)
+            return []
+        }
+    }
+
+    const fetchProductCategory = async (productId: any) => {
+        try {
+            const res = await getProductCategory(productId)
+            return res
+        } catch (error) {
+            console.log(error, `Error al obtener la categoría con idProducto ${productId}`)
+            return { categoria: '-' }
+        }
     }
 
     useEffect(() => {

@@ -18,14 +18,14 @@ const SalesTable = (refreshKey: any) => {
             }
 
             // Aquí ajusta cómo mapeas los datos según la estructura de tu respuesta de la API
-            const formattedData = salesData.map((sales: any) => {
+            const formattedData: any = salesData.map((sales: any) => {
                 return {
-                    key: sales.id_Sales.toString(),
+                    key: sales.idVenta.toString(),
                     nombre: `${sales.producto}`,
                     cantidad: `${sales.cantidad}`,
-                    precio_unitario: `Bs. ${sales.precio_unitario}`,
+                    precio_unitario: `Bs. ${sales.precio_Unitario}`,
                     utilidad: `Bs. ${sales.utilidad}`,
-                    utilidad_extra: `Bs. ${sales.utilidad_extra}`,
+                    utilidad_extra: `Bs. ${sales.utilidad_Extra}`,
                 };
             })
             // Actualiza el estado con los datos formateados

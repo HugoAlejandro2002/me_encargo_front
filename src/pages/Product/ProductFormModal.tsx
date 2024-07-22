@@ -1,9 +1,10 @@
 import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
-import { registerProductAPI } from "../../api/product"
+import { addProductFeatureAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"
+import FeatureInputs from "./FeatureInputs"
 
 const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [loading, setLoading] = useState(false)
@@ -13,15 +14,19 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [newFeature, setNewFeature] = useState('')
     const [features, setFeatures] = useState([])
     const [selectedFeatures, setSelectedFeatures] = useState([])
+    const [featureValues, setFeatureValues] = useState({})
 
     const handleFinish = async (productData: any) => {
         setLoading(true)
         productData.imagen = ''
-        productData.id_Caracteristica = 1
         const response = await registerProductAPI(productData)
         setLoading(false)
         if (response.status) {
+            const newProduct = response.newProduct
             message.success('Producto registrado con éxito')
+            console.log(featureValues, 'los feature values')
+            console.log(selectedFeatures, 'las features selected')
+            await addFeaturesToProduct(newProduct.id_Producto, featureValues)
             fetchCategories()
             onSuccess()
         } else {
@@ -45,8 +50,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
 
     const createFeature = async () => {
         setLoading(true)
-        console.log(newFeature, typeof newFeature)
-        const res = await registerFeatureAPI({nombre: newFeature})
+        const res = await registerFeatureAPI({ nombre: newFeature })
         setLoading(false)
         if (res.status) {
             message.success('Caracteristica creada con exito')
@@ -54,15 +58,32 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             setNewFeature('')
         } else {
             message.error('Error al crear caracteristica')
-            console.log(res)
         }
     }
 
-    // const addFeaturesToProduct = async ( ) => {
-    //     selectedFeatures.forEach((item: any) => {
-    //         const res = await addProductFeatureAPI(productId, item.id_Caracteristicas, value)
-    //     })
-    // }
+    const addFeaturesToProduct = async (productId: any, featureValues: any) => {
+        setLoading(true)
+        for (const feature of selectedFeatures) {
+            const featureId: any = feature
+            const values = featureValues[featureId.toString()] || []
+            for (const value of values) {
+                if (value) {
+                    await addProductFeatureAPI({
+                        productId: productId,
+                        featureId: featureId,
+                        value: value
+
+                    })
+                    // console.log(res, `res de ${value} de la feature ${featureId}`)
+                    // if (!res.status) {
+                    //     message.error(`Error al agregar la caracteristica ${value} con id ${featureId}`)
+                    // }
+                }
+            }
+        }
+        message.success('Características agregadas con éxito!')
+        setLoading(false)
+    }
 
     const fetchSellers = async () => {
         try {
@@ -88,7 +109,6 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             setFeatures(res)
         } catch (error) {
             message.error('Error al obtener las características')
-
         }
     }
 
@@ -183,9 +203,9 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 >
                     <Select
                         placeholder='Selecciona una característica'
-                        mode="tags"
+                        mode="multiple"
                         value={selectedFeatures}
-                        onChange={((values: any) => setSelectedFeatures(values))}
+                        onChange={setSelectedFeatures}
                         dropdownRender={menu => (
                             <>
                                 {menu}
@@ -215,6 +235,14 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                         }
                     />
                 </Form.Item>
+
+                <FeatureInputs
+                    selectedFeatures={selectedFeatures}
+                    featureValues={featureValues}
+                    setFeatureValues={setFeatureValues}
+                // setFeatureValues={setFeatureValues}
+                />
+
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>
                         Registrar Producto

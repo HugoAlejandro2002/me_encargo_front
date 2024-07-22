@@ -1,9 +1,10 @@
-import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row, DatePicker, Select, TimePicker } from 'antd';
+import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row, DatePicker, Select, TimePicker, Table } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { registerSalesAPI } from '../../api/sales';
+import ProductTable from '../Product/ProductTable';
 
-function ShippingFormModal({ visible, onCancel, onSuccess }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -305,6 +306,19 @@ function ShippingFormModal({ visible, onCancel, onSuccess }: any) {
                             name='pagadoAlVendedor'
                             label='Pagado al Vendedor'
                         >
+                        <InputNumber></InputNumber>
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name='agregarProductos'
+                            label='Agregar Productos'
+                        >
+                        <ProductTable products={products}/>
+                        
                         <InputNumber></InputNumber>
                         </Form.Item>
                     </Col>

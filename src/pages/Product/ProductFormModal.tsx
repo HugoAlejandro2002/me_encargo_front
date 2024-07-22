@@ -24,6 +24,8 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         if (response.status) {
             const newProduct = response.newProduct
             message.success('Producto registrado con éxito')
+            console.log(featureValues, 'los feature values')
+            console.log(selectedFeatures, 'las features selected')
             await addFeaturesToProduct(newProduct.id_Producto, featureValues)
             fetchCategories()
             onSuccess()
@@ -62,20 +64,20 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const addFeaturesToProduct = async (productId: any, featureValues: any) => {
         setLoading(true)
         for (const feature of selectedFeatures) {
-            const assertedFeature: any = feature
-            const featureId = assertedFeature.id_Caracteristicas
-            const values = featureValues[featureId] || []
+            const featureId: any = feature
+            const values = featureValues[featureId.toString()] || []
             for (const value of values) {
                 if (value) {
-                    const res = await addProductFeatureAPI({
+                    await addProductFeatureAPI({
                         productId: productId,
-                        featureId: assertedFeature.id_Caracteristicas,
+                        featureId: featureId,
                         value: value
 
                     })
-                    if (!res.status) {
-                        message.error(`Error al agregar la caracteristica ${value} con id ${assertedFeature.id_Caracteristicas}`)
-                    }
+                    // console.log(res, `res de ${value} de la feature ${featureId}`)
+                    // if (!res.status) {
+                    //     message.error(`Error al agregar la caracteristica ${value} con id ${featureId}`)
+                    // }
                 }
             }
         }

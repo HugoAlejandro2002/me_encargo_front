@@ -144,7 +144,7 @@ function SellerFormModal({ visible, onCancel, onSuccess}: any) {
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            name='id_Trabajador'
+                            name='id_trabajador'
                             label='Encargado'
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >

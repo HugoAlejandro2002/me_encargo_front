@@ -27,7 +27,7 @@ const SellerTable = (refreshKey: any) => {
             const formattedData = sellersData.map((seller: any) => {
                 const finish_date = new Date(seller.fecha_vigencia)
                 return {
-                    key: seller.id_Vendedor.toString(),
+                    key: seller.id_vendedor.toString(),
                     nombre: `${seller.nombre} ${seller.apellido}`,
                     pago_total: `Bs. ${getRandomInt(0, 8)}`,
                     fecha_vigencia: finish_date.toLocaleDateString('es-ES'),

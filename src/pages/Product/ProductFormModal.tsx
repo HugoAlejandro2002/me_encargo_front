@@ -19,6 +19,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const handleFinish = async (productData: any) => {
         setLoading(true)
         productData.imagen = ''
+        console.log(productData, 'que estoy posteando')
         const response = await registerProductAPI(productData)
         setLoading(false)
         if (response.status) {
@@ -26,7 +27,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             message.success('Producto registrado con éxito')
             console.log(featureValues, 'los feature values')
             console.log(selectedFeatures, 'las features selected')
-            await addFeaturesToProduct(newProduct.id_Producto, featureValues)
+            await addFeaturesToProduct(newProduct.id_producto, featureValues)
             fetchCategories()
             onSuccess()
         } else {
@@ -62,28 +63,47 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     }
 
     const addFeaturesToProduct = async (productId: any, featureValues: any) => {
-        setLoading(true)
-        for (const feature of selectedFeatures) {
-            const featureId: any = feature
-            const values = featureValues[featureId.toString()] || []
-            for (const value of values) {
-                if (value) {
-                    await addProductFeatureAPI({
-                        productId: productId,
-                        featureId: featureId,
-                        value: value
+        setLoading(true);
+        const combinations = generateCombinations(featureValues);
 
-                    })
-                    // console.log(res, `res de ${value} de la feature ${featureId}`)
-                    // if (!res.status) {
-                    //     message.error(`Error al agregar la caracteristica ${value} con id ${featureId}`)
-                    // }
-                }
+        for (const combination of combinations) {
+            const featureText = combination.map((item: any) => `${item.feature}: ${item.value}`).join(", ");
+            const response = await addProductFeatureAPI({
+                productId: productId,
+                featureText: featureText,
+                stock: combination.stock,
+                price: combination.price,
+            });
+
+            if (!response.status) {
+                message.error(`Error al agregar la combinación ${featureText}`);
             }
         }
-        message.success('Características agregadas con éxito!')
-        setLoading(false)
-    }
+
+        message.success('Características agregadas con éxito!');
+        setLoading(false);
+    };
+
+    const generateCombinations = (featureValues: any) => {
+        const keys = Object.keys(featureValues);
+        if (keys.length === 0) return [];
+
+        const combinations: any = [];
+        const generate = (index: any, current: any) => {
+            if (index === keys.length) {
+                combinations.push({ ...current });
+                return;
+            }
+
+            const featureId = keys[index];
+            for (const value of featureValues[featureId]) {
+                generate(index + 1, { ...current, [featureId]: value });
+            }
+        };
+
+        generate(0, {});
+        return combinations;
+    };
 
     const fetchSellers = async () => {
         try {
@@ -138,21 +158,14 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     <Input placeholder="Nombre del Producto" />
                 </Form.Item>
                 <Form.Item
-                    name="precio"
-                    label="Precio"
-                    rules={[{ required: true, message: 'Por favor ingrese el precio' }]}
-                >
-                    <Input type="number" placeholder="Precio" />
-                </Form.Item>
-                <Form.Item
-                    name="id_Vendedor"
+                    name="id_vendedor"
                     label="Marca"
                     rules={[{ required: true, message: 'Por favor seleccione una marca' }]}
                 >
                     <Select
                         placeholder="Selecciona una marca"
                         options={sellers.map((seller: any) => ({
-                            value: seller.id_Vendedor,
+                            value: seller.id_vendedor,
                             label: seller.marca,
                         }))}
                         showSearch
@@ -162,7 +175,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     />
                 </Form.Item>
                 <Form.Item
-                    name="id_Categoria"
+                    name="id_categoria"
                     label="Categoría"
                     rules={[{ required: true, message: 'Por favor seleccione una categoría' }]}
                 >
@@ -188,7 +201,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                             </>
                         )}
                         options={categories.map((category: any) => ({
-                            value: category.id_Categoria,
+                            value: category.id_categoria,
                             label: category.categoria,
                         }))}
                         showSearch
@@ -198,11 +211,11 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     />
                 </Form.Item>
                 <Form.Item
-                    name='id_Caracteristica'
-                    label='Características'
+                    name="id_caracteristicas"
+                    label="Características"
                 >
                     <Select
-                        placeholder='Selecciona una característica'
+                        placeholder="Selecciona una característica"
                         mode="multiple"
                         value={selectedFeatures}
                         onChange={setSelectedFeatures}
@@ -226,21 +239,21 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                             </>
                         )}
                         options={features.map((feature: any) => ({
-                            value: feature.id_Caracteristicas,
-                            label: feature.nombre,
+                            value: feature.id_caracteristicas,
+                            label: feature.feature,
                         }))}
                         showSearch
-                        filterOption={(input, option: any) =>
+                        filterOption={(input: any, option: any) =>
                             option.label.toLowerCase().includes(input.toLocaleLowerCase())
                         }
                     />
                 </Form.Item>
 
                 <FeatureInputs
+                    features={features}
                     selectedFeatures={selectedFeatures}
                     featureValues={featureValues}
                     setFeatureValues={setFeatureValues}
-                // setFeatureValues={setFeatureValues}
                 />
 
                 <Form.Item>

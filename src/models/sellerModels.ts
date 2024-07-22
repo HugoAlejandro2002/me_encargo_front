@@ -17,5 +17,5 @@ export interface sellerModel {
     fecha_vigencia: Date;
     almacen_caja: number;
     deuda: number;
-    id_Trabajador: number;
+    id_trabajador: number;
 }

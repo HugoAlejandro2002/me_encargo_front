@@ -76,3 +76,18 @@ button:focus-visible {
     background-color: #f9f9f9;
   } */
 }
+.no-spin-buttons .ant-input-number-handler-wrap {
+  display: none;
+}
+.input-container {
+  display: flex;
+  align-items: center;
+}
+
+.input-container .ant-input-number {
+  flex: 1;
+}
+
+.input-container .ant-btn {
+  margin-left: 8px;
+}

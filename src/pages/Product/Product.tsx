@@ -3,11 +3,12 @@ import ProductTable from "./ProductTable";
 import { getProductCategoryAPI, getProductFeaturesAPI, getProductsAPI } from "../../api/product";
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
+import useProducts from "../../hooks/useProducts";
 
 const Product = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [refreshKey, setRefreshKey] = useState(0)
-    const [data, setData] = useState<any>([])
+    const { data } = useProducts();
 
     const showModal = () => {
         setIsModalVisible(true)
@@ -21,74 +22,6 @@ const Product = () => {
         setIsModalVisible(false)
         setRefreshKey(prevKey => prevKey + 1)
     }
-
-    const getCombinations = (features: any) => {
-        if (features.length === 0) return [[]]
-        const [firstFeature, ...restFeatures] = features
-        const restCombinations = getCombinations(restFeatures)
-
-        return firstFeature.values.flatMap((value: any) =>
-            restCombinations.map((combination: any) => [{ feature: firstFeature.feature, value }, ...combination])
-        )
-    }
-
-    async function fetchProducts() {
-        const apiData = await getProductsAPI()
-        const productDataPromise = mapApiDataToProductoData(apiData)
-        const productData = await Promise.all(productDataPromise)
-        setData(productData.flat())
-    }
-
-    const mapApiDataToProductoData = (apiData: any) => {
-        return apiData.flatMap(async (item: any) => {
-            const category = await fetchProductCategory(item.id_producto)
-            const features = await fetchProductFeatures(item.id_producto)
-            
-            const featureCombinations = getCombinations(features)
-
-            if (featureCombinations.length === 0) {
-                return [{
-                    key: item.id_producto.toString(),
-                    producto: item.nombre_producto,
-                    stockActual: 4,
-                    precioDeVenta: item.precio,
-                    nombre: item.nombre_producto,
-                    categoria: category.categoria,
-                }]
-            }
-
-            return featureCombinations.map((combination: any) => ({
-                key: `${item.id_producto}-${combination.map((c: any) => c.value).join('-')}`,
-                producto: `${item.nombre_producto} ${combination.map((item: any) => `${item.value}`).join(' ')}`,
-                nombre: item.nombre_producto,
-                categoria: category.categoria,
-            }))
-        })
-    }
-
-    const fetchProductFeatures = async (productId: any) => {
-        try {
-            const res = await getProductFeaturesAPI(productId)
-            return res
-        } catch (error) {
-            console.log(error, `Error al obtener las características con idProducto ${productId}`)
-            return []
-        }
-    }
-
-    const fetchProductCategory = async (productId: any) => {
-        try {
-            const res = await getProductCategoryAPI(productId)
-            return res
-        } catch (error) {
-            console.log(error, `Error al obtener la categoría con idProducto ${productId}`)
-            return { categoria: '-' }
-        }
-    }
-
-    useEffect(() => {
-        fetchProducts();
-    }, [refreshKey])
 
     return (
         <div className="p-4">

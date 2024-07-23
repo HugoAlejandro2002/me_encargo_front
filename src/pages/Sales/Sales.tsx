@@ -1,13 +1,21 @@
-import { Button, Card, Col, Row } from "antd";
-import { useState } from "react";
+import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
+import { useEffect, useState } from "react";
 import SalesTable from "./SalesTable";
 import SalesFormModal from "./SalesFormmodal";
 import ShippingFormModal from "./ShippingFormmodal";
 import ProductTable from "../Product/ProductTable";
+import { getSellersAPI, registerSellerAPI } from "../../api/seller";
+import useProducts from "../../hooks/useProducts";
+
 
 export const Sales = () => {
     const [modalType, setModalType] = useState<'sales' | 'shipping' | null>(null);
     const [refreshKey, setRefreshKey] = useState(0)
+    const [sellers, setSellers] = useState([])
+    const [newSeller, setNewSeller] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
+    const { data } = useProducts();
 
     const showSalesModal = () => {
         setModalType('sales');
@@ -30,6 +38,36 @@ export const Sales = () => {
         setModalType(null);
         setRefreshKey(prevKey => prevKey + 1);
     };
+    const createSeller = async () => {
+        if (!newSeller) return
+        setLoading(true)
+        const response = await registerSellerAPI({ vendedor: newSeller })
+        setLoading(false)
+        if (response.status) {
+            message.success('Vendedor creado con éxito')
+            fetchSellers()
+            setNewSeller('')
+        } else {
+            message.error('Error al crear vendedor')
+        }
+    }
+    const fetchSellers = async () => {
+        try {
+            const response = await getSellersAPI();
+            setSellers(response);
+        } catch (error) {
+            message.error('Error al obtener los vendedores');
+        }
+        
+    };
+    useEffect(() => {
+        fetchSellers();
+    }, []);
+
+    const filteredProducts = selectedSellerId 
+        ? data.filter(product => product.id_vendedor === selectedSellerId)
+        : data;
+
 
     return (
         <div className="p-4">
@@ -42,8 +80,55 @@ export const Sales = () => {
             </div>
             <Row gutter={16}>
                 <Col span={12}>
-                    <Card title="Inventario" bordered={false}>
-                        <ProductTable key={refreshKey} />
+                    <Card
+                        title={
+                            <div className="flex justify-between items-center">
+                                <span>Inventario</span>
+                                <Form.Item
+                                    name="id_vendedor"
+                                    label="Vendedor"
+                                    rules={[{ required: true, message: 'Por favor seleccione un vendedor' }]}
+                                >
+                                    <Select
+                                        placeholder="Selecciona un vendedor"
+                                        dropdownRender={menu => (
+                                            <>
+                                                {menu}
+                                                <div style={{ display: 'flex', padding: 8 }}>
+                                                    <Input
+                                                        style={{ flex: 1, minWidth: 200, marginRight: 8 }}
+                                                        value={newSeller}
+                                                        onChange={e => setNewSeller(e.target.value)}
+                                                    />
+                                                    <Button
+                                                        type="link"
+                                                        onClick={createSeller}
+                                                        loading={loading}
+                                                    >
+                                                        Añadir vendedor
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )}
+                                        options={sellers.map((vendedor: any) => ({
+                                            value: vendedor.id_vendedor,
+                                            label: vendedor.nombre,
+                                        }))}
+                                        showSearch
+                                        filterOption={(input, option: any) =>
+                                            option.label.toLowerCase().includes(input.toLowerCase())
+                                        }
+                                        style={{ width: '100%' }}
+                                        dropdownStyle={{ minWidth: 400 }}
+                                        onChange={(value) => setSelectedSellerId(value)}
+                                        
+                                    />
+                                </Form.Item>
+                            </div>
+                        }
+                        bordered={false}
+                    >
+                        <ProductTable data={filteredProducts} key={refreshKey} />
                     </Card>
                 </Col>
                 <Col span={12}>

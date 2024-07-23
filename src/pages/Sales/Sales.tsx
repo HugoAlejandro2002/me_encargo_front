@@ -1,8 +1,9 @@
-import { Button } from "antd";
+import { Button, Card, Col, Row } from "antd";
 import { useState } from "react";
 import SalesTable from "./SalesTable";
 import SalesFormModal from "./SalesFormmodal";
 import ShippingFormModal from "./ShippingFormmodal";
+import ProductTable from "../Product/ProductTable";
 
 export const Sales = () => {
     const [modalType, setModalType] = useState<'sales' | 'shipping' | null>(null);
@@ -39,7 +40,18 @@ export const Sales = () => {
                     <Button onClick={showShippingModal} type="primary">Realizar Entrega</Button>
                 </div>
             </div>
-            <SalesTable key={refreshKey} />
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Card title="Inventario" bordered={false}>
+                        <ProductTable key={refreshKey} />
+                    </Card>
+                </Col>
+                <Col span={12}>
+                    <Card title="Ventas" bordered={false}>
+                        <SalesTable key={refreshKey} />
+                    </Card>
+                </Col>
+            </Row>
             <SalesFormModal
                 visible={modalType === 'sales'}
                 onCancel={handleCancel}

@@ -1,8 +1,10 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row, DatePicker, Select, TimePicker, Table } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { registerSalesAPI } from '../../api/sales';
 import ProductTable from '../Product/ProductTable';
+import SalesTable from './SalesTable';
+import { getProductsAPI, registerProductAPI } from '../../api/product';
 
 function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
     const [loading, setLoading] = useState(false);
@@ -10,6 +12,10 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
     const [seller, setSeller] = useState([])
     const [newSeller, setNewSeller] = useState('')
+    const [product, setProduct] = useState([]);
+    const [newProduct, setNewProduct] = useState('');
+    const [selectedProducts, setSelectedProducts] = useState([]);
+
 
     const handleFinish = async (salesData: any) => {
         setLoading(true);
@@ -31,6 +37,33 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
         setter(prevValue => parseFloat((prevValue - value).toFixed(2)));
     };
 
+    const createProduct = async () => {
+        if (!newProduct) return
+        setLoading(true)
+        const response = await registerProductAPI({ product: newProduct })
+        setLoading(false)
+        if (response.status) {
+            message.success('Producto creado con éxito')
+            fetchProducts()
+            setNewProduct('')
+        } else {
+            message.error('Error al crear producto')
+        }
+    }
+    const fetchProducts = async () => {
+        try {
+            const response = await getProductsAPI()
+            setProduct(response)
+        } catch (error) {
+            message.error('Error al obtener los productos')
+        }
+    }
+
+    // Llama a fetchProducts al montar el componente
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
     const createSeller = async () => {
 
     }
@@ -51,15 +84,21 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={18}>
                         <Form.Item
-                            name="numeroDePedido"
-                            label="Número de Pedido"
+                            name="celular"
+                            label="Celular"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Input />
+                            <Input
+                                onKeyDown={(e) => {
+                                    // Verifica si la tecla presionada no es un número
+                                    if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
+                                        e.preventDefault();  // Previene la entrada del carácter
+                                    }
+                                }}
+                                prefix={<PhoneOutlined />} />
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
@@ -71,19 +110,39 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                         </Form.Item>
                     </Col>
                 </Row>
-
                 <Row gutter={16}>
-                    <Col span={18}>
+                    <Col span={24}>
                         <Form.Item
-                            name='tipoDePago'
-                            label='Tipo de pago'
+                            name="horaEntrega"
+                            label="Hora Entrega"
+                        >
+                            <TimePicker
+                                format='HH:mm'
+                                style={{ width: '75%' }}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row><Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="horaEntrega"
+                            label="Hora Entrega"
+                        >
+                            <TimePicker
+                                format='HH:mm'
+                                style={{ width: '75%' }}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="lugarDeEntrega"
+                            label="Lugar De Entrega"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Radio.Group>
-                                <Radio.Button value='1'>Transferencia o QR</Radio.Button>
-                                <Radio.Button value='2'>Efectivo</Radio.Button>
-                                <Radio.Button value='3'>Pagado al dueño</Radio.Button>
-                            </Radio.Group>
+                            <Input></Input>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -126,6 +185,79 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                     </Form.Item>
                 </Col>
                 <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name='agregarProductos'
+                            label='Agregar Productos'
+                        >
+                            <SalesTable products={products} />
+                            <Select
+                                placeholder="Selecciona un producto"
+                                dropdownRender={menu => (
+                                    <>
+                                        {menu}
+                                        <div style={{ display: 'flex', padding: 8 }}>
+                                            <Input
+                                                style={{ flex: 'auto' }}
+                                                value={newProduct}
+                                                onChange={e => setNewProduct(e.target.value)}
+                                            />
+                                            <Button
+                                                type="link"
+                                                onClick={createProduct}
+                                                loading={loading}
+                                            >
+                                                Añadir Producto
+                                            </Button>
+                                        </div>
+                                    </>
+                                )}
+                                options={product.map((product: any) => ({
+                                    value: product.id_producto,
+                                    label: product.nombre_producto,
+                                }))}
+                                showSearch
+                                filterOption={(input, option: any) =>
+                                    option.label.toLowerCase().includes(input.toLowerCase())
+                                }
+                                onSelect={(value) => {
+                                    const selectedProduct = product.find((prod: any) => prod.id_producto === value);
+                                    if (selectedProduct) {
+                                        setSelectedProducts((prevProducts) => [...prevProducts, selectedProduct]);
+                                    }
+                                }}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="observaciones"
+                            label="Observaciones"
+                        >
+                            <Input>
+
+                            </Input>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={18}>
+                        <Form.Item
+                            name='tipoDePago'
+                            label='Tipo de pago'
+                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                        >
+                            <Radio.Group>
+                                <Radio.Button value='1'>Transferencia o QR</Radio.Button>
+                                <Radio.Button value='2'>Efectivo</Radio.Button>
+                                <Radio.Button value='3'>Pagado al dueño</Radio.Button>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
                     <Col span={18}>
                         <Form.Item
                             name='encargado'
@@ -141,99 +273,41 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                     </Col>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={18}>
-                        <Form.Item
-                            name="celular"
-                            label="Celular"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                        >
-                            <Input
-                                onKeyDown={(e) => {
-                                    // Verifica si la tecla presionada no es un número
-                                    if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
-                                        e.preventDefault();  // Previene la entrada del carácter
-                                    }
-                                }}
-                                prefix={<PhoneOutlined />} />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="horaEntrega"
-                            label="Hora Entrega"
-                        >
-                            <TimePicker
-                                format='HH:mm'
-                                style={{ width: '75%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="observaciones"
-                            label="Observaciones"
-                        >
-                            <Input>
-                                
-                            </Input>
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="lugarDeEntrega"
-                            label="Lugar De Entrega"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                        >
-                            <Input></Input>
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
                     <Col span={20}>
                         <Form.Item
                             name="costoRealizarDelivery"
                             label="Costo de realizar el Delivery"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                        >   
+                        >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <InputNumber
-                                className="no-spin-buttons"
-                                value={costoRealizarDelivery}
-                                formatter={(value) => `Bs. ${value}`}
-                                parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
-                                onKeyDown={(e) => {
-                                    // Verifica si la tecla presionada no es un número
-                                    if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
-                                        e.preventDefault();  // Previene la entrada del carácter
-                                    }
-                                }}
-                                min={0}
-                                precision={2}
-                                onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
-                                style={{ flex: 1, marginRight: '8px', width: '80%' }}
-                            />
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
-                                style={{ marginLeft: '8px' }}
-                            />
-                            <Button
-                                type="primary"
-                                icon={<MinusOutlined />}
-                                onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
-                                style={{ marginLeft: '8px' }}
-                            />
+                                <InputNumber
+                                    className="no-spin-buttons"
+                                    value={costoRealizarDelivery}
+                                    formatter={(value) => `Bs. ${value}`}
+                                    parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
+                                    onKeyDown={(e) => {
+                                        // Verifica si la tecla presionada no es un número
+                                        if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
+                                            e.preventDefault();  // Previene la entrada del carácter
+                                        }
+                                    }}
+                                    min={0}
+                                    precision={2}
+                                    onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
+                                    style={{ flex: 1, marginRight: '8px', width: '80%' }}
+                                />
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
+                                    style={{ marginLeft: '8px' }}
+                                />
+                                <Button
+                                    type="primary"
+                                    icon={<MinusOutlined />}
+                                    onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
+                                    style={{ marginLeft: '8px' }}
+                                />
                             </div>
                         </Form.Item>
                     </Col>
@@ -274,8 +348,8 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                         </Form.Item>
                     </Col>
                 </Row>
-                
-                
+
+
                 <Row gutter={16}>
                     <Col span={18}>
                         <Form.Item
@@ -298,7 +372,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                             name='adelantoCliente'
                             label='Adelanto Cliente'
                         >
-                        <InputNumber></InputNumber>
+                            <InputNumber></InputNumber>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -306,23 +380,12 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                             name='pagadoAlVendedor'
                             label='Pagado al Vendedor'
                         >
-                        <InputNumber></InputNumber>
+                            <InputNumber></InputNumber>
                         </Form.Item>
                     </Col>
                 </Row>
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            name='agregarProductos'
-                            label='Agregar Productos'
-                        >
-                        <ProductTable products={products}/>
-                        
-                        <InputNumber></InputNumber>
-                        </Form.Item>
-                    </Col>
-                </Row>
+
 
                 <Row gutter={16}>
                     <Col span={12}>
@@ -330,7 +393,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                             name='subtotalQr'
                             label='Subtotal QR'
                         >
-                        <InputNumber></InputNumber>
+                            <InputNumber></InputNumber>
                         </Form.Item>
                     </Col>
                     <Col span={12}>
@@ -338,7 +401,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                             name='subtotalEfectivo'
                             label='Subtotal Efectivo'
                         >
-                        <InputNumber></InputNumber>
+                            <InputNumber></InputNumber>
                         </Form.Item>
                     </Col>
                 </Row>

@@ -12,7 +12,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [categories, setCategories] = useState([])
     const [newCategory, setNewCategory] = useState('')
     const [newFeature, setNewFeature] = useState('')
-    const [features, setFeatures] = useState([])
+    const [features, setFeatures] = useState<any>([])
     const [selectedFeatures, setSelectedFeatures] = useState([])
     const [featureValues, setFeatureValues] = useState({})
     const [combinations, setCombinations] = useState([])
@@ -40,18 +40,25 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         }
     }
 
-    const createFeature = async () => {
-        setLoading(true)
-        const res = await registerFeatureAPI({ nombre: newFeature })
-        setLoading(false)
-        if (res.status) {
-            message.success('Caracteristica creada con exito')
-            fetchFeatures()
-            setNewFeature('')
-        } else {
-            message.error('Error al crear caracteristica')
-        }
-    }
+    // const createFeature = async () => {
+    //     setLoading(true)
+    //     const res = await registerFeatureAPI({ nombre: newFeature })
+    //     setLoading(false)
+    //     if (res.status) {
+    //         message.success('Caracteristica creada con exito')
+    //         fetchFeatures()
+    //         setNewFeature('')
+    //     } else {
+    //         message.error('Error al crear caracteristica')
+    //     }
+    // }
+    const createFeature = () => {
+        if (!newFeature) return;
+        const newFeatureObj = { feature: newFeature, id_caracteristicas: Date.now() }; // Generar un id temporal
+        setFeatures([...features, newFeatureObj]);
+        setNewFeature('');
+        message.success('Característica agregadatemporalmente');
+    };
 
     const addFeaturesToProduct = async (productId: any, featureValues: any) => {
         setLoading(true)
@@ -117,6 +124,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const fetchFeatures = async () => {
         try {
             const res = await getFeaturesAPI();
+            console.log(res, 'fetched features')
             setFeatures(res);
         } catch (error) {
             message.error('Error al obtener las características');
@@ -128,6 +136,13 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         fetchCategories();
         fetchFeatures();
     }, []);
+
+    const uniqueFeatures = Array.from(new Set(features.map((feature: any) => feature.feature)));
+
+    const filteredOptions = uniqueFeatures.map((label: any) => ({
+        label: label,
+        value: features.find((feature: any) => feature.feature === label).id_caracteristicas
+    }));
 
     return (
         <Modal
@@ -236,10 +251,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                                 </div>
                             </>
                         )}
-                        options={features.map((feature: any) => ({
-                            value: feature.id_caracteristicas,
-                            label: feature.feature,
-                        }))}
+                        options={filteredOptions}
                         showSearch
                         filterOption={(input, option: any) =>
                             option.label.toLowerCase().includes(input.toLocaleLowerCase())

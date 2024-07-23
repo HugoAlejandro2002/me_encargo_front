@@ -60,8 +60,6 @@ const Product = () => {
             return featureCombinations.map((combination: any) => ({
                 key: `${item.id_producto}-${combination.map((c: any) => c.value).join('-')}`,
                 producto: `${item.nombre_producto} ${combination.map((item: any) => `${item.value}`).join(' ')}`,
-                stockActual: 4,
-                precioDeVenta: item.precio,
                 nombre: item.nombre_producto,
                 categoria: category.categoria,
             }))

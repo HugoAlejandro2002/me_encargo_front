@@ -7,7 +7,7 @@ import ProductFormModal from "./ProductFormModal";
 const Product = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [refreshKey, setRefreshKey] = useState(0)
-    const [data, setData] = useState<any>([]);
+    const [data, setData] = useState<any>([])
 
     const showModal = () => {
         setIsModalVisible(true)
@@ -23,58 +23,48 @@ const Product = () => {
     }
 
     const getCombinations = (features: any) => {
-        if (features.length === 0) return [[]];
-        const [firstFeature, ...restFeatures] = features;
-        const restCombinations = getCombinations(restFeatures);
+        if (features.length === 0) return [[]]
+        const [firstFeature, ...restFeatures] = features
+        const restCombinations = getCombinations(restFeatures)
 
-        const combinations = firstFeature.value.map((value: any) => {
-            return {
-                feature: firstFeature.feature,
-                value,
-            };
-        });
-
-        if (restCombinations.length === 0) return combinations;
-
-        return combinations.flatMap((comb: any) =>
-            restCombinations.map((restComb: any) => [comb].concat(restComb))
-        );
-    };
+        return firstFeature.values.flatMap((value: any) =>
+            restCombinations.map((combination: any) => [{ feature: firstFeature.feature, value }, ...combination])
+        )
+    }
 
     async function fetchProducts() {
-        const apiData = await getProductsAPI();
-        const productDataPromise = mapApiDataToProductoData(apiData);
+        const apiData = await getProductsAPI()
+        const productDataPromise = mapApiDataToProductoData(apiData)
         const productData = await Promise.all(productDataPromise)
-        setData(productData.flat());
+        setData(productData.flat())
     }
 
     const mapApiDataToProductoData = (apiData: any) => {
         return apiData.flatMap(async (item: any) => {
-            const category = await fetchProductCategory(item.id_Producto);
-            const features = await fetchProductFeatures(item.id_Producto);
-            const featureCombinations = await getCombinations(features);
-            console.log(featureCombinations.length, 'lengthealo')
+            const category = await fetchProductCategory(item.id_producto)
+            const features = await fetchProductFeatures(item.id_producto)
+            
+            const featureCombinations = getCombinations(features)
+
             if (featureCombinations.length === 0) {
                 return [{
-                    key: item.id_Producto.toString(),
+                    key: item.id_producto.toString(),
                     producto: item.nombre_producto,
                     stockActual: 4,
                     precioDeVenta: item.precio,
                     nombre: item.nombre_producto,
                     categoria: category.categoria,
-                }];
+                }]
             }
 
             return featureCombinations.map((combination: any) => ({
-                key: item.id_Producto.toString(),
+                key: `${item.id_producto}-${combination.map((c: any) => c.value).join('-')}`,
                 producto: `${item.nombre_producto} ${combination.map((item: any) => `${item.value}`).join(' ')}`,
-                stockActual: 4,
-                precioDeVenta: item.precio,
                 nombre: item.nombre_producto,
                 categoria: category.categoria,
-            }));
-        });
-    };
+            }))
+        })
+    }
 
     const fetchProductFeatures = async (productId: any) => {
         try {
@@ -111,9 +101,7 @@ const Product = () => {
                 visible={isModalVisible}
                 onCancel={handleCancel}
                 onSuccess={handleSuccess}
-            >
-
-            </ProductFormModal>
+            />
         </div>
     );
 };

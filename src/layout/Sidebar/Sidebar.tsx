@@ -23,11 +23,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                     <img src={boxIcon} alt='Inventario' className='w-6 h-6 mx-3' />
                     {isOpen && <span className='ml-2'>Inventario</span>}
                 </Link>
-                <Link to="/seller"className='flex items-center p-4 hover:bg-light-blue/10'>
+                <Link to="/seller" className='flex items-center p-4 hover:bg-light-blue/10'>
                     <img src={sellerIcon} alt='Vendedores' className='w-6 h-6 mx-3' />
                     {isOpen && <span className='ml-2'>Vendedores</span>}
                 </Link>
-                <Link to="/sales"className='flex items-center p-4 hover:bg-light-blue/10'>
+                <Link to="/sales" className='flex items-center p-4 hover:bg-light-blue/10'>
                     <img src={cartIcon} alt='Ventas' className='w-6 h-6 mx-3' />
                     {isOpen && <span className='ml-2'>Ventas</span>}
                 </Link>

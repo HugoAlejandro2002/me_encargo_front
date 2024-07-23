@@ -34,7 +34,6 @@ const Product = () => {
 
     async function fetchProducts() {
         const apiData = await getProductsAPI()
-        console.log('product api data', apiData)
         const productDataPromise = mapApiDataToProductoData(apiData)
         const productData = await Promise.all(productDataPromise)
         setData(productData.flat())
@@ -44,13 +43,8 @@ const Product = () => {
         return apiData.flatMap(async (item: any) => {
             const category = await fetchProductCategory(item.id_producto)
             const features = await fetchProductFeatures(item.id_producto)
-            console.log('apiData', apiData)
-            console.log('id_product', item)
-            console.log('categorias', category)
-            console.log('features', features)
             
             const featureCombinations = getCombinations(features)
-            console.log('featureCombinations', featureCombinations)
 
             if (featureCombinations.length === 0) {
                 return [{
@@ -77,7 +71,6 @@ const Product = () => {
     const fetchProductFeatures = async (productId: any) => {
         try {
             const res = await getProductFeaturesAPI(productId)
-            console.log(res, `este mi res de feautre con ${productId}`)
             return res
         } catch (error) {
             console.log(error, `Error al obtener las características con idProducto ${productId}`)

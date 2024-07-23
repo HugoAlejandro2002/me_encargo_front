@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Form, Tag, Input, Space, InputNumber, Table, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureValues }: any) => {
+const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureValues , combinations, setCombinations}: any) => {
     const [inputValues, setInputValues] = useState<any>({});
-    const [combinations, setCombinations] = useState<any>([]);
+    // const [combinations, setCombinations] = useState<any>([]);
 
     useEffect(() => {
         if (selectedFeatures.length > 0) {

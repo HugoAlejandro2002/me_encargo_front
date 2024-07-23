@@ -15,25 +15,16 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [features, setFeatures] = useState([])
     const [selectedFeatures, setSelectedFeatures] = useState([])
     const [featureValues, setFeatureValues] = useState({})
+    const [combinations, setCombinations] = useState([])
 
     const handleFinish = async (productData: any) => {
-        setLoading(true)
-        productData.imagen = ''
-        console.log(productData, 'que estoy posteando')
-        const response = await registerProductAPI(productData)
-        setLoading(false)
-        if (response.status) {
-            const newProduct = response.newProduct
-            message.success('Producto registrado con éxito')
-            console.log(featureValues, 'los feature values')
-            console.log(selectedFeatures, 'las features selected')
-            await addFeaturesToProduct(newProduct.id_producto, featureValues)
-            fetchCategories()
-            onSuccess()
-        } else {
-            message.error('Error al registrar el producto')
-        }
-    }
+        setLoading(true);
+        console.log(productData, 'dataproduct')
+        console.log(combinations, 'combinaciones data')
+
+        setLoading(false);
+
+    };
 
     const createCategory = async () => {
         if (!newCategory) return
@@ -63,11 +54,11 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     }
 
     const addFeaturesToProduct = async (productId: any, featureValues: any) => {
-        setLoading(true);
-        const combinations = generateCombinations(featureValues);
+        setLoading(true)
+        const combinations = generateCombinations(featureValues)
 
         for (const combination of combinations) {
-            const featureText = combination.map((item: any) => `${item.feature}: ${item.value}`).join(", ");
+            const featureText = combination.map((item: any) => `${item.feature}: ${item.value}`).join(", ")
             const response = await addProductFeatureAPI({
                 productId: productId,
                 featureText: featureText,
@@ -96,7 +87,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             }
 
             const featureId = keys[index];
-            for (const value of featureValues[featureId]) {
+            for (const value of featureValues[featureId] || []) {
                 generate(index + 1, { ...current, [featureId]: value });
             }
         };
@@ -107,36 +98,36 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
 
     const fetchSellers = async () => {
         try {
-            const response = await getSellersAPI()
-            setSellers(response)
+            const response = await getSellersAPI();
+            setSellers(response);
         } catch (error) {
-            message.error('Error al obtener los vendedores')
+            message.error('Error al obtener los vendedores');
         }
-    }
+    };
 
     const fetchCategories = async () => {
         try {
-            const response = await getCategoriesAPI()
-            setCategories(response)
+            const response = await getCategoriesAPI();
+            setCategories(response);
         } catch (error) {
-            message.error('Error al obtener las categorías')
+            message.error('Error al obtener las categorías');
         }
-    }
+    };
 
     const fetchFeatures = async () => {
         try {
-            const res = await getFeaturesAPI()
-            setFeatures(res)
+            const res = await getFeaturesAPI();
+            setFeatures(res);
         } catch (error) {
-            message.error('Error al obtener las características')
+            message.error('Error al obtener las características');
         }
-    }
+    };
 
     useEffect(() => {
-        fetchSellers()
-        fetchCategories()
-        fetchFeatures()
-    }, [])
+        fetchSellers();
+        fetchCategories();
+        fetchFeatures();
+    }, []);
 
     return (
         <Modal
@@ -156,6 +147,13 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     rules={[{ required: true, message: 'Por favor ingrese el nombre del producto' }]}
                 >
                     <Input placeholder="Nombre del Producto" />
+                </Form.Item>
+                <Form.Item
+                    name="precio"
+                    label="Precio"
+                    rules={[{ required: true, message: 'Por favor ingrese el precio' }]}
+                >
+                    <Input type="number" placeholder="Precio" />
                 </Form.Item>
                 <Form.Item
                     name="id_vendedor"
@@ -211,11 +209,11 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     />
                 </Form.Item>
                 <Form.Item
-                    name="id_caracteristicas"
-                    label="Características"
+                    name='id_caracteristicas'
+                    label='Características'
                 >
                     <Select
-                        placeholder="Selecciona una característica"
+                        placeholder='Selecciona una característica'
                         mode="multiple"
                         value={selectedFeatures}
                         onChange={setSelectedFeatures}
@@ -243,7 +241,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                             label: feature.feature,
                         }))}
                         showSearch
-                        filterOption={(input: any, option: any) =>
+                        filterOption={(input, option: any) =>
                             option.label.toLowerCase().includes(input.toLocaleLowerCase())
                         }
                     />
@@ -254,6 +252,8 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     selectedFeatures={selectedFeatures}
                     featureValues={featureValues}
                     setFeatureValues={setFeatureValues}
+                    combinations={combinations}
+                    setCombinations={setCombinations}
                 />
 
                 <Form.Item>
@@ -263,7 +263,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 </Form.Item>
             </Form>
         </Modal>
-    )
-}
+    );
+};
 
-export default ProductFormModal
+export default ProductFormModal;

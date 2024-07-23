@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, Tag, Input, Space, InputNumber, Table, Button, Select } from "antd";
+import { Form, Input, InputNumber, Table, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureValues, combinations, setCombinations }: any) => {
@@ -10,15 +10,8 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
         setInputValues((prev: any) => ({ ...prev, [featureId]: value }));
     };
 
-    const addValue = (featureId: any) => {
-        const value = inputValues[featureId];
-        if (value && value.trim() !== "") {
-            setFeatureValues((prev: any) => ({
-                ...prev,
-                [featureId]: [...(prev[featureId] || []), value.trim()]
-            }));
-            setInputValues((prev: any) => ({ ...prev, [featureId]: '' }));
-        }
+    const handleCombinationInputChange = (featureId: any, value: any) => {
+        setCombinationInputs((prev: any) => ({ ...prev, [featureId]: value }));
     };
 
     const addCombination = () => {
@@ -35,6 +28,12 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
         title: features.find((f: any) => f.id_caracteristicas === featureId)?.feature,
         dataIndex: featureId,
         key: featureId,
+        render: (text: any, record: any) => (
+            <Input
+                value={text}
+                onChange={(e) => handleCombinationChange(record.key, featureId, e.target.value)}
+            />
+        )
     })).concat([
         {
             title: 'Stock',
@@ -65,50 +64,16 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
 
     return (
         <>
-            {selectedFeatures.map((featureId: any) => (
-                <Form.Item key={featureId} label={features.find((f: any) => f.id_caracteristicas === featureId)?.feature}>
-                    <Space.Compact>
-                        <Input.Search
-                            value={inputValues[featureId] || ''}
-                            onChange={(e) => handleInputChange(featureId, e.target.value)}
-                            style={{ width: 'calc(100%)' }}
-                            placeholder={`Agregar valor para ${features.find((f: any) => f.id_caracteristicas === featureId)?.feature}`}
-                            enterButton={<PlusOutlined />}
-                            onSearch={() => addValue(featureId)}
-                        />
-                    </Space.Compact>
-                    <div style={{ marginTop: 8 }}>
-                        {(featureValues[featureId] || []).map((value: any, index: any) => (
-                            <Tag
-                                key={`${featureId}-${index}`}
-                                closable
-                                onClose={() => setFeatureValues((prev: any) => ({
-                                    ...prev,
-                                    [featureId]: prev[featureId].filter((v: any) => v !== value)
-                                }))}
-                                style={{ marginBottom: 8 }}
-                            >
-                                {value}
-                            </Tag>
-                        ))}
-                    </div>
-                </Form.Item>
-            ))}
-
             <div>
                 <h3>Agregar Combinación</h3>
                 <Form layout="inline">
                     {selectedFeatures.map((featureId: any) => (
                         <Form.Item key={featureId} label={features.find((f: any) => f.id_caracteristicas === featureId)?.feature}>
-                            <Select
-                                value={combinationInputs[featureId]}
-                                onChange={(value) => setCombinationInputs((prev: any) => ({ ...prev, [featureId]: value }))}
-                                style={{ width: 120 }}
-                            >
-                                {(featureValues[featureId] || []).map((value: any) => (
-                                    <Select.Option key={value} value={value}>{value}</Select.Option>
-                                ))}
-                            </Select>
+                            <Input
+                                value={combinationInputs[featureId] || ''}
+                                onChange={(e) => handleCombinationInputChange(featureId, e.target.value)}
+                                placeholder={`Agregar valor para ${features.find((f: any) => f.id_caracteristicas === featureId)?.feature}`}
+                            />
                         </Form.Item>
                     ))}
                     <Form.Item>

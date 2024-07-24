@@ -1,23 +1,60 @@
-import { useState } from "react";
-import { Form, Input, InputNumber, Table, Button } from "antd";
+import { useState, useEffect } from "react";
+import { Form, Input, InputNumber, Table, Button, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureValues, combinations, setCombinations }: any) => {
     const [inputValues, setInputValues] = useState<any>({});
-    const [combinationInputs, setCombinationInputs] = useState<any>({});
+    const [inputValue, setInputValue] = useState<string>('');
+
+    useEffect(() => {
+        generateCombinations();
+    }, [inputValues]);
 
     const handleInputChange = (featureId: any, value: any) => {
-        setInputValues((prev: any) => ({ ...prev, [featureId]: value }));
+        setInputValue(value);
     };
 
-    const handleCombinationInputChange = (featureId: any, value: any) => {
-        setCombinationInputs((prev: any) => ({ ...prev, [featureId]: value }));
+    const handleInputConfirm = (featureId: any) => {
+        if (inputValue && !inputValues[featureId]?.includes(inputValue)) {
+            setInputValues((prev: any) => ({
+                ...prev,
+                [featureId]: [...(prev[featureId] || []), inputValue],
+            }));
+            setInputValue('');
+        }
     };
 
-    const addCombination = () => {
-        const newCombination = { key: combinations.length, ...combinationInputs, stock: 0, price: 0 };
-        setCombinations([...combinations, newCombination]);
-        setCombinationInputs({});
+    const handleClose = (featureId: any, value: any) => {
+        setInputValues((prev: any) => ({
+            ...prev,
+            [featureId]: prev[featureId].filter((v: any) => v !== value),
+        }));
+    };
+
+    const generateCombinations = () => {
+        if (selectedFeatures.length === 0) return;
+
+        const createCombinations = (values: any) => {
+            if (values.length === 0) return [[]];
+            const first = values[0];
+            const rest = createCombinations(values.slice(1));
+            return first.flatMap((v: any) => rest.map((r: any) => [v, ...r]));
+        };
+
+        const values = selectedFeatures.map((featureId: any) => inputValues[featureId] || []);
+        const combos = createCombinations(values);
+
+        const newCombinations = combos.map((combo: any, index: number) => {
+            const combination: any = { key: index };
+            selectedFeatures.forEach((featureId: any, idx: number) => {
+                combination[featureId] = combo[idx];
+            });
+            combination.stock = 0;
+            combination.price = 0;
+            return combination;
+        });
+
+        setCombinations(newCombinations);
     };
 
     const handleCombinationChange = (key: any, field: any, value: any) => {
@@ -69,16 +106,24 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
                 <Form layout="inline">
                     {selectedFeatures.map((featureId: any) => (
                         <Form.Item key={featureId} label={features.find((f: any) => f.id_caracteristicas === featureId)?.feature}>
+                            {inputValues[featureId]?.map((value: any) => (
+                                <Tag
+                                    key={value}
+                                    closable
+                                    onClose={() => handleClose(featureId, value)}
+                                >
+                                    {value}
+                                </Tag>
+                            ))}
                             <Input
-                                value={combinationInputs[featureId] || ''}
-                                onChange={(e) => handleCombinationInputChange(featureId, e.target.value)}
+                                value={inputValue}
+                                onChange={(e) => handleInputChange(featureId, e.target.value)}
+                                onPressEnter={() => handleInputConfirm(featureId)}
                                 placeholder={`Agregar valor para ${features.find((f: any) => f.id_caracteristicas === featureId)?.feature}`}
                             />
+                            <Button type="primary" onClick={() => handleInputConfirm(featureId)}>Agregar</Button>
                         </Form.Item>
                     ))}
-                    <Form.Item>
-                        <Button type="primary" onClick={addCombination}>Agregar</Button>
-                    </Form.Item>
                 </Form>
             </div>
 

@@ -1,8 +1,10 @@
 import { Table } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import useProducts from '../../hooks/useProducts';
 
-const ProductTable = ({ data }: any, refreshKey: any) => {
-
+const ProductTable = (refreshKey: any) => {
+    const { starterData, fetchProducts } = useProducts()
+    const [data, setData] = useState<any>([])
     const columns = [
         {
             title: 'Producto',
@@ -27,7 +29,16 @@ const ProductTable = ({ data }: any, refreshKey: any) => {
     ];
 
     useEffect(() => {
-        console.log('nueva data', data)
+        const getNewData = async () => {
+            const newData = await fetchProducts()
+            setData(newData)
+        }
+
+        if (refreshKey.refreshKey == 0) {
+            setData(starterData)
+        } else {
+            getNewData()
+        }
     }, [refreshKey])
 
     return (

@@ -21,14 +21,17 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const handleFinish = async (productData: any) => {
         setLoading(true);
 
-        const productVariants = combinations.map((combination: any) => {
-            
+        const realCombinations = combinations
+            .filter((combination: any) => combination.price !== 0 || combination.stock !== 0)
+
+        const productVariants = realCombinations.map((combination: any) => {
+
             const featureValues = selectedFeatures.map((featureId: any) => {
-                console.log(combination[featureId.toString()], features, 'features')
                 return combination[featureId.toString()]
             })
-            
+
             const joinedFeatureValues = featureValues.join(' ')
+
             return {
                 "nombre_producto": `${productData.nombre_producto} ${joinedFeatureValues}`,
                 "precio": combination.price,
@@ -43,7 +46,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         }
         const res = await registerProductAPI(formattedProductData)
 
-        if (res.status) {
+        if (res.products) {
             message.success('Producto registrado con variantes')
             // res.products.map((product: any) => createProductFeatures(product.id_producto, ))
             onSuccess()

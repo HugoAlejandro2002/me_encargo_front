@@ -59,6 +59,7 @@ const useProducts = () => {
                 nombre: item.nombre_producto,
                 categoria: category.categoria,
                 id_vendedor: item.id_vendedor,
+                precio: item.precio,
             }));
         });
     };

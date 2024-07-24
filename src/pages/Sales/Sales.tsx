@@ -6,6 +6,7 @@ import ShippingFormModal from "./ShippingFormmodal";
 import ProductTable from "../Product/ProductTable";
 import { getSellersAPI, registerSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
+import EmptySalesTable from "./EmptySalesTable";
 
 
 export const Sales = () => {
@@ -15,6 +16,7 @@ export const Sales = () => {
     const [newSeller, setNewSeller] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
+    const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
     const { data } = useProducts();
 
     const showSalesModal = () => {
@@ -31,6 +33,7 @@ export const Sales = () => {
 
     const onFinish = (values: any) => {
         console.log('Form values:', values);
+        // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
     };
 
@@ -58,16 +61,32 @@ export const Sales = () => {
         } catch (error) {
             message.error('Error al obtener los vendedores');
         }
-        
+
     };
     useEffect(() => {
         fetchSellers();
     }, []);
 
-    const filteredProducts = selectedSellerId 
+    const filteredProducts = selectedSellerId
         ? data.filter(product => product.id_vendedor === selectedSellerId)
         : data;
 
+    const handleProductSelect = (product: any) => {
+        setSelectedProducts((prevProducts) => {
+            const exists = prevProducts.find(p => p.key === product.key);
+            console.log(product)
+            if (!exists) {
+                return [...prevProducts, product];
+            }
+            return prevProducts;
+        });
+    };
+    const handleDeleteProduct = (key: any) => {
+        setSelectedProducts((prevProducts) => {
+            const updatedProducts = prevProducts.filter(product => product.key !== key);
+            return updatedProducts;
+        });
+    };
 
     return (
         <div className="p-4">
@@ -121,19 +140,19 @@ export const Sales = () => {
                                         style={{ width: '100%' }}
                                         dropdownStyle={{ minWidth: 400 }}
                                         onChange={(value) => setSelectedSellerId(value)}
-                                        
+
                                     />
                                 </Form.Item>
                             </div>
                         }
                         bordered={false}
                     >
-                        <ProductTable data={filteredProducts} key={refreshKey} />
+                        <ProductTable data={filteredProducts} onSelectProduct={handleProductSelect} key={refreshKey} />
                     </Card>
                 </Col>
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
-                        <SalesTable key={refreshKey} />
+                        <EmptySalesTable products={selectedProducts} onDeleteProduct={handleDeleteProduct} key={refreshKey} />
                     </Card>
                 </Col>
             </Row>

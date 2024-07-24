@@ -1,7 +1,7 @@
 import { Table } from 'antd';
 import { useEffect } from 'react';
 
-const ProductTable = ({ data }: any, refreshKey: any) => {
+const ProductTable = ({ data, onSelectProduct }: { data: any[], onSelectProduct: (product: any) => void }) => {
 
     const columns = [
         {
@@ -23,13 +23,16 @@ const ProductTable = ({ data }: any, refreshKey: any) => {
 
     useEffect(() => {
         console.log('nueva data', data)
-    }, [refreshKey])
+    }, [])
 
     return (
         <Table
             columns={columns}
             dataSource={data}
             pagination={false}
+            onRow={(record) => ({
+                onClick: () => onSelectProduct(record),
+            })}
         // title={() => <h1>Inventario</h1>}
         />
     );

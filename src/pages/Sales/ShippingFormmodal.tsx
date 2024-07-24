@@ -15,7 +15,10 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
     const [product, setProduct] = useState([]);
     const [newProduct, setNewProduct] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
-
+    const [qrInput, setQrInput] = useState<number>(0);
+    const [efectivoInput, setEfectivoInput] = useState<number>(0);
+    const [montoTotal, setMontoTotal] = useState<number>(0);
+    const [form] = Form.useForm();
 
     const handleFinish = async (salesData: any) => {
         setLoading(true);
@@ -61,6 +64,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
 
     // Llama a fetchProducts al montar el componente
     useEffect(() => {
+        setMontoTotal(qrInput+efectivoInput);
         fetchProducts();
     }, []);
 
@@ -143,6 +147,54 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <Input></Input>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
+                            name='subtotalQr'
+                            label='Subtotal QR'
+                        >
+                            <InputNumber
+                                formatter={(value: any) => `Bs. ${value}`}
+                                parser={(value: string | undefined) => {
+                                    return value ? parseFloat(value.replace('Bs. ', '')) : 0;
+                                }}
+                                onChange={(e => setQrInput(e))}
+                                style={{ width: '50%' }}
+                            ></InputNumber>
+                        </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                        <Form.Item
+                            name='subtotalEfectivo'
+                            label='Subtotal Efectivo'
+                        >
+                            <InputNumber
+                                formatter={(value: any) => `Bs. ${value}`}
+                                parser={(value: string | undefined) => {
+                                    return value ? parseFloat(value.replace('Bs. ', '')) : 0;
+                                }}
+                                onChange={(e => setEfectivoInput(e))}
+                                style={{ width: '50%' }}
+                            ></InputNumber>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="montoTotal"
+                            label="Monto Total"
+                        >
+                            <InputNumber
+                                value={montoTotal}
+                                formatter={(value) => `Bs. ${value}`}
+                                parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
+                                readOnly
+                                style={{ width: '25%' }}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -387,24 +439,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
 
 
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            name='subtotalQr'
-                            label='Subtotal QR'
-                        >
-                            <InputNumber></InputNumber>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item
-                            name='subtotalEfectivo'
-                            label='Subtotal Efectivo'
-                        >
-                            <InputNumber></InputNumber>
-                        </Form.Item>
-                    </Col>
-                </Row>
+
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>
                         Guardar

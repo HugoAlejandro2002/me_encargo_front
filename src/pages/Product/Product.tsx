@@ -29,7 +29,7 @@ const Product = () => {
                 <h1 className="text-2xl font-bold">Productos</h1>
                 <Button onClick={showModal} type='primary'>Agregar Producto</Button>
             </div>
-            <ProductTable data={data} key={refreshKey} />
+            <ProductTable data={data} onSelectProduct={() => {}} key={refreshKey} />
             <ProductFormModal
                 visible={isModalVisible}
                 onCancel={handleCancel}

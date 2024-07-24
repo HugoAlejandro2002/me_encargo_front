@@ -1,6 +1,6 @@
 import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
-import { addProductFeatureAPI, registerProductAPI } from "../../api/product"
+import { addProductFeatureAPI, addProductFeaturesAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"
@@ -18,19 +18,25 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [combinations, setCombinations] = useState([])
 
     console.log(selectedFeatures, 'selectedFeaures')
-    const handleFinish = async (productData: any) => {
-        setLoading(true);
 
+    const handleFinish = async (productData: any) => {
+        // const sendToFeaturesAPI = new Map<string, []>()
+        setLoading(true);
         const realCombinations = combinations
             .filter((combination: any) => combination.price !== 0 || combination.stock !== 0)
 
-        const productVariants = realCombinations.map((combination: any) => {
-
+        console.log(features, 'com estan las feautres')
+        const productVariants = realCombinations.map((combination: any, index: number) => {
             const featureValues = selectedFeatures.map((featureId: any) => {
-                return combination[featureId.toString()]
+                const feature = features.find((f: any) => f.id_caracteristicas.toString() == featureId).feature
+                return {
+                    feature: feature,
+                    value: combination[featureId.toString()]
+                }
             })
 
-            const joinedFeatureValues = featureValues.join(' ')
+            console.log(featureValues, 'featureValues')
+            const joinedFeatureValues = featureValues.map(f => f.value).join(' ')
 
             return {
                 "nombre_producto": `${productData.nombre_producto} ${joinedFeatureValues}`,
@@ -38,6 +44,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 "imagen": '',
                 "id_categoria": productData.id_categoria,
                 "id_vendedor": productData.id_vendedor,
+                "id_variant": index,
             }
         })
         const formattedProductData = {
@@ -48,17 +55,44 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
 
         if (res.products) {
             message.success('Producto registrado con variantes')
-            // res.products.map((product: any) => createProductFeatures(product.id_producto, ))
+
+            const productFeaturesMap = new Map();
+
+            realCombinations.forEach((combination: any) => {
+                const featuresForProduct = selectedFeatures.map((featureId: any) => {
+                    const feature = features.find((f: any) => f.id_caracteristicas.toString() == featureId);
+                    return {
+                        feature: feature?.feature,
+                        value: combination[featureId.toString()]
+                    };
+                });
+                const productId = res.products.find((p: any) => p.nombre_producto.includes(`${productData.nombre_producto} ${featuresForProduct.map(f => f.value).join(' ')}`)).id_producto;
+
+                if (!productFeaturesMap.has(productId)) {
+                    productFeaturesMap.set(productId, [])
+                }
+
+                productFeaturesMap.get(productId).push(...featuresForProduct)
+            })
+
+
+            createProductFeatures(res.products, productFeaturesMap)
             onSuccess()
         } else {
             message.error('Error al crear los productos, inténtelo de nuevo')
         }
-        console.log(res, 'res del registro')
+
         setLoading(false);
     }
 
     const createProductFeatures = async (products: any, features: any) => {
-
+        products.forEach((product: any) => {
+            const id_producto = product.id_producto
+            const productFeatures: any = features.get(id_producto)
+            addProductFeaturesAPI({
+                productId: id_producto, features: productFeatures
+            })
+        });
     }
 
     const createCategory = async () => {

@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ProductTable from "./ProductTable";
-import { getProductCategoryAPI, getProductFeaturesAPI, getProductsAPI } from "../../api/product";
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
-import useProducts from "../../hooks/useProducts";
 
 const Product = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)

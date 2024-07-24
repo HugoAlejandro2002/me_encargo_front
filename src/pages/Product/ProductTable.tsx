@@ -15,6 +15,11 @@ const ProductTable = ({ data }: any, refreshKey: any) => {
             key: 'stockActual',
         },
         {
+            title: 'Precio',
+            dataIndex: 'precio',
+            key: 'precio',
+        },
+        {
             title: 'Categoría',
             dataIndex: 'categoria',
             key: 'categoria',

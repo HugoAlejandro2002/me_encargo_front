@@ -4,11 +4,13 @@ import { getProductCategoryAPI, getProductFeaturesAPI, getProductsAPI } from "..
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
 import useProducts from "../../hooks/useProducts";
+import useGroup from "../../hooks/useGroup";
+import GroupProductTable from "./GroupProductTable";
 
 const Product = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [refreshKey, setRefreshKey] = useState(0)
-    const { data } = useProducts();
+    const { groups } = useGroup()
 
     const showModal = () => {
         setIsModalVisible(true)
@@ -29,7 +31,11 @@ const Product = () => {
                 <h1 className="text-2xl font-bold">Productos</h1>
                 <Button onClick={showModal} type='primary'>Agregar Producto</Button>
             </div>
-            <ProductTable data={data} key={refreshKey} />
+            {
+                groups.map( group => 
+                    <GroupProductTable group = {group}  />
+                )
+            }
             <ProductFormModal
                 visible={isModalVisible}
                 onCancel={handleCancel}

@@ -1,7 +1,11 @@
 import { Button, InputNumber, Table } from "antd";
 import { useEffect } from "react";
+import useEditableTable from "../../hooks/useEditableTable";
 
 const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDeleteProduct: (key: any) => void }) => {
+
+    const [handleValueChange] = useEditableTable(products)
+
     const columns = [
         {
             title: 'Producto',
@@ -23,16 +27,29 @@ const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDel
             title: 'Precio Unitario',
             dataIndex: 'precio',
             key: 'precio',
+            render: (_: any, record: any) => (
+                <InputNumber
+                    min={0}
+                    value={record.precio}
+                    onChange={value => handleValueChange(record.key, 'precio', value)}
+                />
+            )
         },
         {
             title: 'Utilidad',
             dataIndex: 'utilidad',
             key: 'utilidad',
+            render: () => (
+                <InputNumber
+                    min={0}
+                    value={0}
+                />
+            )
         },
         {
             title: 'Acción',
             key: 'action',
-            render: (text: any, record: any) => (
+            render: (_: any, record: any) => (
                 <Button type="link" onClick={() => onDeleteProduct(record.key)}>
                     Eliminar
                 </Button>
@@ -40,7 +57,7 @@ const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDel
         }
     ];
     useEffect(() => {
-    
+
     }, [products]);
 
     return (

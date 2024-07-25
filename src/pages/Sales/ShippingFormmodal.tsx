@@ -198,6 +198,36 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                         </Form.Item>
                     </Col>
                 </Row>
+                <Row gutter={16}>
+                    <Col span={18}>
+                        <Form.Item
+                            name='estadoPedido'
+                            label='Estado Pedido'
+                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                        >
+                            <Radio.Group>
+                                <Radio.Button value='1'>En espera</Radio.Button>
+                                <Radio.Button value='2'>Por entregar</Radio.Button>
+                                <Radio.Button value='3'>Entregado</Radio.Button>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={18}>
+                        <Form.Item
+                            name='estaPagado'
+                            label='¿Está ya pagado?'
+                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                        >
+                            <Radio.Group>
+                                <Radio.Button value='1'>Si</Radio.Button>
+                                <Radio.Button value='2'>No</Radio.Button>
+                                <Radio.Button value='3'>Pago Adelanto</Radio.Button>
+                            </Radio.Group>
+                        </Form.Item>
+                    </Col>
+                </Row>
                 <Col span={18}>
                     <Form.Item
                         name='vendedor'
@@ -402,21 +432,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 </Row>
 
 
-                <Row gutter={16}>
-                    <Col span={18}>
-                        <Form.Item
-                            name='estadoPedido'
-                            label='Estado Pedido'
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                        >
-                            <Radio.Group>
-                                <Radio.Button value='1'>En espera</Radio.Button>
-                                <Radio.Button value='2'>Por entregar</Radio.Button>
-                                <Radio.Button value='3'>Entregado</Radio.Button>
-                            </Radio.Group>
-                        </Form.Item>
-                    </Col>
-                </Row>
+                
 
                 <Row gutter={16}>
                     <Col span={12}>

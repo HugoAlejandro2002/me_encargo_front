@@ -1,8 +1,11 @@
 import { Table } from 'antd';
-import { useEffect } from 'react';
 
-const ProductTable = ({ data, onSelectProduct }: { data: any[], onSelectProduct: (product: any) => void }) => {
+import { useEffect, useState } from 'react';
+import useProducts from '../../hooks/useProducts';
+const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
 
+    const { fetchProducts } = useProducts()
+    const [localData, setLocalData] = useState<any>([])
     const columns = [
         {
             title: 'Producto',
@@ -15,6 +18,11 @@ const ProductTable = ({ data, onSelectProduct }: { data: any[], onSelectProduct:
             key: 'stockActual',
         },
         {
+            title: 'Precio',
+            dataIndex: 'precio',
+            key: 'precio',
+        },
+        {
             title: 'Categoría',
             dataIndex: 'categoria',
             key: 'categoria',
@@ -22,8 +30,12 @@ const ProductTable = ({ data, onSelectProduct }: { data: any[], onSelectProduct:
     ];
 
     useEffect(() => {
-        console.log('nueva data', data)
-    }, [])
+        const getNewData = async () => {
+            const newData = await fetchProducts()
+            setLocalData(newData)
+        }
+        getNewData()
+    }, [refreshKey])
 
     return (
         <Table

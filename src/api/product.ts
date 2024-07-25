@@ -54,9 +54,9 @@ export const getProductFeaturesAPI = async (productId: any) => {
     }
 }
 
-export const addProductFeatureAPI = async (featureValue: any) => {
+export const addProductFeaturesAPI = async (featureValue: any) => {
     try {
-        const res = await apiClient.post(`/product/addFeature`, featureValue)
+        const res = await apiClient.post(`/product/addFeatures`, featureValue)
         return res.data
     } catch (error) {
         const err = error as AxiosError

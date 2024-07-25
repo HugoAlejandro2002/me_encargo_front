@@ -1,6 +1,6 @@
 import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
-import { addProductFeatureAPI, registerProductAPI } from "../../api/product"
+import { addProductFeatureAPI, addProductFeaturesAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"
@@ -12,19 +12,88 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [categories, setCategories] = useState([])
     const [newCategory, setNewCategory] = useState('')
     const [newFeature, setNewFeature] = useState('')
-    const [features, setFeatures] = useState<any>([])
+    const [features, setFeatures] = useState<any[]>([])
     const [selectedFeatures, setSelectedFeatures] = useState([])
     const [featureValues, setFeatureValues] = useState({})
     const [combinations, setCombinations] = useState([])
 
+    console.log(selectedFeatures, 'selectedFeaures')
+
     const handleFinish = async (productData: any) => {
+        // const sendToFeaturesAPI = new Map<string, []>()
         setLoading(true);
-        console.log(productData, 'dataproduct')
-        console.log(combinations, 'combinaciones data')
+        const realCombinations = combinations
+            .filter((combination: any) => combination.price !== 0 || combination.stock !== 0)
+
+        console.log(features, 'com estan las feautres')
+        const productVariants = realCombinations.map((combination: any, index: number) => {
+            const featureValues = selectedFeatures.map((featureId: any) => {
+                const feature = features.find((f: any) => f.id_caracteristicas.toString() == featureId).feature
+                return {
+                    feature: feature,
+                    value: combination[featureId.toString()]
+                }
+            })
+
+            console.log(featureValues, 'featureValues')
+            const joinedFeatureValues = featureValues.map(f => f.value).join(' ')
+
+            return {
+                "nombre_producto": `${productData.nombre_producto} ${joinedFeatureValues}`,
+                "precio": combination.price,
+                "imagen": '',
+                "id_categoria": productData.id_categoria,
+                "id_vendedor": productData.id_vendedor,
+                "id_variant": index,
+            }
+        })
+        const formattedProductData = {
+            "group": productData.nombre_producto,
+            "variants": productVariants
+        }
+        const res = await registerProductAPI(formattedProductData)
+
+        if (res.products) {
+            message.success('Producto registrado con variantes')
+
+            const productFeaturesMap = new Map();
+
+            realCombinations.forEach((combination: any) => {
+                const featuresForProduct = selectedFeatures.map((featureId: any) => {
+                    const feature = features.find((f: any) => f.id_caracteristicas.toString() == featureId);
+                    return {
+                        feature: feature?.feature,
+                        value: combination[featureId.toString()]
+                    };
+                });
+                const productId = res.products.find((p: any) => p.nombre_producto.includes(`${productData.nombre_producto} ${featuresForProduct.map(f => f.value).join(' ')}`)).id_producto;
+
+                if (!productFeaturesMap.has(productId)) {
+                    productFeaturesMap.set(productId, [])
+                }
+
+                productFeaturesMap.get(productId).push(...featuresForProduct)
+            })
+
+
+            createProductFeatures(res.products, productFeaturesMap)
+            onSuccess()
+        } else {
+            message.error('Error al crear los productos, inténtelo de nuevo')
+        }
 
         setLoading(false);
+    }
 
-    };
+    const createProductFeatures = async (products: any, features: any) => {
+        products.forEach((product: any) => {
+            const id_producto = product.id_producto
+            const productFeatures: any = features.get(id_producto)
+            addProductFeaturesAPI({
+                productId: id_producto, features: productFeatures
+            })
+        });
+    }
 
     const createCategory = async () => {
         if (!newCategory) return
@@ -40,68 +109,15 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         }
     }
 
-    // const createFeature = async () => {
-    //     setLoading(true)
-    //     const res = await registerFeatureAPI({ nombre: newFeature })
-    //     setLoading(false)
-    //     if (res.status) {
-    //         message.success('Caracteristica creada con exito')
-    //         fetchFeatures()
-    //         setNewFeature('')
-    //     } else {
-    //         message.error('Error al crear caracteristica')
-    //     }
-    // }
     const createFeature = () => {
         if (!newFeature) return;
-        const newFeatureObj = { feature: newFeature, id_caracteristicas: Date.now() }; // Generar un id temporal
+        const newFeatureObj = { id_caracteristicas: Date.now(), feature: newFeature }; // Generar un id temporal
         setFeatures([...features, newFeatureObj]);
         setNewFeature('');
         message.success('Característica agregadatemporalmente');
     };
 
-    const addFeaturesToProduct = async (productId: any, featureValues: any) => {
-        setLoading(true)
-        const combinations = generateCombinations(featureValues)
 
-        for (const combination of combinations) {
-            const featureText = combination.map((item: any) => `${item.feature}: ${item.value}`).join(", ")
-            const response = await addProductFeatureAPI({
-                productId: productId,
-                featureText: featureText,
-                stock: combination.stock,
-                price: combination.price,
-            });
-
-            if (!response.status) {
-                message.error(`Error al agregar la combinación ${featureText}`);
-            }
-        }
-
-        message.success('Características agregadas con éxito!');
-        setLoading(false);
-    };
-
-    const generateCombinations = (featureValues: any) => {
-        const keys = Object.keys(featureValues);
-        if (keys.length === 0) return [];
-
-        const combinations: any = [];
-        const generate = (index: any, current: any) => {
-            if (index === keys.length) {
-                combinations.push({ ...current });
-                return;
-            }
-
-            const featureId = keys[index];
-            for (const value of featureValues[featureId] || []) {
-                generate(index + 1, { ...current, [featureId]: value });
-            }
-        };
-
-        generate(0, {});
-        return combinations;
-    };
 
     const fetchSellers = async () => {
         try {
@@ -150,6 +166,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             open={visible}
             onCancel={onCancel}
             footer={null}
+            width={800}
         >
             <Form
                 name="productForm"
@@ -162,13 +179,6 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     rules={[{ required: true, message: 'Por favor ingrese el nombre del producto' }]}
                 >
                     <Input placeholder="Nombre del Producto" />
-                </Form.Item>
-                <Form.Item
-                    name="precio"
-                    label="Precio"
-                    rules={[{ required: true, message: 'Por favor ingrese el precio' }]}
-                >
-                    <Input type="number" placeholder="Precio" />
                 </Form.Item>
                 <Form.Item
                     name="id_vendedor"

@@ -161,6 +161,7 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                selectedProducts={selectedProducts}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}

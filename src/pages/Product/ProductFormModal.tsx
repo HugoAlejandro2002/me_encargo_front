@@ -1,6 +1,6 @@
 import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
-import { addProductFeatureAPI, addProductFeaturesAPI, registerProductAPI } from "../../api/product"
+import { addProductFeaturesAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"

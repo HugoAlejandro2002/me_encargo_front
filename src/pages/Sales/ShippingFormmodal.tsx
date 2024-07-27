@@ -1,10 +1,9 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row, DatePicker, Select, TimePicker, Table } from 'antd';
-import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { UserOutlined, PhoneOutlined, CommentOutlined, HomeOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { registerSalesAPI } from '../../api/sales';
-import ProductTable from '../Product/ProductTable';
 import SalesTable from './SalesTable';
 import { getProductsAPI, registerProductAPI } from '../../api/product';
+import { registerShippingAPI } from '../../api/shipping';
 
 function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
     const [loading, setLoading] = useState(false);
@@ -17,12 +16,14 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [qrInput, setQrInput] = useState<number>(0);
     const [efectivoInput, setEfectivoInput] = useState<number>(0);
+    const [pagadoAlVendedorInput, setPagadoAlVendedorInput] = useState<number>(0);
     const [montoTotal, setMontoTotal] = useState<number>(0);
+    const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [form] = Form.useForm();
 
     const handleFinish = async (salesData: any) => {
         setLoading(true);
-        const response = await registerSalesAPI(salesData);
+        const response = await registerShippingAPI(salesData);
         setLoading(false);
         if (response.status) {
             message.success('Venta registrada con éxito');
@@ -62,11 +63,10 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
         }
     }
 
-    // Llama a fetchProducts al montar el componente
     useEffect(() => {
-        setMontoTotal(qrInput+efectivoInput);
+        setMontoTotal(qrInput + efectivoInput - pagadoAlVendedorInput);
         fetchProducts();
-    }, []);
+    }, [qrInput, efectivoInput, pagadoAlVendedorInput]);
 
     const createSeller = async () => {
 
@@ -88,9 +88,19 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={18}>
                         <Form.Item
-                            name="celular"
-                            label="Celular"
+                            name="cliente"
+                            label="Nombre Cliente"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                        >
+                            <Input prefix={<UserOutlined />} />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={18}>
+                        <Form.Item
+                            name="telefono_cliente"
+                            label="Celular"
                         >
                             <Input
                                 onKeyDown={(e) => {
@@ -106,7 +116,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            name='fechaEntrega'
+                            name='fecha_pedido'
                             label='Fecha de la Entrega'
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
@@ -117,7 +127,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
-                            name="horaEntrega"
+                            name="hora_entrega_acordada"
                             label="Hora Entrega"
                         >
                             <TimePicker
@@ -142,18 +152,43 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={24}>
                         <Form.Item
-                            name="lugarDeEntrega"
+                            name="lugar_entrega"
                             label="Lugar De Entrega"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Input></Input>
+                            <Input prefix ={<HomeOutlined />} ></Input>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="observaciones"
+                            label="Observaciones"
+                        >
+                            <Input prefix ={<CommentOutlined/>}></Input>
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={18}>
+                        <Form.Item
+                            name='tipo_de_pago'
+                            label='Tipo de pago'
+                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                        >
+                            <Radio.Group>
+                                <Radio.Button value='1'>Transferencia o QR</Radio.Button>
+                                <Radio.Button value='2'>Efectivo</Radio.Button>
+                                <Radio.Button value='3'>Pagado al dueño</Radio.Button>
+                            </Radio.Group>
                         </Form.Item>
                     </Col>
                 </Row>
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            name='subtotalQr'
+                            name='subtotal_qr'
                             label='Subtotal QR'
                         >
                             <InputNumber
@@ -168,7 +203,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                     </Col>
                     <Col span={12}>
                         <Form.Item
-                            name='subtotalEfectivo'
+                            name='subtotal_efectivo'
                             label='Subtotal Efectivo'
                         >
                             <InputNumber
@@ -183,143 +218,16 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                     </Col>
                 </Row>
                 <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="montoTotal"
-                            label="Monto Total"
-                        >
-                            <InputNumber
-                                value={montoTotal}
-                                formatter={(value) => `Bs. ${value}`}
-                                parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
-                                readOnly
-                                style={{ width: '25%' }}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Col span={18}>
-                    <Form.Item
-                        name='vendedor'
-                        label='Vendedor'
-                        rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                    >
-                        <Select
-                            placeholder='Seleccione un vendedor'
-                            dropdownRender={menu => (
-                                <>
-                                    {menu}
-                                    <div style={{ display: 'flex', padding: 8 }}>
-                                        <Input
-                                            style={{ flex: 'auto' }}
-                                            value={newSeller}
-                                            onChange={e => setNewSeller(e.target.value)}
-                                        />
-                                        <Button
-                                            type="link"
-                                            onClick={createSeller}
-                                            loading={loading}
-                                        >
-                                            Añadir Vendedor
-                                        </Button>
-                                    </div>
-                                </>
-                            )}
-                            /* options={seller.map((seller: any) => ({
-                                value: seller.id_vendedor,
-                                label: seller.nombre + apellido,
-                            }))} */
-                            showSearch
-                            filterOption={(input, option: any) =>
-                                option.label.toLowerCase().includes(input.toLowerCase())
-                            }
-                        />
-                    </Form.Item>
-                </Col>
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            name='agregarProductos'
-                            label='Agregar Productos'
-                        >
-                            <SalesTable products={products} />
-                            <Select
-                                placeholder="Selecciona un producto"
-                                dropdownRender={menu => (
-                                    <>
-                                        {menu}
-                                        <div style={{ display: 'flex', padding: 8 }}>
-                                            <Input
-                                                style={{ flex: 'auto' }}
-                                                value={newProduct}
-                                                onChange={e => setNewProduct(e.target.value)}
-                                            />
-                                            <Button
-                                                type="link"
-                                                onClick={createProduct}
-                                                loading={loading}
-                                            >
-                                                Añadir Producto
-                                            </Button>
-                                        </div>
-                                    </>
-                                )}
-                                options={product.map((product: any) => ({
-                                    value: product.id_producto,
-                                    label: product.nombre_producto,
-                                }))}
-                                showSearch
-                                filterOption={(input, option: any) =>
-                                    option.label.toLowerCase().includes(input.toLowerCase())
-                                }
-                                onSelect={(value) => {
-                                    const selectedProduct = product.find((prod: any) => prod.id_producto === value);
-                                    if (selectedProduct) {
-                                        setSelectedProducts((prevProducts) => [...prevProducts, selectedProduct]);
-                                    }
-                                }}
-                            />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <Form.Item
-                            name="observaciones"
-                            label="Observaciones"
-                        >
-                            <Input>
-
-                            </Input>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
                     <Col span={18}>
                         <Form.Item
-                            name='tipoDePago'
-                            label='Tipo de pago'
+                            name='estado_pedido'
+                            label='Estado Pedido'
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <Radio.Group>
-                                <Radio.Button value='1'>Transferencia o QR</Radio.Button>
-                                <Radio.Button value='2'>Efectivo</Radio.Button>
-                                <Radio.Button value='3'>Pagado al dueño</Radio.Button>
-                            </Radio.Group>
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row gutter={16}>
-                    <Col span={18}>
-                        <Form.Item
-                            name='encargado'
-                            label='Encargado'
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                        >
-                            <Radio.Group>
-                                <Radio.Button value='1'>Mauri</Radio.Button>
-                                <Radio.Button value='2'>Sebas</Radio.Button>
-                                <Radio.Button value='3'>Nacho</Radio.Button>
+                                <Radio.Button value='1'>En espera</Radio.Button>
+                                <Radio.Button value='2'>Por entregar</Radio.Button>
+                                <Radio.Button value='3'>Entregado</Radio.Button>
                             </Radio.Group>
                         </Form.Item>
                     </Col>
@@ -327,9 +235,8 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={20}>
                         <Form.Item
-                            name="costoRealizarDelivery"
+                            name="costo_delivery"
                             label="Costo de realizar el Delivery"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <InputNumber
@@ -368,7 +275,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                 <Row gutter={16}>
                     <Col span={20}>
                         <Form.Item
-                            name="montoCobradoDelivery"
+                            name="cargo_delivery"
                             label="Monto cobrado por el Delivery"
                         >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -400,45 +307,60 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                         </Form.Item>
                     </Col>
                 </Row>
-
-
                 <Row gutter={16}>
                     <Col span={18}>
                         <Form.Item
-                            name='estadoPedido'
-                            label='Estado Pedido'
+                            name='adelanto_cliente'
+                            label='¿Está ya pagado?'
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Radio.Group>
-                                <Radio.Button value='1'>En espera</Radio.Button>
-                                <Radio.Button value='2'>Por entregar</Radio.Button>
-                                <Radio.Button value='3'>Entregado</Radio.Button>
+                            <Radio.Group
+                                onChange={(e) => setAdelantoVisible(e.target.value === '3')}
+                            >
+                                <Radio.Button value='1'>Si</Radio.Button>
+                                <Radio.Button value='2'>No</Radio.Button>
+                                <Radio.Button value='3'>Pago Adelanto</Radio.Button>
                             </Radio.Group>
                         </Form.Item>
                     </Col>
                 </Row>
+                
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item
-                            name='adelantoCliente'
-                            label='Adelanto Cliente'
-                        >
-                            <InputNumber></InputNumber>
-                        </Form.Item>
+                        {adelantoVisible && (
+                            <Form.Item
+                                name='pagado_al_vendedor'
+                                label='Pagado al Vendedor'
+                            >
+                                <InputNumber
+                                    formatter={(value: any) => `Bs. ${value}`}
+                                    parser={(value: string | undefined) => {
+                                        return value ? parseFloat(value.replace('Bs. ', '')) : 0;
+                                    }}
+                                    onChange={(e => setPagadoAlVendedorInput(e))}
+                                />
+                            </Form.Item>
+                        )}
                     </Col>
-                    <Col span={12}>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={24}>
                         <Form.Item
-                            name='pagadoAlVendedor'
-                            label='Pagado al Vendedor'
+                            name="montoTotal"
+                            label="Monto Total"
+                            initialValue={montoTotal}
                         >
-                            <InputNumber></InputNumber>
+                            <Input
+                                prefix='Bs. '
+                                value={montoTotal}
+                                defaultValue={qrInput + efectivoInput - pagadoAlVendedorInput}
+                                readOnly
+                                style={{ width: '25%' }}
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
-
-
-
 
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>

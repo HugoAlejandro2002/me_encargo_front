@@ -1,10 +1,10 @@
 import { AxiosError } from "axios"
 import { apiClient } from "./apiClient"
 
-export const getShippingAPI = async () => {
+const getShippingsAPI = async () => {
     try {
-        const res = await apiClient.get(`/shipping`)
-        return res.data
+        const res = await apiClient.get('/shipping')
+        return { success: true, ...res.data }
     } catch (error) {
         const err = error as AxiosError
         if (err && err.response && err.response.data) {
@@ -14,15 +14,17 @@ export const getShippingAPI = async () => {
     }
 }
 
-export const registerShippingAPI = async (sellerData: any) => {
+const registerShippingAPI = async (shippingData: any) => {
     try {
-        const res = await apiClient.post(`/shipping/register`, sellerData)
-        return res.data
+        const res = await apiClient.post('/shipping/register', shippingData)
+        return { success: true, ...res.data }
     } catch (error) {
         const err = error as AxiosError
-        if (err && err.response && err.response.data) {
+        if (err && err.message && err.response && err.response.data) {
             return { success: false, ...err.response.data }
         }
         return { success: false }
     }
 }
+
+export { getShippingsAPI, registerShippingAPI }

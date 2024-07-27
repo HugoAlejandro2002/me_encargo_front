@@ -17,7 +17,6 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
     const [qrInput, setQrInput] = useState<number>(0);
     const [efectivoInput, setEfectivoInput] = useState<number>(0);
     const [pagadoAlVendedorInput, setPagadoAlVendedorInput] = useState<number>(0);
-    const [montoTotal, setMontoTotal] = useState<number>(0);
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [form] = Form.useForm();
 
@@ -64,9 +63,12 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
     }
 
     useEffect(() => {
-        setMontoTotal(qrInput + efectivoInput - pagadoAlVendedorInput);
         fetchProducts();
-    }, [qrInput, efectivoInput, pagadoAlVendedorInput]);
+        form.setFieldsValue({
+            montoTotal: `Bs. ${totalAmount ? totalAmount.toFixed(2) : '0.00'}`,
+            saldoCobrar: `Bs. ${((totalAmount) >= 0 ? (totalAmount - qrInput - efectivoInput).toFixed(2) : '0.00')}`,
+        });
+    }, [totalAmount, qrInput, efectivoInput, pagadoAlVendedorInput]);
 
     const createSeller = async () => {
 
@@ -81,6 +83,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
             width={800}
         >
             <Form
+                form={form}
                 name="shippingForm"
                 onFinish={handleFinish}
                 layout="vertical"
@@ -156,7 +159,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
                             label="Lugar De Entrega"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Input prefix ={<HomeOutlined />} ></Input>
+                            <Input prefix={<HomeOutlined />} ></Input>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -166,7 +169,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
                             name="observaciones"
                             label="Observaciones"
                         >
-                            <Input prefix ={<CommentOutlined/>}></Input>
+                            <Input prefix={<CommentOutlined />}></Input>
                         </Form.Item>
                     </Col>
                 </Row>
@@ -324,7 +327,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
                         </Form.Item>
                     </Col>
                 </Row>
-                
+
 
                 <Row gutter={16}>
                     <Col span={12}>
@@ -349,12 +352,9 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
                         <Form.Item
                             name="montoTotal"
                             label="Monto Total"
-                            initialValue={montoTotal}
                         >
                             <Input
-                                prefix='Bs. '
-                                value={montoTotal}
-                                defaultValue={qrInput + efectivoInput - pagadoAlVendedorInput}
+                                value={`Bs. ${totalAmount ?? 0}`}
                                 readOnly
                                 style={{ width: '25%' }}
                             />
@@ -366,11 +366,9 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount
                         <Form.Item
                             name="saldoCobrar"
                             label="Saldo a Cobrar"
-                            initialValue={totalAmount}
                         >
                             <Input
-                                defaultValue={totalAmount}
-                                prefix='Bs. '
+
                                 readOnly
                                 style={{ width: '25%' }}
                             />

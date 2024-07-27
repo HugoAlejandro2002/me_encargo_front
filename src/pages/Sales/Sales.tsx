@@ -17,17 +17,22 @@ export const Sales = () => {
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
     const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+    const [totalAmount, setTotalAmount] = useState<number>(0);
     const { data } = useProducts();
 
-    
+    const updateTotalAmount = (amount: number) => {
+        setTotalAmount(amount);
+    };
+    console.log(totalAmount)
+
     const showSalesModal = () => {
         setModalType('sales');
     };
-    
+
     const showShippingModal = () => {
         setModalType('shipping');
     };
-    
+
     const handleCancel = () => {
         setModalType(null);
     };
@@ -37,7 +42,7 @@ export const Sales = () => {
         // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
     };
-    
+
     const handleSuccess = () => {
         setModalType(null);
         setRefreshKey(prevKey => prevKey + 1);
@@ -62,20 +67,19 @@ export const Sales = () => {
         } catch (error) {
             message.error('Error al obtener los vendedores');
         }
-        
+
     };
     useEffect(() => {
         fetchSellers();
     }, []);
-    
+
     const filteredProducts = selectedSellerId
-    ? data.filter(product => product.id_vendedor === selectedSellerId)
-    : data;
-    
+        ? data.filter(product => product.id_vendedor === selectedSellerId)
+        : data;
+
     const handleProductSelect = (product: any) => {
         setSelectedProducts((prevProducts) => {
             const exists = prevProducts.find(p => p.key === product.key);
-            console.log(product)
             if (!exists) {
                 return [...prevProducts, product];
             }
@@ -88,12 +92,6 @@ export const Sales = () => {
             return updatedProducts;
         });
     };
-    
-    const totalAmount = selectedProducts.reduce((acc, selectedProducts) => {
-        return acc + (selectedProducts.precio * selectedProducts.cantidad);
-    }, 0);
-    
-    console.log(totalAmount)
 
     return (
         <div className="p-4">
@@ -159,7 +157,7 @@ export const Sales = () => {
                 </Col>
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
-                        <EmptySalesTable products={selectedProducts} onDeleteProduct={handleDeleteProduct} key={refreshKey} />
+                        <EmptySalesTable products={selectedProducts} onDeleteProduct={handleDeleteProduct} key={refreshKey} onUpdateTotalAmount={updateTotalAmount} />
                     </Card>
                 </Col>
             </Row>
@@ -169,13 +167,14 @@ export const Sales = () => {
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
                 selectedProducts={selectedProducts}
+                totalAmount={totalAmount}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
-                totalPagar={totalAmount}
+                totalAmount={totalAmount}
             />
         </div>
     );

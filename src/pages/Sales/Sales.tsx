@@ -19,14 +19,15 @@ export const Sales = () => {
     const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
     const { data } = useProducts();
 
+    
     const showSalesModal = () => {
         setModalType('sales');
     };
-
+    
     const showShippingModal = () => {
         setModalType('shipping');
     };
-
+    
     const handleCancel = () => {
         setModalType(null);
     };
@@ -36,7 +37,7 @@ export const Sales = () => {
         // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
     };
-
+    
     const handleSuccess = () => {
         setModalType(null);
         setRefreshKey(prevKey => prevKey + 1);
@@ -61,16 +62,16 @@ export const Sales = () => {
         } catch (error) {
             message.error('Error al obtener los vendedores');
         }
-
+        
     };
     useEffect(() => {
         fetchSellers();
     }, []);
-
+    
     const filteredProducts = selectedSellerId
-        ? data.filter(product => product.id_vendedor === selectedSellerId)
-        : data;
-
+    ? data.filter(product => product.id_vendedor === selectedSellerId)
+    : data;
+    
     const handleProductSelect = (product: any) => {
         setSelectedProducts((prevProducts) => {
             const exists = prevProducts.find(p => p.key === product.key);
@@ -87,6 +88,12 @@ export const Sales = () => {
             return updatedProducts;
         });
     };
+    
+    const totalAmount = selectedProducts.reduce((acc, selectedProducts) => {
+        return acc + (selectedProducts.precio * selectedProducts.cantidad);
+    }, 0);
+    
+    console.log(totalAmount)
 
     return (
         <div className="p-4">
@@ -167,6 +174,7 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                totalPagar={totalAmount}
             />
         </div>
     );

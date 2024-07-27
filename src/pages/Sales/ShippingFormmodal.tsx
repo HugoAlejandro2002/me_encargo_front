@@ -5,7 +5,7 @@ import SalesTable from './SalesTable';
 import { getProductsAPI, registerProductAPI } from '../../api/product';
 import { registerShippingAPI } from '../../api/shipping';
 
-function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, products, totalAmount }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -361,7 +361,22 @@ function ShippingFormModal({ visible, onCancel, onSuccess, products }: any) {
                         </Form.Item>
                     </Col>
                 </Row>
-
+                <Row gutter={16}>
+                    <Col span={24}>
+                        <Form.Item
+                            name="saldoCobrar"
+                            label="Saldo a Cobrar"
+                            initialValue={totalAmount}
+                        >
+                            <Input
+                                defaultValue={totalAmount}
+                                prefix='Bs. '
+                                readOnly
+                                style={{ width: '25%' }}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
                 <Form.Item>
                     <Button type="primary" htmlType="submit" loading={loading}>
                         Guardar

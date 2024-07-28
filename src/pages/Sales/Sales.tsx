@@ -19,7 +19,12 @@ export const Sales = () => {
     const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
     const [editableProducts, handleValueChange] = useEditableTable(selectedProducts)
     const { data } = useProducts();
+    const [totalAmount, setTotalAmount] = useState<number>(0);
 
+    const updateTotalAmount = (amount: number) => {
+        setTotalAmount(amount);
+    };
+    console.log(totalAmount)
 
     const showSalesModal = () => {
         setModalType('sales');
@@ -76,9 +81,8 @@ export const Sales = () => {
     const handleProductSelect = (product: any) => {
         setSelectedProducts((prevProducts) => {
             const exists = prevProducts.find(p => p.key === product.key);
-            console.log(product)
             if (!exists) {
-                return [...prevProducts, { ...product, cantidad: 0, precio_unitario: product.precio, utilidad: 0 }];
+                return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
             }
             return prevProducts;
         });
@@ -154,7 +158,12 @@ export const Sales = () => {
                 </Col>
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
-                        <EmptySalesTable products={editableProducts} onDeleteProduct={handleDeleteProduct} handleValueChange={handleValueChange} key={refreshKey} />
+                        <EmptySalesTable
+                            products={editableProducts}
+                            onDeleteProduct={handleDeleteProduct}
+                            handleValueChange={handleValueChange}
+                            onUpdateTotalAmount={updateTotalAmount}
+                            key={refreshKey} />
                     </Card>
                 </Col>
             </Row>
@@ -164,12 +173,14 @@ export const Sales = () => {
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
                 selectedProducts={editableProducts}
+                totalAmount={totalAmount}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                totalAmount={totalAmount}
             />
         </div>
     );

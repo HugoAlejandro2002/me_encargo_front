@@ -1,12 +1,19 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 
-function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts }: any) {
+function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount }: any) {
+    const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
+
+    useEffect(() => {
+        form.setFieldsValue({
+            montoTotal: `Bs. ${totalAmount ? totalAmount.toFixed(2) : '0.00'}`,
+        });
+    }, [totalAmount]);
 
     const tipoPagoMap: any = {
         1: 'Transferencia o QR',
@@ -77,6 +84,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts }: any)
             width={800}
         >
             <Form
+                form={form}
                 name="salesForm"
                 onFinish={handleFinish}
                 layout="vertical"
@@ -86,9 +94,11 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts }: any)
                         <Form.Item
                             name="montoTotal"
                             label="Monto Total de la Venta"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Input />
+                            <Input
+                                value={`Bs. ${totalAmount ?? 0}`} // Usa el valor formateado aquí
+                                readOnly
+                            />
                         </Form.Item>
                     </Col>
                 </Row>

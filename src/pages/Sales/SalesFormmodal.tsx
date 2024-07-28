@@ -28,8 +28,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts }: any)
             "pagado_al_vendedor": 0,
             "subtotal_qr": 0,
             "subtotal_efectivo": 0,
-            "id_vendedor": selectedProducts[0] ? selectedProducts[0].id_vendedor : message.error('Selecciona uno o más productos'),
-            // preguntar si algun pedido podria tener productos de mas de un vendedor           
             "id_trabajador": 1,
             // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
             "id_sucursal": 3,
@@ -49,12 +47,17 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts }: any)
         console.log(apiSalesData)
         if (response.success) {
             message.success('Venta registrada con éxito');
+            await createSales(response.newShipping, selectedProducts)
             onSuccess();
         } else {
             message.error('Error al registrar la venta');
         }
         setLoading(false);
     };
+
+
+    console.log(selectedProducts, 'xd?')
+    const createSales = async (shipping: any, productsToAdd: any) => {return}
 
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {

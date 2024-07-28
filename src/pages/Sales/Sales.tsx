@@ -1,12 +1,12 @@
 import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
 import { useEffect, useState } from "react";
-import SalesTable from "./SalesTable";
 import SalesFormModal from "./SalesFormmodal";
 import ShippingFormModal from "./ShippingFormmodal";
 import ProductTable from "../Product/ProductTable";
 import { getSellersAPI, registerSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
+import useEditableTable from "../../hooks/useEditableTable";
 
 
 export const Sales = () => {
@@ -17,7 +17,9 @@ export const Sales = () => {
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
     const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+    const [editableProducts, handleValueChange] = useEditableTable(selectedProducts)
     const { data } = useProducts();
+
 
     const showSalesModal = () => {
         setModalType('sales');
@@ -76,7 +78,7 @@ export const Sales = () => {
             const exists = prevProducts.find(p => p.key === product.key);
             console.log(product)
             if (!exists) {
-                return [...prevProducts, product];
+                return [...prevProducts, { ...product, cantidad: 0, precio_unitario: product.precio, utilidad: 0 }];
             }
             return prevProducts;
         });
@@ -152,7 +154,7 @@ export const Sales = () => {
                 </Col>
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
-                        <EmptySalesTable products={selectedProducts} onDeleteProduct={handleDeleteProduct} key={refreshKey} />
+                        <EmptySalesTable products={editableProducts} onDeleteProduct={handleDeleteProduct} handleValueChange={handleValueChange} key={refreshKey} />
                     </Card>
                 </Col>
             </Row>
@@ -161,7 +163,7 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
-                selectedProducts={selectedProducts}
+                selectedProducts={editableProducts}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}

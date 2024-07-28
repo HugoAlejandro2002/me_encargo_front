@@ -1,10 +1,7 @@
 import { Button, InputNumber, Table } from "antd";
-import { useEffect } from "react";
-import useEditableTable from "../../hooks/useEditableTable";
+import { useEffect, useState } from "react";
 
-const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDeleteProduct: (key: any) => void }) => {
-
-    const [handleValueChange] = useEditableTable(products)
+const EmptySalesTable = ({ products, onDeleteProduct, handleValueChange }: any) => {
 
     const columns = [
         {
@@ -16,22 +13,23 @@ const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDel
             title: 'Cantidad',
             dataIndex: 'cantidad',
             key: 'cantidad',
-            render: () => (
+            render: (_: any, record: any) => (
                 <InputNumber
-                    min={1}
-                    value={1}
+                    min={0}
+                    value={record.cantidad}
+                    onChange={value => handleValueChange(record.key, 'cantidad', value)}
                 />
             ),
         },
         {
             title: 'Precio Unitario',
-            dataIndex: 'precio',
-            key: 'precio',
+            dataIndex: 'precio_unitario',
+            key: 'precio_unitario',
             render: (_: any, record: any) => (
                 <InputNumber
                     min={0}
-                    value={record.precio}
-                    onChange={value => handleValueChange(record.key, 'precio', value)}
+                    value={record.precio_unitario}
+                    onChange={value => handleValueChange(record.key, 'precio_unitario', value)}
                 />
             )
         },
@@ -39,10 +37,11 @@ const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDel
             title: 'Utilidad',
             dataIndex: 'utilidad',
             key: 'utilidad',
-            render: () => (
+            render: (_: any, record: any) => (
                 <InputNumber
                     min={0}
-                    value={0}
+                    value={record.utilidad}
+                    onChange={value => handleValueChange(record.key, 'utilidad', value)}
                 />
             )
         },
@@ -54,10 +53,9 @@ const EmptySalesTable = ({ products, onDeleteProduct }: { products: any[], onDel
                     Eliminar
                 </Button>
             ),
-        }
+        },
     ];
     useEffect(() => {
-
     }, [products]);
 
     return (

@@ -1,12 +1,9 @@
 import { Button, InputNumber, Table } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handleValueChange }: any) => {
 
-    //const [handleValueChange] = useEditableTable(products) Ver como utilizarlo
-    const [newProducts, setNewProducts] = useState<any>();
 
-    // Calcula el total basándote en los valores actualizados
     const totalAmount = products.reduce((acc: any, product: any) => {
         const cantidad = product.cantidad || 0;
         const precio = product.precio_unitario || 0;

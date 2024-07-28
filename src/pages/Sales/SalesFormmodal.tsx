@@ -1,7 +1,7 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { registerShippingAPI } from '../../api/shipping';
+import { registerSalesToShippingAPI, registerShippingAPI } from '../../api/shipping';
 
 function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount }: any) {
     const [form] = Form.useForm();
@@ -11,7 +11,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
 
     useEffect(() => {
         form.setFieldsValue({
-            montoTotal: `Bs. ${totalAmount ? totalAmount.toFixed(2) : '0.00'}`,
+            montoTotal: totalAmount ? totalAmount.toFixed(2) : 0.00,
         });
     }, [totalAmount]);
 
@@ -23,13 +23,12 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
     const handleFinish = async (salesData: any) => {
         setLoading(true);
         const intTipoPago: number = parseInt(salesData.tipoDePago)
-        console.log(selectedProducts)
-        const apiSalesData = {
+        const apiShippingData = {
             "tipo_de_pago": tipoPagoMap[intTipoPago],
             "observaciones": salesData.comentarios,
             "lugar_entrega": "Me Encargo",
-            "costo_delivery": salesData.costoRealizarDelivery,
-            "cargo_delivery": salesData.montoCobradoDelivery,
+            "costo_delivery": parseInt(salesData.costoRealizarDelivery),
+            "cargo_delivery": parseInt(salesData.montoCobradoDelivery),
             "estado_pedido": "entregado",
             "adelanto_cliente": 0,
             "pagado_al_vendedor": 0,
@@ -43,27 +42,44 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
         }
 
         if (intTipoPago === 1) {
-            apiSalesData.subtotal_qr = salesData.montoTotal
+            apiShippingData.subtotal_qr = parseInt(salesData.montoTotal)
         } else if (intTipoPago === 2) {
-            apiSalesData.subtotal_efectivo = salesData.montoTotal
+            apiShippingData.subtotal_efectivo = parseInt(salesData.montoTotal)
         } else if (intTipoPago === 3) {
-            apiSalesData.pagado_al_vendedor = 1
+            apiShippingData.pagado_al_vendedor = 1
         }
 
-        const response = await registerShippingAPI(apiSalesData);
-        console.log(apiSalesData)
+        console.log(apiShippingData)
+        const response = await registerShippingAPI(apiShippingData);
+
+        console.log(response, 'shipping response')
         if (response.success) {
             message.success('Venta registrada con éxito');
             await createSales(response.newShipping, selectedProducts)
             onSuccess();
         } else {
-            message.error('Error al registrar la venta');
+            message.error('Error al registrar el pedido');
         }
         setLoading(false);
     };
 
 
-    const createSales = async (shipping: any, productsToAdd: any) => {return}
+    const createSales = async (shipping: any, productsToAdd: any) => {
+        productsToAdd.map((item: any) => {
+            item.producto = item.key
+            item.vendedor = item.id_vendedor
+        })
+
+        try {
+            await registerSalesToShippingAPI({
+                shippingId: shipping.id_pedido,
+                sales: productsToAdd
+            })
+        } catch (error) {
+            message.error('Error registrando ventas del pedido')
+        }
+    }
+
 
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
@@ -95,7 +111,9 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                             label="Monto Total de la Venta"
                         >
                             <Input
-                                value={`Bs. ${totalAmount ?? 0}`} // Usa el valor formateado aquí
+                                prefix='Bs.'
+                                value={totalAmount}
+                                // value={`Bs. ${totalAmount ?? 0}`} // Usa el valor formateado aquí
                                 readOnly
                             />
                         </Form.Item>

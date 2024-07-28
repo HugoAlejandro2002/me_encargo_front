@@ -40,4 +40,4 @@ const registerSalesToShippingAPI = async (salesData: any) => {
     }
 }
 
-export { getShippingsAPI, registerShippingAPI }
+export { getShippingsAPI, registerShippingAPI, registerSalesToShippingAPI }

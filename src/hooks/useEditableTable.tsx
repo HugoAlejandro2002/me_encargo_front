@@ -23,7 +23,7 @@ const useEditableTable = (initialData: any) => {
         setData(newData);
     };
 
-    return [data, handleValueChange];
+    return [data, setData, handleValueChange];
 };
 
 export default useEditableTable;

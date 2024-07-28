@@ -16,15 +16,14 @@ export const Sales = () => {
     const [newSeller, setNewSeller] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
-    const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
-    const [editableProducts, handleValueChange] = useEditableTable(selectedProducts)
+    // const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+    const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
     const { data } = useProducts();
     const [totalAmount, setTotalAmount] = useState<number>(0);
 
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
     };
-    console.log(totalAmount)
 
     const showSalesModal = () => {
         setModalType('sales');
@@ -79,8 +78,9 @@ export const Sales = () => {
         : data;
 
     const handleProductSelect = (product: any) => {
-        setSelectedProducts((prevProducts) => {
-            const exists = prevProducts.find(p => p.key === product.key);
+        // setEditableProducts((prevProducts: any) => {
+        setSelectedProducts((prevProducts: any) => {
+            const exists = prevProducts.find((p: any) => p.key === product.key);
             if (!exists) {
                 return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
             }
@@ -88,8 +88,8 @@ export const Sales = () => {
         });
     };
     const handleDeleteProduct = (key: any) => {
-        setSelectedProducts((prevProducts) => {
-            const updatedProducts = prevProducts.filter(product => product.key !== key);
+        setSelectedProducts((prevProducts: any) => {
+            const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
             return updatedProducts;
         });
     };
@@ -159,7 +159,7 @@ export const Sales = () => {
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
                         <EmptySalesTable
-                            products={editableProducts}
+                            products={selectedProducts}
                             onDeleteProduct={handleDeleteProduct}
                             handleValueChange={handleValueChange}
                             onUpdateTotalAmount={updateTotalAmount}
@@ -172,7 +172,7 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
-                selectedProducts={editableProducts}
+                selectedProducts={selectedProducts}
                 totalAmount={totalAmount}
             />
             <ShippingFormModal

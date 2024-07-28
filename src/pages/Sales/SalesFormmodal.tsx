@@ -63,7 +63,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
     };
 
 
-    console.log(selectedProducts, 'xd?')
     const createSales = async (shipping: any, productsToAdd: any) => {return}
 
 

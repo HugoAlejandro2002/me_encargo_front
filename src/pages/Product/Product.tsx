@@ -27,7 +27,7 @@ const Product = () => {
         setRefreshKey(prevKey => prevKey + 1)
     }
 
-    const showVariantModal = (group) => {
+    const showVariantModal = (group:any) => {
         setSelectedGroup(group);
         setIsVariantModalVisible(true);
     };
@@ -37,7 +37,7 @@ const Product = () => {
         setSelectedGroup(null);
     };
 
-    const handleVariantAdd = (newVariant) => {
+    const handleVariantAdd = (newVariant:any) => {
         // Call API to add new variant
         console.log("New Variant:", newVariant);
         handleVariantCancel();

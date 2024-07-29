@@ -1,6 +1,7 @@
 import { Button, DatePicker, Input, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { getShippingsAPI } from '../../api/shipping';
+import ShippingInfoModal from './ShippingInfoModal';
 
 const { RangePicker } = DatePicker;
 
@@ -19,6 +20,8 @@ const ShippingTable = (refreshKey: any) => {
         porEntregar: false,
         entregado: false,
     });
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     const fetchShippings = async () => {
         try {
@@ -54,8 +57,7 @@ const ShippingTable = (refreshKey: any) => {
             [key]: !prevState[key]
         }));
     };
-    console.log("Data from API:", esperaData);
-    console.log("Data from API:", entregadoData);
+
     const columns = [
         {
             title: 'Fecha Pedido',
@@ -75,10 +77,15 @@ const ShippingTable = (refreshKey: any) => {
         },
     ];
 
+    const handleRowClick = (order: any) => {
+        setSelectedOrder(order);
+        setIsModalVisible(true);
+    };
+
     useEffect(() => {
         fetchShippings();
         //handleSearch();     Con esto se podria sin el boton
-    }, [refreshKey,selectedLocation, dateRange, esperaData, porEntregarData, entregadoData])
+    }, [refreshKey, selectedLocation, dateRange, esperaData, porEntregarData, entregadoData])
 
     return (
         <div>
@@ -107,6 +114,9 @@ const ShippingTable = (refreshKey: any) => {
                     columns={columns}
                     dataSource={filteredEsperaData}
                     pagination={false}
+                    onRow={(record) => ({
+                        onClick: () => handleRowClick(record)
+                    })}
                 />
             )}
             <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('porEntregar')}>Por Entregar</h2>
@@ -115,6 +125,9 @@ const ShippingTable = (refreshKey: any) => {
                     columns={columns}
                     dataSource={filteredPorEntregarData}
                     pagination={false}
+                    onRow={(record) => ({
+                        onClick: () => handleRowClick(record)
+                    })}
                 />
             )}
 
@@ -124,8 +137,20 @@ const ShippingTable = (refreshKey: any) => {
                     columns={columns}
                     dataSource={filteredEntregadoData}
                     pagination={false}
+                    onRow={(record) => ({
+                        onClick: () => handleRowClick(record)
+                    })}
                 />
             )}
+            <ShippingInfoModal
+                visible={isModalVisible}
+                order={selectedOrder}
+                onClose={() => setIsModalVisible(false)}
+                onSave={() => {
+                    setIsModalVisible(false);
+                    fetchShippings();
+                }}
+            />
         </div>
     );
 };

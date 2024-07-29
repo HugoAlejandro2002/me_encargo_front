@@ -6,13 +6,16 @@ import useProducts from "../../hooks/useProducts";
 import useGroup from "../../hooks/useGroup";
 import GroupProductTable from "./GroupProductTable";
 import AddVariantModal from "./AddVariantModal";
+import { addProductFeaturesAPI, registerVariantAPI } from "../../api/product";
 
 const Product = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [isVariantModalVisible, setIsVariantModalVisible] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0)
     const [selectedGroup, setSelectedGroup] = useState(null);
-    const { groups } = useGroup()
+    const { groups, fetchGroups, setGroup } = useGroup()
+    const [refreshKeys, setRefreshKeys] = useState({});
+  
 
     const showModal = () => {
         setIsModalVisible(true)
@@ -23,6 +26,7 @@ const Product = () => {
     }
 
     const handleSuccess = () => {
+        fetchGroups()
         setIsModalVisible(false)
         setRefreshKey(prevKey => prevKey + 1)
     }
@@ -37,11 +41,22 @@ const Product = () => {
         setSelectedGroup(null);
     };
 
-    const handleVariantAdd = (newVariant) => {
-        // Call API to add new variant
+    const handleVariantAdd = async (newVariant) => {
+
+        const {product,  featuresFilter:features} = newVariant
+        const {newProduct} = await registerVariantAPI(product)
+        await addProductFeaturesAPI({productId: newProduct.id_producto, features})
+
         console.log("New Variant:", newVariant);
+        
+        // Update the refresh key for the specific group
+        setRefreshKeys((prevKeys) => ({
+            ...prevKeys,
+            [selectedGroup.id]: (prevKeys[selectedGroup.id] || 0) + 1,
+        }));
+    
+
         handleVariantCancel();
-        setRefreshKey(prevKey => prevKey + 1);
     };
 
     return (
@@ -53,7 +68,7 @@ const Product = () => {
             {
                groups.map(group => 
                     <GroupProductTable 
-                        key={group.id}
+                        key={`${group.id}-${refreshKeys[group.id] || 0}`} // Unique key to force re-render for the specific group
                         group={group}
                         onAddVariant={() => showVariantModal(group)} 
                     />

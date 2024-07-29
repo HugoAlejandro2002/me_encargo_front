@@ -11,7 +11,22 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            onAdd(...values, features);
+            console.log({values, onAdd, group})
+            const featuresFilter = features.filter(feat => feat.feature!== "")
+
+            const example = group.products[0]
+            const variant = {
+                product:{
+                    ...values,
+                    groupId: group.id,
+                    id_categoria: example.id_categoria,
+                    id_vendedor: example.id_vendedor
+                },
+                featuresFilter
+            }
+
+            onAdd(variant);
+            
             form.resetFields();
             setFeatures([{ feature: '', value: '' }]); // Reset features state
             setSelectedFeatures(new Set()); // Reset selected features state

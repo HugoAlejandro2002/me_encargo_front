@@ -75,7 +75,6 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 productFeaturesMap.get(productId).push(...featuresForProduct)
             })
 
-
             await createProductFeatures(res.products, productFeaturesMap)
             onSuccess()
         } else {
@@ -86,14 +85,14 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     }
 
     const createProductFeatures = async (products: any, features: any) => {
-        const promises = products.forEach((product: any) => {
+        const promises = products.map(async (product: any) => {
             const id_producto = product.id_producto
             const productFeatures: any = features.get(id_producto)
-            addProductFeaturesAPI({
+            await addProductFeaturesAPI({
                 productId: id_producto, features: productFeatures
             })
         });
-
+        console.log({products, features, promises})
         await Promise.all(promises)
     }
 

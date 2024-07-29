@@ -22,7 +22,7 @@ const useGroup = () => {
     useEffect(() => {
         fetchGroups();
     }, [])
-    return { groups, fetchGroups }
+    return { groups, fetchGroups, setGroup: setData }
 }
 
 export default useGroup

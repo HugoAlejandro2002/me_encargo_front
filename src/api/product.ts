@@ -27,6 +27,19 @@ export const registerProductAPI = async (productData: any) => {
     }
 }
 
+export const registerVariantAPI = async (productData: any) => {
+    try{
+        const res = await apiClient.post('/product/registerVariant', productData)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+    }
+}
+
 export const getProductCategoryAPI = async (productId: any) => {
     try {
         const res = await apiClient.get(`/product/category/${productId}`)

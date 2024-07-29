@@ -30,7 +30,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             "lugar_entrega": "Me Encargo",
             "costo_delivery": salesData.costoRealizarDelivery,
             "cargo_delivery": salesData.montoCobradoDelivery,
-            "estado_pedido": "entregado",
+            "estado_pedido": "Entregado",
             "adelanto_cliente": 0,
             "pagado_al_vendedor": 0,
             "subtotal_qr": 0,

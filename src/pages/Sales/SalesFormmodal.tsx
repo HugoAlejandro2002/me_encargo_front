@@ -1,9 +1,9 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
-import { registerSalesToShippingAPI, registerShippingAPI } from '../../api/shipping';
+import { registerShippingAPI } from '../../api/shipping';
 
-function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount }: any) {
+function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales }: any) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
@@ -31,7 +31,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             "cargo_delivery": parseInt(salesData.montoCobradoDelivery),
             "estado_pedido": "entregado",
             "adelanto_cliente": 0,
-            "pagado_al_vendedor": 0,
+            "pagado_al_vendedor": false,
             "subtotal_qr": 0,
             "subtotal_efectivo": 0,
             "id_trabajador": 1,
@@ -46,41 +46,20 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
         } else if (intTipoPago === 2) {
             apiShippingData.subtotal_efectivo = parseInt(salesData.montoTotal)
         } else if (intTipoPago === 3) {
-            apiShippingData.pagado_al_vendedor = 1
+            apiShippingData.pagado_al_vendedor = true
         }
 
-        console.log(apiShippingData)
         const response = await registerShippingAPI(apiShippingData);
 
-        console.log(response, 'shipping response')
         if (response.success) {
             message.success('Venta registrada con éxito');
-            await createSales(response.newShipping, selectedProducts)
+            await handleSales(response.newShipping, selectedProducts)
             onSuccess();
         } else {
             message.error('Error al registrar el pedido');
         }
         setLoading(false);
     };
-
-
-    const createSales = async (shipping: any, productsToAdd: any) => {
-        productsToAdd.map((item: any) => {
-            item.producto = item.key
-            item.vendedor = item.id_vendedor
-        })
-
-        try {
-            await registerSalesToShippingAPI({
-                shippingId: shipping.id_pedido,
-                sales: productsToAdd
-            })
-        } catch (error) {
-            message.error('Error registrando ventas del pedido')
-        }
-    }
-
-
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue + value).toFixed(2)));
@@ -92,7 +71,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
 
     return (
         <Modal
-            title="Pagos Form"
+            title="Registrar Pedido"
             open={visible}
             onCancel={onCancel}
             footer={null}
@@ -113,7 +92,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                             <Input
                                 prefix='Bs.'
                                 value={totalAmount}
-                                // value={`Bs. ${totalAmount ?? 0}`} // Usa el valor formateado aquí
                                 readOnly
                             />
                         </Form.Item>
@@ -147,11 +125,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                                     className="no-spin-buttons"
                                     value={montoCobradoDelivery}
                                     prefix='Bs.'
-                                    // formatter={(value: any) => `Bs. ${value}`}
-                                    // parser={(value: string | undefined) => {
-                                    //     return value ? parseFloat(value.replace('Bs. ', '')) : 0;
-                                    // }}
-                                    min={0}
                                     precision={2}
                                     onChange={(value) => setMontoCobradoDelivery(value ?? 0)}
                                     style={{ flex: 1, marginRight: '8px', width: '80%' }}
@@ -185,8 +158,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                                     className="no-spin-buttons"
                                     value={costoRealizarDelivery}
                                     prefix={'Bs. '}
-                                    // formatter={(value) => `Bs. ${value}`}
-                                    // parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
                                     onKeyDown={(e) => {
                                         // Verifica si la tecla presionada no es un número
                                         if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {

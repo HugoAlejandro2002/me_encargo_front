@@ -1,12 +1,13 @@
 import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
 import { useEffect, useState } from "react";
 import SalesFormModal from "./SalesFormmodal";
-import ShippingFormModal from "./ShippingFormmodal";
 import ProductTable from "../Product/ProductTable";
 import { getSellersAPI, registerSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
 import useEditableTable from "../../hooks/useEditableTable";
+import { registerSalesToShippingAPI } from "../../api/shipping";
+import ShippingFormModal from "./ShippingFormModal";
 
 
 export const Sales = () => {
@@ -94,6 +95,24 @@ export const Sales = () => {
         });
     };
 
+
+    const createSales = async (shipping: any, productsToAdd: any) => {
+        productsToAdd.map((item: any) => {
+            item.producto = item.key
+            item.vendedor = item.id_vendedor
+        })
+
+        try {
+            await registerSalesToShippingAPI({
+                shippingId: shipping.id_pedido,
+                sales: productsToAdd
+            })
+        } catch (error) {
+            message.error('Error registrando ventas del pedido')
+        }
+    }
+
+
     return (
         <div className="p-4">
             <div className="flex items-center justify-between mb-4">
@@ -173,6 +192,7 @@ export const Sales = () => {
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
                 selectedProducts={selectedProducts}
+                handleSales={createSales}
                 totalAmount={totalAmount}
             />
             <ShippingFormModal
@@ -180,6 +200,8 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                selectedProducts={selectedProducts}
+                handleSales={createSales}
                 totalAmount={totalAmount}
             />
         </div>

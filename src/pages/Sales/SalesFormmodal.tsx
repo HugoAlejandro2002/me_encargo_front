@@ -1,25 +1,86 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, message, Col, Row } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import { useState } from 'react';
-import { registerSalesAPI } from '../../api/sales';
+import { useEffect, useState } from 'react';
+import { registerSalesToShippingAPI, registerShippingAPI } from '../../api/shipping';
 
-function SalesFormModal({ visible, onCancel, onSuccess }: any) {
+function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount }: any) {
+    const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
-
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
 
+    useEffect(() => {
+        form.setFieldsValue({
+            montoTotal: totalAmount ? totalAmount.toFixed(2) : 0.00,
+        });
+    }, [totalAmount]);
+
+    const tipoPagoMap: any = {
+        1: 'Transferencia o QR',
+        2: 'Efectivo',
+        3: 'Pagado al dueño'
+    }
     const handleFinish = async (salesData: any) => {
         setLoading(true);
-        const response = await registerSalesAPI(salesData);
-        setLoading(false);
-        if (response.status) {
+        const intTipoPago: number = parseInt(salesData.tipoDePago)
+        const apiShippingData = {
+            "tipo_de_pago": tipoPagoMap[intTipoPago],
+            "observaciones": salesData.comentarios,
+            "lugar_entrega": "Me Encargo",
+            "costo_delivery": parseInt(salesData.costoRealizarDelivery),
+            "cargo_delivery": parseInt(salesData.montoCobradoDelivery),
+            "estado_pedido": "entregado",
+            "adelanto_cliente": 0,
+            "pagado_al_vendedor": 0,
+            "subtotal_qr": 0,
+            "subtotal_efectivo": 0,
+            "id_trabajador": 1,
+            // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
+            "id_sucursal": 3,
+            "cliente": salesData.cliente,
+            "telefono_cliente": salesData.celular
+        }
+
+        if (intTipoPago === 1) {
+            apiShippingData.subtotal_qr = parseInt(salesData.montoTotal)
+        } else if (intTipoPago === 2) {
+            apiShippingData.subtotal_efectivo = parseInt(salesData.montoTotal)
+        } else if (intTipoPago === 3) {
+            apiShippingData.pagado_al_vendedor = 1
+        }
+
+        console.log(apiShippingData)
+        const response = await registerShippingAPI(apiShippingData);
+
+        console.log(response, 'shipping response')
+        if (response.success) {
             message.success('Venta registrada con éxito');
+            await createSales(response.newShipping, selectedProducts)
             onSuccess();
         } else {
-            message.error('Error al registrar la venta');
+            message.error('Error al registrar el pedido');
         }
+        setLoading(false);
     };
+
+
+    const createSales = async (shipping: any, productsToAdd: any) => {
+        productsToAdd.map((item: any) => {
+            item.producto = item.key
+            item.vendedor = item.id_vendedor
+        })
+
+        try {
+            await registerSalesToShippingAPI({
+                shippingId: shipping.id_pedido,
+                sales: productsToAdd
+            })
+        } catch (error) {
+            message.error('Error registrando ventas del pedido')
+        }
+    }
+
+
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue + value).toFixed(2)));
@@ -38,6 +99,7 @@ function SalesFormModal({ visible, onCancel, onSuccess }: any) {
             width={800}
         >
             <Form
+                form={form}
                 name="salesForm"
                 onFinish={handleFinish}
                 layout="vertical"
@@ -47,9 +109,13 @@ function SalesFormModal({ visible, onCancel, onSuccess }: any) {
                         <Form.Item
                             name="montoTotal"
                             label="Monto Total de la Venta"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
-                            <Input />
+                            <Input
+                                prefix='Bs.'
+                                value={totalAmount}
+                                // value={`Bs. ${totalAmount ?? 0}`} // Usa el valor formateado aquí
+                                readOnly
+                            />
                         </Form.Item>
                     </Col>
                 </Row>
@@ -61,9 +127,9 @@ function SalesFormModal({ visible, onCancel, onSuccess }: any) {
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <Radio.Group>
-                                <Radio.Button value='1'>Transferencia o QR</Radio.Button>
-                                <Radio.Button value='2'>Efectivo</Radio.Button>
-                                <Radio.Button value='3'>Pagado al dueño</Radio.Button>
+                                <Radio.Button value='1'>{tipoPagoMap[1]}</Radio.Button>
+                                <Radio.Button value='2'>{tipoPagoMap[2]}</Radio.Button>
+                                <Radio.Button value='3'>{tipoPagoMap[3]}</Radio.Button>
                             </Radio.Group>
                         </Form.Item>
                     </Col>
@@ -80,10 +146,11 @@ function SalesFormModal({ visible, onCancel, onSuccess }: any) {
                                 <InputNumber
                                     className="no-spin-buttons"
                                     value={montoCobradoDelivery}
-                                    formatter={(value: any) => `Bs. ${value}`}
-                                    parser={(value: string | undefined) => {
-                                        return value ? parseFloat(value.replace('Bs. ', '')) : 0;
-                                    }}
+                                    prefix='Bs.'
+                                    // formatter={(value: any) => `Bs. ${value}`}
+                                    // parser={(value: string | undefined) => {
+                                    //     return value ? parseFloat(value.replace('Bs. ', '')) : 0;
+                                    // }}
                                     min={0}
                                     precision={2}
                                     onChange={(value) => setMontoCobradoDelivery(value ?? 0)}
@@ -112,36 +179,37 @@ function SalesFormModal({ visible, onCancel, onSuccess }: any) {
                             name="costoRealizarDelivery"
                             label="Costo de realizar el Delivery"
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                        >   
+                        >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <InputNumber
-                                className="no-spin-buttons"
-                                value={costoRealizarDelivery}
-                                formatter={(value) => `Bs. ${value}`}
-                                parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
-                                onKeyDown={(e) => {
-                                    // Verifica si la tecla presionada no es un número
-                                    if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
-                                        e.preventDefault();  // Previene la entrada del carácter
-                                    }
-                                }}
-                                min={0}
-                                precision={2}
-                                onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
-                                style={{ flex: 1, marginRight: '8px', width: '80%' }}
-                            />
-                            <Button
-                                type="primary"
-                                icon={<PlusOutlined />}
-                                onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
-                                style={{ marginLeft: '8px' }}
-                            />
-                            <Button
-                                type="primary"
-                                icon={<MinusOutlined />}
-                                onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
-                                style={{ marginLeft: '8px' }}
-                            />
+                                <InputNumber
+                                    className="no-spin-buttons"
+                                    value={costoRealizarDelivery}
+                                    prefix={'Bs. '}
+                                    // formatter={(value) => `Bs. ${value}`}
+                                    // parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
+                                    onKeyDown={(e) => {
+                                        // Verifica si la tecla presionada no es un número
+                                        if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
+                                            e.preventDefault();  // Previene la entrada del carácter
+                                        }
+                                    }}
+                                    min={0}
+                                    precision={2}
+                                    onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
+                                    style={{ flex: 1, marginRight: '8px', width: '80%' }}
+                                />
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
+                                    onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
+                                    style={{ marginLeft: '8px' }}
+                                />
+                                <Button
+                                    type="primary"
+                                    icon={<MinusOutlined />}
+                                    onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
+                                    style={{ marginLeft: '8px' }}
+                                />
                             </div>
                         </Form.Item>
                     </Col>

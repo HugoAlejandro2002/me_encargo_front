@@ -1,11 +1,12 @@
 import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
 import { useEffect, useState } from "react";
-import SalesTable from "./SalesTable";
 import SalesFormModal from "./SalesFormmodal";
 import ShippingFormModal from "./ShippingFormmodal";
 import ProductTable from "../Product/ProductTable";
 import { getSellersAPI, registerSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
+import EmptySalesTable from "./EmptySalesTable";
+import useEditableTable from "../../hooks/useEditableTable";
 
 
 export const Sales = () => {
@@ -15,7 +16,14 @@ export const Sales = () => {
     const [newSeller, setNewSeller] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
+    // const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+    const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
     const { data } = useProducts();
+    const [totalAmount, setTotalAmount] = useState<number>(0);
+
+    const updateTotalAmount = (amount: number) => {
+        setTotalAmount(amount);
+    };
 
     const showSalesModal = () => {
         setModalType('sales');
@@ -31,6 +39,7 @@ export const Sales = () => {
 
     const onFinish = (values: any) => {
         console.log('Form values:', values);
+        // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
     };
 
@@ -58,16 +67,32 @@ export const Sales = () => {
         } catch (error) {
             message.error('Error al obtener los vendedores');
         }
-        
+
     };
     useEffect(() => {
         fetchSellers();
     }, []);
 
-    const filteredProducts = selectedSellerId 
+    const filteredProducts = selectedSellerId
         ? data.filter(product => product.id_vendedor === selectedSellerId)
         : data;
 
+    const handleProductSelect = (product: any) => {
+        // setEditableProducts((prevProducts: any) => {
+        setSelectedProducts((prevProducts: any) => {
+            const exists = prevProducts.find((p: any) => p.key === product.key);
+            if (!exists) {
+                return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
+            }
+            return prevProducts;
+        });
+    };
+    const handleDeleteProduct = (key: any) => {
+        setSelectedProducts((prevProducts: any) => {
+            const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
+            return updatedProducts;
+        });
+    };
 
     return (
         <div className="p-4">
@@ -121,19 +146,24 @@ export const Sales = () => {
                                         style={{ width: '100%' }}
                                         dropdownStyle={{ minWidth: 400 }}
                                         onChange={(value) => setSelectedSellerId(value)}
-                                        
+
                                     />
                                 </Form.Item>
                             </div>
                         }
                         bordered={false}
                     >
-                        <ProductTable data={filteredProducts} key={refreshKey} />
+                        <ProductTable data={filteredProducts} onSelectProduct={handleProductSelect} key={refreshKey} />
                     </Card>
                 </Col>
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
-                        <SalesTable key={refreshKey} />
+                        <EmptySalesTable
+                            products={selectedProducts}
+                            onDeleteProduct={handleDeleteProduct}
+                            handleValueChange={handleValueChange}
+                            onUpdateTotalAmount={updateTotalAmount}
+                            key={refreshKey} />
                     </Card>
                 </Col>
             </Row>
@@ -142,12 +172,15 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                selectedProducts={selectedProducts}
+                totalAmount={totalAmount}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                totalAmount={totalAmount}
             />
         </div>
     );

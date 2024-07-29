@@ -1,4 +1,4 @@
-import { Modal, Form, Input, InputNumber, Button, Radio, Col, Row, DatePicker, TimePicker, Card } from 'antd';
+import { Modal, Form, Input, InputNumber, Button, Radio, Col, Row, DatePicker, TimePicker, Card, message } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, HomeOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
@@ -9,22 +9,49 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
     const [qrInput, setQrInput] = useState<number>(0);
     const [efectivoInput, setEfectivoInput] = useState<number>(0);
-    const [pagadoAlVendedorInput, setPagadoAlVendedorInput] = useState<number>(0);
+    const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [form] = Form.useForm();
 
     const handleFinish = async (shippingData: any) => {
         setLoading(true);
-        console.log(shippingData, 'shipping form data')
-        console.log(selectedProducts, 'products')
-        // const response = await registerShippingAPI(salesData);
+
+        const tipoPagoMap: any = {
+            1: 'Transferencia o QR',
+            2: 'Efectivo',
+            3: 'Pagado al dueño'
+        }
+
+        const estadoPedidoMap: any = {
+            1: 'En espera',
+            2: 'Por entregar',
+            3: 'Entregado'
+        }
+
+        const intTipoPago = parseInt(shippingData.tipo_de_pago)
+        const intEstadoPedido = parseInt(shippingData.estado_pedido)
+
+        const apiShippingData = {
+            ...shippingData,
+            "tipo_de_pago": tipoPagoMap[intTipoPago],
+            "costo_delivery": parseInt(shippingData.costo_delivery),
+            "cargo_delivery": parseInt(shippingData.cargo_delivery),
+            "estado_pedido": estadoPedidoMap[intEstadoPedido],
+            "id_trabajador": 1,
+            // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
+            "id_sucursal": 3,
+        }
+        console.log(apiShippingData)
+        const response = await registerShippingAPI(apiShippingData);
+        console.log(response)
+        if (response.status) {
+            message.success('Entrega registrada con éxito');
+            await handleSales(response.newShipping, selectedProducts)
+            onSuccess();
+        } else {
+            message.error('Error al registrar el pedido');
+        }
         setLoading(false);
-        // if (response.status) {
-        //     message.success('Entrega registrada con éxito');
-        //     onSuccess();
-        // } else {
-        //     message.error('Error al registrar el pedido');
-        // }
     };
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
@@ -40,7 +67,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             montoTotal: totalAmount ? totalAmount.toFixed(2) : 0.00,
             saldoCobrar: ((totalAmount) >= 0 ? (totalAmount - qrInput - efectivoInput).toFixed(2) : 0.00),
         });
-    }, [totalAmount, qrInput, efectivoInput, pagadoAlVendedorInput]);
+    }, [totalAmount, qrInput, efectivoInput, adelantoClienteInput]);
 
 
     return (
@@ -260,7 +287,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                     <Row gutter={16}>
                         <Col span={18}>
                             <Form.Item
-                                name='adelanto_cliente'
+                                name='show_adelanto'
                                 label='¿Está ya pagado?'
                                 rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                             >
@@ -278,12 +305,12 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item
-                                    name='pagado_al_vendedor'
-                                    label='Pagado al Vendedor'
+                                    name='adelanto_cliente'
+                                    label='Adelanto Cliente'
                                 >
                                     <InputNumber
                                         prefix='Bs.'
-                                        onChange={((e: any) => setPagadoAlVendedorInput(e))}
+                                        onChange={((e: any) => setAdelantoClienteInput(e))}
                                         style={{ width: '100%' }}
                                     />
                                 </Form.Item>

@@ -49,10 +49,8 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             apiShippingData.pagado_al_vendedor = true
         }
 
-        console.log(apiShippingData)
         const response = await registerShippingAPI(apiShippingData);
 
-        console.log(response, 'shipping response')
         if (response.success) {
             message.success('Venta registrada con éxito');
             await handleSales(response.newShipping, selectedProducts)
@@ -62,10 +60,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
         }
         setLoading(false);
     };
-
-
-
-
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue + value).toFixed(2)));

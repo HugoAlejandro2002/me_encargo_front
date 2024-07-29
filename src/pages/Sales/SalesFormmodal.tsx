@@ -3,7 +3,7 @@ import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlin
 import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 
-function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount }: any) {
+function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales }: any) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
@@ -11,7 +11,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
 
     useEffect(() => {
         form.setFieldsValue({
-            montoTotal: `Bs. ${totalAmount ? totalAmount.toFixed(2) : '0.00'}`,
+            montoTotal: totalAmount ? totalAmount.toFixed(2) : 0.00,
         });
     }, [totalAmount]);
 
@@ -23,20 +23,17 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
     const handleFinish = async (salesData: any) => {
         setLoading(true);
         const intTipoPago: number = parseInt(salesData.tipoDePago)
-        console.log(selectedProducts)
-        const apiSalesData = {
+        const apiShippingData = {
             "tipo_de_pago": tipoPagoMap[intTipoPago],
             "observaciones": salesData.comentarios,
             "lugar_entrega": "Me Encargo",
-            "costo_delivery": salesData.costoRealizarDelivery,
-            "cargo_delivery": salesData.montoCobradoDelivery,
-            "estado_pedido": "Entregado",
+            "costo_delivery": parseInt(salesData.costoRealizarDelivery),
+            "cargo_delivery": parseInt(salesData.montoCobradoDelivery),
+            "estado_pedido": "entregado",
             "adelanto_cliente": 0,
-            "pagado_al_vendedor": 0,
+            "pagado_al_vendedor": false,
             "subtotal_qr": 0,
             "subtotal_efectivo": 0,
-            "id_vendedor": selectedProducts[0] ? selectedProducts[0].id_vendedor : message.error('Selecciona uno o más productos'),
-            // preguntar si algun pedido podria tener productos de mas de un vendedor           
             "id_trabajador": 1,
             // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
             "id_sucursal": 3,
@@ -45,24 +42,24 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
         }
 
         if (intTipoPago === 1) {
-            apiSalesData.subtotal_qr = salesData.montoTotal
+            apiShippingData.subtotal_qr = parseInt(salesData.montoTotal)
         } else if (intTipoPago === 2) {
-            apiSalesData.subtotal_efectivo = salesData.montoTotal
+            apiShippingData.subtotal_efectivo = parseInt(salesData.montoTotal)
         } else if (intTipoPago === 3) {
-            apiSalesData.pagado_al_vendedor = 1
+            apiShippingData.pagado_al_vendedor = true
         }
 
-        const response = await registerShippingAPI(apiSalesData);
-        console.log(apiSalesData)
+        const response = await registerShippingAPI(apiShippingData);
+
         if (response.success) {
             message.success('Venta registrada con éxito');
+            await handleSales(response.newShipping, selectedProducts)
             onSuccess();
         } else {
-            message.error('Error al registrar la venta');
+            message.error('Error al registrar el pedido');
         }
         setLoading(false);
     };
-
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue + value).toFixed(2)));
@@ -74,7 +71,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
 
     return (
         <Modal
-            title="Pagos Form"
+            title="Registrar Pedido"
             open={visible}
             onCancel={onCancel}
             footer={null}
@@ -93,7 +90,8 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                             label="Monto Total de la Venta"
                         >
                             <Input
-                                value={`Bs. ${totalAmount ?? 0}`} // Usa el valor formateado aquí
+                                prefix='Bs.'
+                                value={totalAmount}
                                 readOnly
                             />
                         </Form.Item>
@@ -127,11 +125,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                                     className="no-spin-buttons"
                                     value={montoCobradoDelivery}
                                     prefix='Bs.'
-                                    // formatter={(value: any) => `Bs. ${value}`}
-                                    // parser={(value: string | undefined) => {
-                                    //     return value ? parseFloat(value.replace('Bs. ', '')) : 0;
-                                    // }}
-                                    min={0}
                                     precision={2}
                                     onChange={(value) => setMontoCobradoDelivery(value ?? 0)}
                                     style={{ flex: 1, marginRight: '8px', width: '80%' }}
@@ -165,8 +158,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                                     className="no-spin-buttons"
                                     value={costoRealizarDelivery}
                                     prefix={'Bs. '}
-                                    // formatter={(value) => `Bs. ${value}`}
-                                    // parser={(value) => value ? parseFloat(value.replace('Bs. ', '')) : 0}
                                     onKeyDown={(e) => {
                                         // Verifica si la tecla presionada no es un número
                                         if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {

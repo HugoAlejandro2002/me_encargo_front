@@ -20,11 +20,24 @@ const registerShippingAPI = async (shippingData: any) => {
         return { success: true, ...res.data }
     } catch (error) {
         const err = error as AxiosError
-        if (err && err.message && err.response && err.response.data) {
+        if (err && err.response && err.response.data) {
             return { success: false, ...err.response.data }
         }
         return { success: false }
     }
 }
 
-export { getShippingsAPI, registerShippingAPI }
+const registerSalesToShippingAPI = async (salesData: any) => {
+    try {
+        const res = await apiClient.post('/shipping/register/sales', salesData)
+        return { success: true, ...res.data }
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+    }
+}
+
+export { getShippingsAPI, registerShippingAPI, registerSalesToShippingAPI }

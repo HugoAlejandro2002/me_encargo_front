@@ -1,12 +1,13 @@
 import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
 import { useEffect, useState } from "react";
-import SalesTable from "./SalesTable";
 import SalesFormModal from "./SalesFormmodal";
-import ShippingFormModal from "./ShippingFormmodal";
 import ProductTable from "../Product/ProductTable";
 import { getSellersAPI, registerSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
+import useEditableTable from "../../hooks/useEditableTable";
+import { registerSalesToShippingAPI } from "../../api/shipping";
+import ShippingFormModal from "./ShippingFormModal";
 
 
 export const Sales = () => {
@@ -16,14 +17,14 @@ export const Sales = () => {
     const [newSeller, setNewSeller] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
-    const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
-    const [totalAmount, setTotalAmount] = useState<number>(0);
+    // const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+    const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
     const { data } = useProducts();
+    const [totalAmount, setTotalAmount] = useState<number>(0);
 
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
     };
-    console.log(totalAmount)
 
     const showSalesModal = () => {
         setModalType('sales');
@@ -78,20 +79,39 @@ export const Sales = () => {
         : data;
 
     const handleProductSelect = (product: any) => {
-        setSelectedProducts((prevProducts) => {
-            const exists = prevProducts.find(p => p.key === product.key);
+        // setEditableProducts((prevProducts: any) => {
+        setSelectedProducts((prevProducts: any) => {
+            const exists = prevProducts.find((p: any) => p.key === product.key);
             if (!exists) {
-                return [...prevProducts, product];
+                return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
             }
             return prevProducts;
         });
     };
     const handleDeleteProduct = (key: any) => {
-        setSelectedProducts((prevProducts) => {
-            const updatedProducts = prevProducts.filter(product => product.key !== key);
+        setSelectedProducts((prevProducts: any) => {
+            const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
             return updatedProducts;
         });
     };
+
+
+    const createSales = async (shipping: any, productsToAdd: any) => {
+        productsToAdd.map((item: any) => {
+            item.producto = item.key
+            item.vendedor = item.id_vendedor
+        })
+
+        try {
+            await registerSalesToShippingAPI({
+                shippingId: shipping.id_pedido,
+                sales: productsToAdd
+            })
+        } catch (error) {
+            message.error('Error registrando ventas del pedido')
+        }
+    }
+
 
     return (
         <div className="p-4">
@@ -157,7 +177,12 @@ export const Sales = () => {
                 </Col>
                 <Col span={12}>
                     <Card title="Ventas" bordered={false}>
-                        <EmptySalesTable products={selectedProducts} onDeleteProduct={handleDeleteProduct} key={refreshKey} onUpdateTotalAmount={updateTotalAmount} />
+                        <EmptySalesTable
+                            products={selectedProducts}
+                            onDeleteProduct={handleDeleteProduct}
+                            handleValueChange={handleValueChange}
+                            onUpdateTotalAmount={updateTotalAmount}
+                            key={refreshKey} />
                     </Card>
                 </Col>
             </Row>
@@ -167,6 +192,7 @@ export const Sales = () => {
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
                 selectedProducts={selectedProducts}
+                handleSales={createSales}
                 totalAmount={totalAmount}
             />
             <ShippingFormModal
@@ -174,6 +200,8 @@ export const Sales = () => {
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
+                selectedProducts={selectedProducts}
+                handleSales={createSales}
                 totalAmount={totalAmount}
             />
         </div>

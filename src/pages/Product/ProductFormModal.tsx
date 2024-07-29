@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { addProductFeaturesAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
-import { getFeaturesAPI, registerFeatureAPI } from "../../api/feature"
+import { getFeaturesAPI } from "../../api/feature"
 import FeatureInputs from "./FeatureInputs"
 
 const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
@@ -76,7 +76,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             })
 
 
-            createProductFeatures(res.products, productFeaturesMap)
+            await createProductFeatures(res.products, productFeaturesMap)
             onSuccess()
         } else {
             message.error('Error al crear los productos, inténtelo de nuevo')
@@ -86,13 +86,15 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     }
 
     const createProductFeatures = async (products: any, features: any) => {
-        products.forEach((product: any) => {
+        const promises = products.forEach((product: any) => {
             const id_producto = product.id_producto
             const productFeatures: any = features.get(id_producto)
             addProductFeaturesAPI({
                 productId: id_producto, features: productFeatures
             })
         });
+
+        await Promise.all(promises)
     }
 
     const createCategory = async () => {

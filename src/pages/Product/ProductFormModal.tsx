@@ -1,6 +1,6 @@
 import { Select, Button, Form, Input, Modal, message } from "antd"
 import { useEffect, useState } from "react"
-import { addProductFeaturesAPI, registerProductAPI } from "../../api/product"
+import { addProductFeaturesAPI, addProductStockAPI, registerProductAPI } from "../../api/product"
 import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI } from "../../api/feature"
@@ -17,15 +17,13 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [featureValues, setFeatureValues] = useState({})
     const [combinations, setCombinations] = useState([])
 
-    console.log(selectedFeatures, 'selectedFeaures')
+    const branches = [{ id_sucursal: 3, nombre: 'Prado' }]
 
     const handleFinish = async (productData: any) => {
-        // const sendToFeaturesAPI = new Map<string, []>()
         setLoading(true);
         const realCombinations = combinations
             .filter((combination: any) => combination.price !== 0 || combination.stock !== 0)
 
-        console.log(features, 'com estan las feautres')
         const productVariants = realCombinations.map((combination: any, index: number) => {
             const featureValues = selectedFeatures.map((featureId: any) => {
                 const feature = features.find((f: any) => f.id_caracteristicas.toString() == featureId).feature
@@ -35,18 +33,20 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 }
             })
 
-            console.log(featureValues, 'featureValues')
             const joinedFeatureValues = featureValues.map(f => f.value).join(' ')
 
             return {
                 "nombre_producto": `${productData.nombre_producto} ${joinedFeatureValues}`,
                 "precio": combination.price,
                 "imagen": '',
+                "stock": combination.stock,
+                "id_sucursal": productData.sucursal,
                 "id_categoria": productData.id_categoria,
                 "id_vendedor": productData.id_vendedor,
                 "id_variant": index,
             }
         })
+
         const formattedProductData = {
             "group": productData.nombre_producto,
             "variants": productVariants
@@ -75,25 +75,45 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 productFeaturesMap.get(productId).push(...featuresForProduct)
             })
 
+            await createProductStock(res.products, productVariants, productData.sucursal)
             await createProductFeatures(res.products, productFeaturesMap)
             onSuccess()
         } else {
             message.error('Error al crear los productos, inténtelo de nuevo')
         }
-
         setLoading(false);
     }
 
     const createProductFeatures = async (products: any, features: any) => {
-        const promises = products.map(async (product: any) => {
+        const promises = products.map((product: any) => {
             const id_producto = product.id_producto
             const productFeatures: any = features.get(id_producto)
-            await addProductFeaturesAPI({
+            return addProductFeaturesAPI({
                 productId: id_producto, features: productFeatures
             })
         });
-        console.log({products, features, promises})
-        await Promise.all(promises)
+
+        return await Promise.all(promises)
+    }
+
+    const createProductStock = async (products: any, stockProducts: any, shippingId: any) => {
+
+        const productsWithStock: any = []
+        stockProducts.forEach((stockProduct: any) => {
+            const matchedProduct = products.find((prod: any) =>
+                prod.nombre_producto == stockProduct.nombre_producto
+            )
+            if (matchedProduct) {
+                const productToAdd = {
+                    id_producto: matchedProduct.id_producto,
+                    cantidad_por_sucursal: stockProduct.stock
+                }
+                productsWithStock.push(productToAdd)
+            }
+        })
+
+        const data = { branch: shippingId, products: productsWithStock }
+        return await addProductStockAPI(data)
     }
 
     const createCategory = async () => {
@@ -141,7 +161,6 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const fetchFeatures = async () => {
         try {
             const res = await getFeaturesAPI();
-            console.log(res, 'fetched features')
             setFeatures(res);
         } catch (error) {
             message.error('Error al obtener las características');
@@ -180,6 +199,23 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                     rules={[{ required: true, message: 'Por favor ingrese el nombre del producto' }]}
                 >
                     <Input placeholder="Nombre del Producto" />
+                </Form.Item>
+                <Form.Item
+                    name='sucursal'
+                    label="Sucursal"
+                    rules={[{ required: true, message: 'Por favor seleccione una sucursal' }]}
+                >
+                    <Select
+                        placeholder='Selecciona una sucursal'
+                        options={branches.map((branch: any) => ({
+                            value: branch.id_sucursal,
+                            label: branch.nombre
+                        }))}
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLocaleLowerCase().includes(input.toLocaleLowerCase())}
+                    />
+
                 </Form.Item>
                 <Form.Item
                     name="id_vendedor"

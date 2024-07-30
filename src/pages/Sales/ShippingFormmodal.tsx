@@ -39,7 +39,6 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             "cargo_delivery": parseInt(shippingData.cargo_delivery) || 0,
             "estado_pedido": estadoPedidoMap[intEstadoPedido],
             "id_trabajador": 1,
-            // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
         }
         console.log({apiShippingData})

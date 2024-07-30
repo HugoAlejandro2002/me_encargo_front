@@ -31,6 +31,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                     <img src={cartIcon} alt='Ventas' className='w-6 h-6 mx-3' />
                     {isOpen && <span className='ml-2'>Ventas</span>}
                 </Link>
+                <Link to="/shipping" className='flex items-center p-4 hover:bg-light-blue/10'>
+                    <img src={cartIcon} alt='Pedidos' className='w-6 h-6 mx-3' />
+                    {isOpen && <span className='ml-2'>Pedidos</span>}
+                </Link>
                 {/* TODO: agregar más enlaces... */}
             </div>
         </div>

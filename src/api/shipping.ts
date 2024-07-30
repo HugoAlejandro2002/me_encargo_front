@@ -4,7 +4,7 @@ import { apiClient } from "./apiClient"
 const getShippingsAPI = async () => {
     try {
         const res = await apiClient.get('/shipping')
-        return { success: true, ...res.data }
+        return res.data
     } catch (error) {
         const err = error as AxiosError
         if (err && err.response && err.response.data) {

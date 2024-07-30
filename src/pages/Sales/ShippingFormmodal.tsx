@@ -1,9 +1,10 @@
-import { Modal, Form, Input, InputNumber, Button, Radio, Col, Row, DatePicker, TimePicker, Card, message } from 'antd';
+import { Modal, Form, Input, InputNumber, Button, Radio, Col, Row, DatePicker, TimePicker, Card, message, Select } from 'antd';
 import { UserOutlined, PhoneOutlined, CommentOutlined, HomeOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
+import { Option } from 'antd/es/mentions';
 
-function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -34,14 +35,14 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
         const apiShippingData = {
             ...shippingData,
             "tipo_de_pago": tipoPagoMap[intTipoPago],
-            "costo_delivery": parseInt(shippingData.costo_delivery),
-            "cargo_delivery": parseInt(shippingData.cargo_delivery),
+            "costo_delivery": parseInt(shippingData.costo_delivery) || 0,
+            "cargo_delivery": parseInt(shippingData.cargo_delivery) || 0,
             "estado_pedido": estadoPedidoMap[intEstadoPedido],
             "id_trabajador": 1,
             // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
-            "id_sucursal": 3,
+            "id_sucursal": parseInt(form.getFieldValue('sucursal')),
         }
-        console.log(apiShippingData)
+        console.log({apiShippingData})
         const response = await registerShippingAPI(apiShippingData);
         console.log(response)
         if (response.status) {
@@ -63,10 +64,16 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     };
 
     useEffect(() => {
-        form.setFieldsValue({
-            montoTotal: totalAmount ? totalAmount.toFixed(2) : 0.00,
-            saldoCobrar: ((totalAmount) >= 0 ? (totalAmount - qrInput - efectivoInput).toFixed(2) : 0.00),
-        });
+        const montoTotal = totalAmount ? totalAmount.toFixed(2) : '0.00';
+        const saldoCobrar = ((totalAmount) >= 0 ? (totalAmount - qrInput - efectivoInput).toFixed(2) : '0.00');
+        
+        // Only update form fields if the values have changed
+        if (form.getFieldValue('montoTotal') !== montoTotal || form.getFieldValue('saldoCobrar') !== saldoCobrar) {
+            form.setFieldsValue({
+                montoTotal: montoTotal,
+                saldoCobrar: saldoCobrar,
+            });
+        }
     }, [totalAmount, qrInput, efectivoInput, adelantoClienteInput]);
 
 
@@ -184,6 +191,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                     prefix='Bs.'
                                     onChange={((e: any) => setQrInput(e))}
                                     style={{ width: '100%' }}
+                                    defaultValue={0}
                                 />
                             </Form.Item>
                         </Col>
@@ -196,6 +204,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                     prefix='Bs'
                                     onChange={((e: any) => setEfectivoInput(e))}
                                     style={{ width: '100%' }}
+                                    defaultValue={0}
                                 />
                             </Form.Item>
                         </Col>
@@ -235,6 +244,8 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                         precision={2}
                                         onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
                                         style={{ flex: 1, marginRight: '8px', width: '80%' }}
+                                        
+                                        defaultValue={0}
                                     />
                                     <Button
                                         type="primary"
@@ -343,6 +354,28 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                     readOnly
                                     style={{ width: '100%' }}
                                 />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </Card>
+                <Card title="Sucursal" bordered={false} style={{ marginTop: 16 }}>
+                    <Row gutter={16}>
+                        <Col span={18}>
+                            <Form.Item
+                                name="sucursal"
+                                label="Sucursal"
+                                rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                            >
+                                <Select
+                                    placeholder="Seleccione una sucursal"
+                                    allowClear
+                                >
+                                    {sucursals.map((sucursal) => (
+                                        <Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                                            {sucursal.nombre}
+                                        </Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
                         </Col>
                     </Row>

@@ -89,7 +89,7 @@ const GroupProductTable = ( {group, onAddVariant} ) => {
             pagination={false}
             title={ () => (
                 <div className="flex justify-between items-center">
-                    <h2>{group.name}</h2>
+                    <h2 className="font-semibold">{group.name}</h2>
                     <Button type="primary" onClick={onAddVariant}>Agregar Variante</Button>
                 </div>
             )}

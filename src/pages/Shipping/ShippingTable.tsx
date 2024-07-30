@@ -2,6 +2,8 @@ import { Button, DatePicker, Input, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { getShippingsAPI } from '../../api/shipping';
 import ShippingInfoModal from './ShippingInfoModal';
+import { InfoCircleOutlined } from '@ant-design/icons';
+import ShippingStateModal from './ShippingStateModal';
 
 const { RangePicker } = DatePicker;
 
@@ -21,6 +23,7 @@ const ShippingTable = (refreshKey: any) => {
         entregado: false,
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isModaStatelVisible, setIsModalStateVisible] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
     const fetchShippings = async () => {
@@ -31,7 +34,7 @@ const ShippingTable = (refreshKey: any) => {
                 key: pedido.id_pedido
             }));
             setEsperaData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
-            setPorEntregarData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'Por Entregar'));
+            setPorEntregarData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
             setEntregadoData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
         } catch (error) {
             console.error("Error fetching shipping data:", error);
@@ -60,6 +63,18 @@ const ShippingTable = (refreshKey: any) => {
 
     const columns = [
         {
+            title: '',
+            dataIndex: 'infoButton',
+            key: 'infoButton',
+            width: '5%',
+            render: (_, record:any) => (
+                <InfoCircleOutlined
+                    style={{ fontSize: '20px', color: '#1890ff', cursor: 'pointer' }}
+                    onClick={() => handleIconClick(record)}
+                />
+            )
+        },
+        {
             title: 'Fecha Pedido',
             dataIndex: 'fecha_pedido',
             key: 'fecha_pedido',
@@ -76,12 +91,15 @@ const ShippingTable = (refreshKey: any) => {
             key: 'cliente',
         },
     ];
-
+    
+    const handleIconClick = (order: any) => {
+        setSelectedOrder(order);
+        setIsModalStateVisible(true);
+    };
     const handleRowClick = (order: any) => {
         setSelectedOrder(order);
         setIsModalVisible(true);
     };
-
     useEffect(() => {
         fetchShippings();
         //handleSearch();     Con esto se podria sin el boton
@@ -143,11 +161,23 @@ const ShippingTable = (refreshKey: any) => {
                 />
             )}
             <ShippingInfoModal
-                visible={isModalVisible}
+                visible={isModalVisible && !isModaStatelVisible}
                 order={selectedOrder}
                 onClose={() => setIsModalVisible(false)}
                 onSave={() => {
                     setIsModalVisible(false);
+                    fetchShippings();
+                }}
+            />
+            <ShippingStateModal
+                visible={isModaStatelVisible}
+                order={selectedOrder}
+                onClose={() => {
+                    setIsModalStateVisible(false) 
+                    setIsModalVisible(false)
+                }}
+                onSave={() => {
+                    setIsModalStateVisible(false);
                     fetchShippings();
                 }}
             />

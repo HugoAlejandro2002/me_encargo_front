@@ -7,7 +7,7 @@ import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
 import useEditableTable from "../../hooks/useEditableTable";
 import { registerSalesToShippingAPI } from "../../api/shipping";
-import ShippingFormModal from "./ShippingFormModal";
+import ShippingFormModal from "./ShippingFormmodal";
 
 
 export const Sales = () => {

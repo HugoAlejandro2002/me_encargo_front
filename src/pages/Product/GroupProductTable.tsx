@@ -1,14 +1,11 @@
 import { Button, Table } from "antd";
 import { getProductsInGroupAPI } from "../../api/group";
-import useProducts from "../../hooks/useProducts";
 import { useEffect, useState } from "react";
-import { getCategoriesAPI } from "../../api/category";
-import { getProductCategoryAPI } from "../../api/product";
 import ProductInfoModal from "./ProductInfoModal";
 import { InfoCircleOutlined } from '@ant-design/icons';
 
 
-const GroupProductTable = ( {group, onAddVariant} ) => {
+const GroupProductTable = ({ group, onAddVariant }: any) => {
     const columns = [
         {
             title: '',
@@ -42,57 +39,58 @@ const GroupProductTable = ( {group, onAddVariant} ) => {
         }
     ];
 
-    
-    const [isModalVisible, setIsModalVisible] = useState<boolean> (false);
-    const [selectedProduct, setSelectedProduct] = useState<any> (null);
+
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
     const showModal = (product: any) => {
         setSelectedProduct(product)
         setIsModalVisible(true)
     }
-    const closeModal = () => { 
+    const closeModal = () => {
         setIsModalVisible(false)
         setSelectedProduct(null)
     }
 
-    const [products, setProduts] = useState([])
+    const [products, setProducts] = useState<any>([])
 
     useEffect(() => {
         const fetchProductInCategory = async () => {
             const productsRes = await getProductsInGroupAPI(group.id);
-            const parseProducts = await Promise.all( productsRes.map(async (product) => {
-                const category = await getProductCategoryAPI(product.id_producto)
+            const parseProducts = await Promise.all(productsRes.map(async (product: any) => {
+                // const category = await getProductCategoryAPI(product.id_producto)
+                // TODO: probar 
                 return ({
-                    infoButton: ( 
-                        <Button type="primary"  onClick={() => showModal(product)}>
+                    infoButton: (
+                        <Button type="primary" onClick={() => showModal(product)}>
                             <InfoCircleOutlined />
                         </Button>
                     ),
 
                     producto: product.nombre_producto,
-                    stockActual: product.stock || 0,
-                    categoria: category.categoria,
+                    stockActual: product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0) || 0,
+                    categoria: product.categoria.categoria,
                     precio: product.precio
-                })   
+                })
             }))
-            setProduts(parseProducts)
+            setProducts(parseProducts)
         }
         fetchProductInCategory()
-    },[])
-    
+    }, [])
+
 
     return (
-        <div style={{margin: '1rem'}}>
+        <div style={{ margin: '1rem' }}>
             <Table
-            columns={columns}
-            dataSource={products}
-            pagination={false}
-            title={ () => (
-                <div className="flex justify-between items-center">
-                    <h2 className="font-semibold">{group.name}</h2>
-                    <Button type="primary" onClick={onAddVariant}>Agregar Variante</Button>
-                </div>
-            )}
+                columns={columns}
+                dataSource={products}
+                pagination={false}
+                title={() => (
+                    <div className="flex justify-between items-center">
+                        <h2 className="font-semibold">{group.name}</h2>
+                        <Button type="primary" onClick={onAddVariant}>Agregar Variante</Button>
+                    </div>
+                )}
             />
             {selectedProduct && (
                 <ProductInfoModal
@@ -102,7 +100,7 @@ const GroupProductTable = ( {group, onAddVariant} ) => {
                 />
             )}
         </div>
-        
+
 
     )
 

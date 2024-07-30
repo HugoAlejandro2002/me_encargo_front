@@ -3,10 +3,11 @@ import { Modal, Button, Descriptions } from 'antd';
 import RestockTable from './RestockTable';
 
 
-const ProductInfoModal = ({visible, onClose, product} ) => {
-  
+const ProductInfoModal = ({ visible, onClose, product }) => {
+
   const { nombre_producto, precio, fecha_de_ingreso, imagen, categoria, group, features } = product;
 
+  console.log(product, 'que product')
   const products = [product]
 
   const handleSave = () => {
@@ -31,16 +32,16 @@ const ProductInfoModal = ({visible, onClose, product} ) => {
         <Descriptions.Item label="Precio">{precio} Bs</Descriptions.Item>
         <Descriptions.Item label="Fecha de Ingreso">{new Date(fecha_de_ingreso).toLocaleDateString()}</Descriptions.Item>
         <Descriptions.Item label="Categoría">{categoria.categoria}</Descriptions.Item>
-        <Descriptions.Item label="Grupo">{group.name}</Descriptions.Item>  
+        <Descriptions.Item label="Grupo">{group.name}</Descriptions.Item>
         {/* TODO: Get the stock of a product */}
-        <Descriptions.Item label="Stock">{10}</Descriptions.Item>
+        <Descriptions.Item label="Stock Total">{product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0)}</Descriptions.Item>
       </Descriptions>
 
       <h3 style={{ marginTop: '20px' }}>Características</h3>
       <Descriptions bordered layout="horizontal" column={2}>
-          {features.map((feature, index) => (
-              <Descriptions.Item key={index} label={feature.feature}>{feature.value}</Descriptions.Item>
-          ))}
+        {features.map((feature, index) => (
+          <Descriptions.Item key={index} label={feature.feature}>{feature.value}</Descriptions.Item>
+        ))}
       </Descriptions>
       <RestockTable products={products} onSave={handleSave} />
       <h3 style={{ marginTop: '20px' }}>Historial de Ingresos</h3>

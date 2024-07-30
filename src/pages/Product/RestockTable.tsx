@@ -2,10 +2,10 @@ import { Button, InputNumber, Table } from "antd";
 import { useState } from "react";
 
 
-const RestockTable = ({products, onSave}) => {
+const RestockTable = ({ products, onSave }) => {
     const [restockData, setRestockData] = useState(products.map(product => ({
         ...product,
-        stock: product.stock || 0,
+        stock: product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0) || 0,
         incomingQuantity: 0,
         precio: product.precio || 0  // Initialize precio if it's not present
     })));

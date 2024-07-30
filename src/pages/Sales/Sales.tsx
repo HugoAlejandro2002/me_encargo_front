@@ -8,6 +8,7 @@ import EmptySalesTable from "./EmptySalesTable";
 import useEditableTable from "../../hooks/useEditableTable";
 import { registerSalesToShippingAPI } from "../../api/shipping";
 import ShippingFormModal from "./ShippingFormmodal";
+import { getSucursalsAPI } from "../../api/sucursal";
 
 
 export const Sales = () => {
@@ -21,6 +22,7 @@ export const Sales = () => {
     const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
     const { data } = useProducts();
     const [totalAmount, setTotalAmount] = useState<number>(0);
+    const [sucursal, setSucursal] = useState([] as any[]);
 
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
@@ -70,8 +72,21 @@ export const Sales = () => {
         }
 
     };
+
+    const fetchSucursal = async () => {
+        try{
+            console.log("Fetch Sucursal")
+            const response = await getSucursalsAPI()
+            setSucursal(response)
+        } catch (error) {
+            message.error('Error al obtener los vendedores');
+        }
+    }
+
     useEffect(() => {
+        console.log("Use Effect")
         fetchSellers();
+        fetchSucursal();
     }, []);
 
     const filteredProducts = selectedSellerId
@@ -194,6 +209,7 @@ export const Sales = () => {
                 selectedProducts={selectedProducts}
                 handleSales={createSales}
                 totalAmount={totalAmount}
+                sucursals = {sucursal}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
@@ -203,6 +219,7 @@ export const Sales = () => {
                 selectedProducts={selectedProducts}
                 handleSales={createSales}
                 totalAmount={totalAmount}
+                sucursals = {sucursal}
             />
         </div>
     );

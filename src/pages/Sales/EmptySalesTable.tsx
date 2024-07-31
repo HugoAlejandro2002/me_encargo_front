@@ -3,13 +3,11 @@ import { useEffect } from "react";
 
 const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handleValueChange }: any) => {
 
-
     const totalAmount = products.reduce((acc: any, product: any) => {
         const cantidad = product.cantidad || 0;
         const precio = product.precio_unitario || 0;
         return acc + (precio * cantidad);
     }, 0);
-
     const columns = [
         {
             title: 'Producto',

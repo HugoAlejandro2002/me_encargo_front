@@ -96,7 +96,7 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
                 console.log('Validate Failed:', info);
             });
     };
-    const handleEstadoChange = (e) => {
+    const handleEstadoChange = (e:any) => {
         setEstadoPedido(e.target.value);
     };
 

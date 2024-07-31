@@ -26,3 +26,16 @@ export const registerSalesAPI = async (salesData: any) => {
         return { success: false }
     }
 }
+export const getProductByShippingAPI = async (shippingId: any) => {
+    try {
+        const res = await apiClient.get(`/sale/products/${shippingId}`)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+
+    }
+}

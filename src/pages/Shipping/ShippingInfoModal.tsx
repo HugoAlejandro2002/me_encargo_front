@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber } from 'antd';
+import { useEffect, useState } from 'react';
+import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber, Select } from 'antd';
 import moment from 'moment';
+import { getProductByShippingAPI } from '../../api/sales';
+import EmptySalesTable from '../Sales/EmptySalesTable';
+import useProducts from '../../hooks/useProducts';
+import useEditableTable from '../../hooks/useEditableTable';
 
 const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
+    const [selectedProducts, setSelectedProducts,handleValueChange] = useEditableTable([])
+    const [products, setProducts] = useState<Product[]>([]);
+    
+    const { data } = useProducts();
     const [form] = Form.useForm();
-    React.useEffect(() => {
+
+    useEffect(() => {
         if (order) {
             form.setFieldsValue({
                 ...order,
@@ -20,8 +29,19 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 pagado_al_vendedor: order.pagado_al_vendedor || '',
             });
         }
+        if (order && order.id_pedido) {
+            getProductByShippingAPI(order.id_pedido).then((data: any[]) => {
+                // Asegúrate de que `data` sea un array
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                } else {
+                    setProducts([]);
+                    console.error('Expected data to be an array', data);
+                }
+            });
+        }
+        console.log(order+ "yaaa")
     }, [order, form]);
-    console.log(order)
 
     const handleSave = () => {
         form.validateFields()
@@ -32,6 +52,23 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
             .catch(info => {
                 console.log('Validate Failed:', info);
             });
+    };
+
+    const handleProductSelect = (product: any) => {
+        // setEditableProducts((prevProducts: any) => {
+        setProducts((prevProducts: any) => {
+            const exists = prevProducts.find((p: any) => p.key === product.key);
+            if (!exists) {
+                return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
+            }
+            return prevProducts;
+        });
+    };
+    const handleDeleteProduct = (key: any) => {
+        setProducts((prevProducts: any) => {
+            const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
+            return updatedProducts;
+        });
     };
 
     return (
@@ -140,6 +177,31 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                         </Col>
                     </Row>
                 )}
+                <Form.Item>
+                    <EmptySalesTable
+                        products={products}
+                        onDeleteProduct={handleDeleteProduct} // Implementar si es necesario
+                        onUpdateTotalAmount={() => {}} // Implementar si es necesario
+                        handleValueChange={() => {}} // Implementar si es necesario
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="productos_lista"
+                    label="Producto"
+                >
+                    <Select
+                        placeholder="Selecciona un producto"
+                        options={data.map((product: any) => ({
+                            value: product.id_producto,
+                            label: product.producto,
+                        }))}
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLowerCase().includes(input.toLowerCase())
+                        }
+                        onChange={handleProductSelect}
+                    />
+                </Form.Item>
                 <Form.Item
                     name="monto_total"
                     label="Monto Total de la Venta"

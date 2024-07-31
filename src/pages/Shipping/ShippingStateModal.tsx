@@ -37,7 +37,6 @@ const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
             });
         }
     }, [order, form]);
-    console.log(order)
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue + value).toFixed(2)));
@@ -57,7 +56,7 @@ const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
                 console.log('Validate Failed:', info);
             });
     };
-    const handleEstadoChange = (e) => {
+    const handleEstadoChange = (e:any) => {
         setEstadoPedido(e.target.value);
     };
 

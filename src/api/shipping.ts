@@ -1,5 +1,6 @@
 import { AxiosError } from "axios"
 import { apiClient } from "./apiClient"
+import { parseError } from "./util"
 
 const getShippingsAPI = async () => {
     try {
@@ -40,4 +41,13 @@ const registerSalesToShippingAPI = async (salesData: any) => {
     }
 }
 
-export { getShippingsAPI, registerShippingAPI, registerSalesToShippingAPI }
+const updateShippingAPI = async (updateShippingData: any, shippingId: number) => {
+    try {
+        const res = await apiClient.put(`/shipping/${shippingId}`, { newData: updateShippingData })
+        return { success: true, ...res.data }
+    } catch (error) {
+        parseError(error as AxiosError)
+    }
+}
+
+export { getShippingsAPI, registerShippingAPI, registerSalesToShippingAPI, updateShippingAPI }

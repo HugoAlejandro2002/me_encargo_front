@@ -1,3 +1,4 @@
+import { AxiosError } from "axios"
 import { apiClient } from "./apiClient"
 
 
@@ -15,6 +16,6 @@ export const getSucursalsAPI = async () => {
         const response = await apiClient.get('/sucursal')
         return response.data
     } catch (error) {
-        parseError(error)
+        parseError(error as AxiosError)
     }
 }

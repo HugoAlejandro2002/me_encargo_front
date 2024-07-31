@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber } from 'antd';
 import moment from 'moment';
 
@@ -6,7 +6,8 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
     const [form] = Form.useForm();
-    React.useEffect(() => {
+
+    useEffect(() => {
         if (order) {
             form.setFieldsValue({
                 ...order,
@@ -21,7 +22,7 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
             });
         }
     }, [order, form]);
-    console.log(order)
+    // console.log(order)
 
     const handleSave = () => {
         form.validateFields()

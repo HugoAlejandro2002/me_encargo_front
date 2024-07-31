@@ -33,7 +33,6 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
         <Descriptions.Item label="Fecha de Ingreso">{new Date(fecha_de_ingreso).toLocaleDateString()}</Descriptions.Item>
         <Descriptions.Item label="Categoría">{categoria.categoria}</Descriptions.Item>
         <Descriptions.Item label="Grupo">{group.name}</Descriptions.Item>
-        {/* TODO: Get the stock of a product */}
         <Descriptions.Item label="Stock Total">{product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0)}</Descriptions.Item>
       </Descriptions>
 

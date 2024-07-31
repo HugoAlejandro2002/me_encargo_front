@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber, Select } from 'antd';
+import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber } from 'antd';
 import moment from 'moment';
 import { getProductByShippingAPI } from '../../api/sales';
 import EmptySalesTable from '../Sales/EmptySalesTable';
@@ -42,6 +42,7 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
         }
         console.log(order+ "yaaa")
     }, [order, form]);
+    // console.log(order)
 
     const handleSave = () => {
         form.validateFields()

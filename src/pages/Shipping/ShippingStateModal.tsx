@@ -1,42 +1,81 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Modal, Button, Form, Row, Col, TimePicker, Radio, InputNumber, message } from 'antd';
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import moment from 'moment';
+import { updateShippingAPI } from '../../api/shipping';
 
-const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
+const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
     const [estadoPedido, setEstadoPedido] = useState(null);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
+    const [loading, setLoading] = useState(false)
     const [form] = Form.useForm();
 
-    // const tipoPagoMap: any = {
-    //     1: 'Transferencia o QR',
-    //     2: 'Efectivo',
-    //     3: 'Pagado al dueño'
-    // }
-    // const estadoPedidoMap: any = {
-    //     1: 'En espera',
-    //     2: 'Por entregar',
-    //     3: 'Entregado'
-    // }
-    // const intTipoPago = parseInt(order.tipo_de_pago)
-    // const intEstadoPedido = parseInt(order.estado_pedido)
+    const tipoPagoMap: any = {
+        1: 'Transferencia o QR',
+        2: 'Efectivo',
+        3: 'Pagado al dueño'
+    }
+    const estadoPedidoMap: any = {
+        1: 'En espera',
+        2: 'Por entregar',
+        3: 'Entregado'
+    }
 
-    React.useEffect(() => {
-        if (order) {
+    useEffect(() => {
+        if (shipping) {
             form.setFieldsValue({
-                ...order,
-                fecha_pedido: order.fecha_pedido ? moment(order.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_acordada: order.hora_entrega_acordada ? moment(order.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_real: order.hora_entrega_real ? moment(order.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_final: order.hora_final || '',
-                observaciones: order.observaciones || '',
-                telefono_cliente: order.telefono_cliente || '',
-                monto_total: order.monto_total || '',
-                pagado_al_vendedor: order.pagado_al_vendedor || '',
+                ...shipping,
+                fecha_pedido: shipping.fecha_pedido ? moment(shipping.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_acordada: shipping.hora_entrega_acordada ? moment(shipping.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_real: shipping.hora_entrega_real ? moment(shipping.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_final: shipping.hora_final || '',
+                observaciones: shipping.observaciones || '',
+                telefono_cliente: shipping.telefono_cliente || '',
+                monto_total: shipping.monto_total || '',
+                pagado_al_vendedor: shipping.pagado_al_vendedor || '',
             });
         }
-    }, [order, form]);
+    }, [shipping, form]);
+
+    const handleFinish = async (shippingStateData: any) => {
+        setLoading(true)
+        const intTipoPago = parseInt(shippingStateData.tipo_de_pago)
+        const intEstadoPedido = parseInt(shippingStateData.estado_pedido)
+
+        let updateShippingInfo = {}
+
+        if (intEstadoPedido == 1) {
+            updateShippingInfo = { tipo_de_pago: estadoPedidoMap(intEstadoPedido) }
+        }
+
+        if (intEstadoPedido == 2) {
+            updateShippingInfo = {
+                hora_entrega_acordada: shippingStateData.hora_entrega_acordada,
+                estado_pedido: estadoPedidoMap[intEstadoPedido]
+            }
+        }
+
+        if (intEstadoPedido == 3) {
+            updateShippingInfo = {
+                cargo_delivery: parseInt(shippingStateData.cargo_delivery),
+                costo_delivery: parseInt(shippingStateData.costo_delivery),
+                estado_pedido: estadoPedidoMap[intEstadoPedido],
+                tipo_de_pago: tipoPagoMap[intTipoPago],
+                hora_entrega_real: moment.utc().subtract(4, 'hours').format('YYYY-MM-DD HH:mm:ss')
+            }
+        }
+
+
+        const res = await updateShippingAPI(updateShippingInfo, shipping.id_pedido)
+        if (res) {
+            message.success('Pedido actualizado')
+            onSave()
+        } else {
+            message.error('Error al actualizar el pedido, inténtelo de nuevo')
+        }
+        setLoading(false)
+    }
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue + value).toFixed(2)));
@@ -46,10 +85,11 @@ const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
         setter(prevValue => parseFloat((prevValue - value).toFixed(2)));
     };
 
-    const handleSave = () => {
+    const handleSave = (formData: any) => {
+        console.log(formData, 'xd?')
         form.validateFields()
             .then(values => {
-                onSave({ ...order, ...values });
+                onSave({ ...shipping, ...values });
                 onClose();
             })
             .catch(info => {
@@ -62,14 +102,19 @@ const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
 
     return (
         <Modal
-            title={`Estado del pedido ${order ? order.id_pedido : ''}`}
+            title={`Estado del pedido ${shipping ? shipping.id_pedido : ''}`}
             open={visible}
             onCancel={onClose}
             footer={[
                 <Button key="back" onClick={onClose}>
                     Cancelar
                 </Button>,
-                <Button key="submit" type="primary" onClick={handleSave}>
+                <Button
+                    key="submit"
+                    type="primary"
+                    loading={loading}
+                    onClick={() => form.submit()}
+                >
                     Guardar
                 </Button>
             ]}
@@ -80,6 +125,7 @@ const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
                 form={form}
                 layout="vertical"
                 name="shipping_info_form"
+                onFinish={handleFinish}
             >
                 <Row gutter={16}>
                     <Col span={18}>
@@ -179,19 +225,19 @@ const ShippingStateModal = ({ visible, onClose, order, onSave }: any) => {
                             </Col>
                         </Row>
                         <Row gutter={16}>
-                        <Col span={24}>
-                            <Form.Item
-                                name='tipo_de_pago'
-                                label='Tipo de pago'
-                            >
-                                <Radio.Group>
-                                    <Radio.Button value='1'>Transferencia o QR</Radio.Button>
-                                    <Radio.Button value='2'>Efectivo</Radio.Button>
-                                    <Radio.Button value='3'>Pagado al dueño</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                            <Col span={24}>
+                                <Form.Item
+                                    name='tipo_de_pago'
+                                    label='Tipo de pago'
+                                >
+                                    <Radio.Group>
+                                        <Radio.Button value='1'>Transferencia o QR</Radio.Button>
+                                        <Radio.Button value='2'>Efectivo</Radio.Button>
+                                        <Radio.Button value='3'>Pagado al dueño</Radio.Button>
+                                    </Radio.Group>
+                                </Form.Item>
+                            </Col>
+                        </Row>
                     </div>
                 )}
             </Form>

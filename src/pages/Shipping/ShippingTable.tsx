@@ -24,7 +24,7 @@ const ShippingTable = (refreshKey: any) => {
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModaStatelVisible, setIsModalStateVisible] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedShipping, setSelectedShipping] = useState(null);
 
     const fetchShippings = async () => {
         try {
@@ -67,7 +67,7 @@ const ShippingTable = (refreshKey: any) => {
             dataIndex: 'infoButton',
             key: 'infoButton',
             width: '5%',
-            render: (_, record:any) => (
+            render: (_: any, record: any) => (
                 <InfoCircleOutlined
                     style={{ fontSize: '20px', color: '#1890ff', cursor: 'pointer' }}
                     onClick={() => handleIconClick(record)}
@@ -91,15 +91,16 @@ const ShippingTable = (refreshKey: any) => {
             key: 'cliente',
         },
     ];
-    
+
     const handleIconClick = (order: any) => {
-        setSelectedOrder(order);
+        setSelectedShipping(order);
         setIsModalStateVisible(true);
     };
     const handleRowClick = (order: any) => {
-        setSelectedOrder(order);
+        setSelectedShipping(order);
         setIsModalVisible(true);
     };
+
     useEffect(() => {
         fetchShippings();
         //handleSearch();     Con esto se podria sin el boton
@@ -162,7 +163,7 @@ const ShippingTable = (refreshKey: any) => {
             )}
             <ShippingInfoModal
                 visible={isModalVisible && !isModaStatelVisible}
-                order={selectedOrder}
+                order={selectedShipping}
                 onClose={() => setIsModalVisible(false)}
                 onSave={() => {
                     setIsModalVisible(false);
@@ -171,15 +172,16 @@ const ShippingTable = (refreshKey: any) => {
             />
             <ShippingStateModal
                 visible={isModaStatelVisible}
-                order={selectedOrder}
+                order={selectedShipping}
                 onClose={() => {
-                    setIsModalStateVisible(false) 
+                    setIsModalStateVisible(false)
                     setIsModalVisible(false)
                 }}
                 onSave={() => {
                     setIsModalStateVisible(false);
                     fetchShippings();
                 }}
+                shipping={selectedShipping}
             />
         </div>
     );

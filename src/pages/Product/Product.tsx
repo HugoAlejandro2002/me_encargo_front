@@ -59,6 +59,13 @@ const Product = () => {
         handleVariantCancel();
     };
 
+    const refreshProducts = (groupId) => {
+        setRefreshKeys((prevKeys) => ({
+            ...prevKeys,
+            [groupId]: (prevKeys[groupId] || 0) + 1,
+        }));
+    };
+
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
@@ -71,6 +78,7 @@ const Product = () => {
                         key={`${group.id}-${refreshKeys[group.id] || 0}`} // Unique key to force re-render for the specific group
                         group={group}
                         onAddVariant={() => showVariantModal(group)} 
+                        refreshProducts = {() => refreshProducts(group.id)}
                     />
                 )
             }

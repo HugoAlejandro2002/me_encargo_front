@@ -1,5 +1,6 @@
 import { Button, InputNumber, Table } from "antd";
 import { useState } from "react";
+import { updateProductStockAPI } from "../../api/product";
 
 
 const RestockTable = ({ products, onSave }) => {
@@ -17,7 +18,14 @@ const RestockTable = ({ products, onSave }) => {
     const handleSave = async () => {
         try {
             console.log("Saving", restockData)
-
+            const bodyData = restockData.map(({incomingQuantity, precio, stock, id_producto}) => ({
+                precio, 
+                stock: incomingQuantity,
+                productId: id_producto,
+                // TODO AGREGAR SECCION DE SUCURSAL
+                sucursalId: 3
+            }))
+            await updateProductStockAPI(bodyData)
             if (onSave) onSave();
         } catch (error) {
             console.error('Error saving restock data:', error);

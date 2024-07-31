@@ -25,7 +25,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                 featuresFilter
             }
 
-            onAdd(variant);
+            await onAdd(variant);
             
             form.resetFields();
             setFeatures([{ feature: '', value: '' }]); // Reset features state

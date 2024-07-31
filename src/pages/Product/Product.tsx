@@ -44,7 +44,13 @@ const Product = () => {
     const handleVariantAdd = async (newVariant) => {
 
         const {product,  featuresFilter:features} = newVariant
-        const {newProduct} = await registerVariantAPI(product)
+        const stock = {
+            cantidad_por_sucursal: product.stock,
+            //TODO Add Sucursal Field in the form
+            id_sucursal: 3
+        }
+        console.log({product, stock})
+        const {newProduct} = await registerVariantAPI({product,stock})
         await addProductFeaturesAPI({productId: newProduct.id_producto, features})
 
         console.log("New Variant:", newVariant);
@@ -59,6 +65,13 @@ const Product = () => {
         handleVariantCancel();
     };
 
+    const refreshProducts = (groupId) => {
+        setRefreshKeys((prevKeys) => ({
+            ...prevKeys,
+            [groupId]: (prevKeys[groupId] || 0) + 1,
+        }));
+    };
+
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
@@ -71,6 +84,7 @@ const Product = () => {
                         key={`${group.id}-${refreshKeys[group.id] || 0}`} // Unique key to force re-render for the specific group
                         group={group}
                         onAddVariant={() => showVariantModal(group)} 
+                        refreshProducts = {() => refreshProducts(group.id)}
                     />
                 )
             }

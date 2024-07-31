@@ -5,7 +5,7 @@ import ProductInfoModal from "./ProductInfoModal";
 import { InfoCircleOutlined } from '@ant-design/icons';
 
 
-const GroupProductTable = ({ group, onAddVariant }: any) => {
+const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
     const columns = [
         {
             title: '',
@@ -50,6 +50,7 @@ const GroupProductTable = ({ group, onAddVariant }: any) => {
     const closeModal = () => {
         setIsModalVisible(false)
         setSelectedProduct(null)
+        refreshProducts()
     }
 
     const [products, setProducts] = useState<any>([])

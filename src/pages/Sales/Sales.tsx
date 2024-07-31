@@ -27,7 +27,6 @@ export const Sales = () => {
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
     };
-
     const showSalesModal = () => {
         setModalType('sales');
     };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber } from 'antd';
+import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber, Select } from 'antd';
 import moment from 'moment';
 import { getProductByShippingAPI } from '../../api/sales';
 import EmptySalesTable from '../Sales/EmptySalesTable';
@@ -9,9 +9,10 @@ import useEditableTable from '../../hooks/useEditableTable';
 const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
-    const [selectedProducts, setSelectedProducts,handleValueChange] = useEditableTable([])
-    const [products, setProducts] = useState<Product[]>([]);
-    
+    const [handleValueChange] = useEditableTable([])
+    const [products, setProducts] = useState<any[]>([]);
+    const [totalAmount, setTotalAmount] = useState<number>(0);
+
     const { data } = useProducts();
     const [form] = Form.useForm();
 
@@ -40,10 +41,8 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 }
             });
         }
-        console.log(order+ "yaaa")
     }, [order, form]);
     // console.log(order)
-
     const handleSave = () => {
         form.validateFields()
             .then(values => {
@@ -55,21 +54,32 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
             });
     };
 
-    const handleProductSelect = (product: any) => {
-        // setEditableProducts((prevProducts: any) => {
-        setProducts((prevProducts: any) => {
-            const exists = prevProducts.find((p: any) => p.key === product.key);
-            if (!exists) {
-                return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
-            }
-            return prevProducts;
-        });
+    const handleProductSelect = (value: any) => {
+        const selectedProduct = data.find((product: any) => product.key === value);
+        if (selectedProduct) {
+            setProducts((prevProducts: any) => {
+                const exists = prevProducts.find((p: any) => p.key === selectedProduct.key);
+                if (!exists) {
+                    return [...prevProducts, {
+                        key: selectedProduct.key, // Usa id_producto como clave única
+                        producto: selectedProduct.producto,
+                        cantidad: 1,
+                        precio_unitario: selectedProduct.precio,
+                        utilidad: 1
+                    }];
+                }
+                return prevProducts;
+            });
+        }
     };
     const handleDeleteProduct = (key: any) => {
         setProducts((prevProducts: any) => {
             const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
             return updatedProducts;
         });
+    };
+    const updateTotalAmount = (amount: number) => {
+        setTotalAmount(amount);
     };
 
     return (
@@ -181,9 +191,9 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 <Form.Item>
                     <EmptySalesTable
                         products={products}
-                        onDeleteProduct={handleDeleteProduct} // Implementar si es necesario
-                        onUpdateTotalAmount={() => {}} // Implementar si es necesario
-                        handleValueChange={() => {}} // Implementar si es necesario
+                        onDeleteProduct={handleDeleteProduct} 
+                        onUpdateTotalAmount={updateTotalAmount} 
+                        handleValueChange={handleValueChange} 
                     />
                 </Form.Item>
                 <Form.Item
@@ -191,17 +201,19 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                     label="Producto"
                 >
                     <Select
+                        onChange={(value) => {handleProductSelect(value)}}
                         placeholder="Selecciona un producto"
-                        options={data.map((product: any) => ({
-                            value: product.id_producto,
-                            label: product.producto,
-                        }))}
                         showSearch
                         filterOption={(input, option: any) =>
                             option.label.toLowerCase().includes(input.toLowerCase())
                         }
-                        onChange={handleProductSelect}
-                    />
+                    >
+                        {data.map((product: any) => (
+                            <Select.Option key={product.id_producto} value={product.key}>
+                                {product.producto}
+                            </Select.Option>
+                        ))}
+                    </Select>
                 </Form.Item>
                 <Form.Item
                     name="monto_total"
@@ -210,7 +222,7 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                     <Input disabled />
                 </Form.Item>
             </Form>
-        </Modal>
+        </Modal >
     );
 };
 

@@ -39,8 +39,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 "nombre_producto": `${productData.nombre_producto} ${joinedFeatureValues}`,
                 "precio": combination.price,
                 "imagen": '',
-                "stock": combination.stock,
-                "id_sucursal": productData.sucursal,
+                "cantidad_por_sucursal": combination.stock,
                 "id_categoria": productData.id_categoria,
                 "id_vendedor": productData.id_vendedor,
                 "id_variant": index,
@@ -49,10 +48,13 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
 
         const formattedProductData = {
             "group": productData.nombre_producto,
-            "variants": productVariants
+            "variants": productVariants,
+            "id_sucursal": productData.sucursal
         }
         const res = await registerProductAPI(formattedProductData)
-
+        console.log(res)
+        res.products = res.products.map((product) => product.newProduct)
+        console.log({products: res.products, res})
         if (res.products) {
             message.success('Producto registrado con variantes')
 

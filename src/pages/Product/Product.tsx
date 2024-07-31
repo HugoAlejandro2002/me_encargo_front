@@ -44,7 +44,13 @@ const Product = () => {
     const handleVariantAdd = async (newVariant) => {
 
         const {product,  featuresFilter:features} = newVariant
-        const {newProduct} = await registerVariantAPI(product)
+        const stock = {
+            cantidad_por_sucursal: product.stock,
+            //TODO Add Sucursal Field in the form
+            id_sucursal: 3
+        }
+        console.log({product, stock})
+        const {newProduct} = await registerVariantAPI({product,stock})
         await addProductFeaturesAPI({productId: newProduct.id_producto, features})
 
         console.log("New Variant:", newVariant);

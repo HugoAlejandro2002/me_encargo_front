@@ -1,25 +1,44 @@
 import { Table } from "antd"
+import { getFinancesFluxAPI } from "../../api/financeFlux";
+import { useEffect, useState } from "react";
 
-const FinanceFluxTable = () => {
+
+const FinanceFluxTable = (refreshKey: any) => {
+    const [dataWithKey, setDataWithKey] = useState([]);
+    const fetchFinances = async () => {
+        try {
+            const apiData = await getFinancesFluxAPI();
+            const dataWithKeys = apiData.map((financeFlux: any) => ({
+                ...financeFlux,
+                key: financeFlux.id_flujo_financiero // Usa un campo único como key
+            }));
+            setDataWithKey(dataWithKeys);
+        } catch (error) {
+            console.error("Error fetching shipping data:", error);
+        }
+    }
+    useEffect(() => {
+        fetchFinances();
+    }, [refreshKey])
     const columns = [
         {
             title: "Tipo",
-            dataIndex: "finance_flux_type",
+            dataIndex: "tipo",
             key: "finance_flux_type"
         },
         {
             title: "Categoría",
-            dataIndex: "finance_flux_category",
+            dataIndex: "categoria",
             key: "finance_flux_category"
         },
         {
             title: "Monto",
-            dataIndex: "finance_flux_amount",
+            dataIndex: "monto",
             key: "finance_flux_amount"
         },
         {
             title: "Concepto",
-            dataIndex: "finance_flux_concept",
+            dataIndex: "concepto",
             key: "finance_flux_concept"
         },
         {
@@ -38,6 +57,7 @@ const FinanceFluxTable = () => {
     return (
         <Table
             columns={columns}
+            dataSource={dataWithKey}
             pagination={false}
             title={() => <h2 className="text-2xl font-bold">GASTOS E INGRESOS</h2>}
         />

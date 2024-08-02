@@ -9,8 +9,7 @@ import useEditableTable from '../../hooks/useEditableTable';
 const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
-    const [handleValueChange] = useEditableTable([])
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts, handleValueChange] = useEditableTable([])
     const [totalAmount, setTotalAmount] = useState<number>(0);
 
     const { data } = useProducts();

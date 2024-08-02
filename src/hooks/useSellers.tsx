@@ -8,7 +8,6 @@ const useSellers = () => {
     const fetchSellers = async () => {
         try {
             const res = await getSellersAPI()
-            console.log(res, ' mires')
             setSellers(res)
         } catch (error) {
             console.error('Error obteniendo los vendedores', error)
@@ -19,10 +18,6 @@ const useSellers = () => {
     useEffect(() => {
         fetchSellers()
     }, [])
-
-    useEffect(() => {
-        console.log(sellers, 'mis sellers del hook')
-    }, [sellers])
 
     return { sellers }
 }

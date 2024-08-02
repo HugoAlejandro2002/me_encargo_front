@@ -30,7 +30,7 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
 
     const { fetchProducts } = useProducts()
     const [localData, setLocalData] = useState<any>([])
-    const [selectedSeller, setSelectedSeller] = useState<any>()
+    const [selectedSeller, setSelectedSeller] = useState<any>({})
     const { sellers } = useSellers()
 
     useEffect(() => {
@@ -54,6 +54,10 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
         })) || [],
     ];
 
+    const filteredData = selectedSeller.key == 'all'
+        ? data
+        : data.filter((product: any) => product.id_vendedor == selectedSeller.key);
+
     return (
         <div className='flex'>
             <Menu
@@ -65,12 +69,11 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
             <Table
                 className='flex-1 '
                 columns={columns}
-                dataSource={data}
+                dataSource={filteredData}
                 pagination={false}
                 onRow={(record) => ({
                     onClick: () => onSelectProduct(record),
                 })}
-            // title={() => <h1>Inventario</h1>}
             />
         </div>
     );

@@ -1,11 +1,10 @@
-import { Table } from 'antd';
+import { Menu, Table } from 'antd';
 
 import { useEffect, useState } from 'react';
 import useProducts from '../../hooks/useProducts';
+import useSellers from '../../hooks/useSellers';
 const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
 
-    const { fetchProducts } = useProducts()
-    const [localData, setLocalData] = useState<any>([])
     const columns = [
         {
             title: 'Producto',
@@ -27,7 +26,12 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
             dataIndex: 'categoria',
             key: 'categoria',
         },
-    ];
+    ]
+
+    const { fetchProducts } = useProducts()
+    const [localData, setLocalData] = useState<any>([])
+    const [selectedSeller, setSelectedSeller] = useState<any>()
+    const { sellers } = useSellers()
 
     useEffect(() => {
         const getNewData = async () => {
@@ -37,16 +41,38 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
         getNewData()
     }, [refreshKey])
 
+    const handleMenuClick = (key: any) => {
+        setSelectedSeller(key)
+    }
+
+
+    const menuItems = [
+        { key: 'all', label: 'Todo' }, // Opción para mostrar todos los productos
+        ...sellers?.map((seller: any) => ({
+            key: seller.id_vendedor,
+            label: `${seller.nombre} ${seller.apellido}`,
+        })) || [],
+    ];
+
     return (
-        <Table
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            onRow={(record) => ({
-                onClick: () => onSelectProduct(record),
-            })}
-        // title={() => <h1>Inventario</h1>}
-        />
+        <div className='flex'>
+            <Menu
+                onClick={handleMenuClick}
+                selectedKeys={[selectedSeller]}
+                mode="vertical"
+                items={menuItems}
+            />
+            <Table
+                className='flex-1 '
+                columns={columns}
+                dataSource={data}
+                pagination={false}
+                onRow={(record) => ({
+                    onClick: () => onSelectProduct(record),
+                })}
+            // title={() => <h1>Inventario</h1>}
+            />
+        </div>
     );
 };
 export default ProductTable;

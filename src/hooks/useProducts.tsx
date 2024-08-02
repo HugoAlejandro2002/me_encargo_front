@@ -4,16 +4,6 @@ import { getProductCategoryAPI, getProductFeaturesAPI, getProductsAPI } from "..
 const useProducts = () => {
     const [data, setData] = useState<any[]>([]);
 
-    const fetchProductFeatures = async (productId: any) => {
-        try {
-            const res = await getProductFeaturesAPI(productId);
-            return res;
-        } catch (error) {
-            console.log(error, `Error al obtener las características con idProducto ${productId}`);
-            return [];
-        }
-    };
-
     const fetchProductCategory = async (productId: any) => {
         try {
             const res = await getProductCategoryAPI(productId);
@@ -33,6 +23,7 @@ const useProducts = () => {
                 key: item.id_producto,
                 producto: item.nombre_producto,
                 precio: item.precio,
+                stockActual: item.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0),
                 categoria: category.categoria,
                 id_vendedor: item.id_vendedor,
             };

@@ -26,3 +26,29 @@ export const registerFinanceFluxAPI = async (financeFluxData: any) => {
         return { success: false }
     }
 }
+export const getSellerByShippingAPI = async (sellerId: any) => {
+    try {
+        const res = await apiClient.get(`/financeFlux/seller/${sellerId}`)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+
+    }
+}
+export const getWorkerByShippingAPI = async (workerId: any) => {
+    try {
+        const res = await apiClient.get(`/financeFlux/worker/${workerId}`)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+
+    }
+}

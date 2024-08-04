@@ -41,11 +41,6 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
         getNewData()
     }, [refreshKey])
 
-    const handleMenuClick = (key: any) => {
-        setSelectedSeller(key)
-    }
-
-
     const menuItems = [
         { key: 'all', label: 'Todo' }, // Opción para mostrar todos los productos
         ...sellers?.map((seller: any) => ({
@@ -61,7 +56,7 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
     return (
         <div className='flex'>
             <Menu
-                onClick={handleMenuClick}
+                onClick={(key) => setSelectedSeller(key)}
                 selectedKeys={[selectedSeller]}
                 mode="vertical"
                 items={menuItems}

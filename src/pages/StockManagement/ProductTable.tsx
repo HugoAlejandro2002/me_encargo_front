@@ -1,7 +1,7 @@
 import React from 'react';
 import { Table } from 'antd';
 
-const ProductTable = ({ data, onSelectProduct, columns }: any) => {
+const ProductTable = ({ data, onSelectProduct, columns, ingresoData }: any) => {
     return (
         <Table
             columns={columns}
@@ -10,7 +10,10 @@ const ProductTable = ({ data, onSelectProduct, columns }: any) => {
             onRow={(record) => ({
                 onClick: () => onSelectProduct(record),
             })}
-            rowClassName={(record) => record.stockActual > 0 ? 'highlight-row' : ''}
+            rowClassName={(record) => {
+                const ingreso = ingresoData[record.id_producto] || 0;
+                return ingreso !== 0 ? 'highlight-row' : '';
+            }}
         />
     );
 };

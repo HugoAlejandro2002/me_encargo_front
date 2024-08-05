@@ -5,6 +5,8 @@ import sellerIcon from '../../../src/assets/sellersIcon.svg';
 import cartIcon from '../../../src/assets/cartIcon.svg';
 import shippingIcon from '../../../src/assets/shippingIcon.svg';
 import financeFluxIcon from '../../../src/assets/financeFluxIcon.svg';
+import stockManagementIcon from '../../../src/assets/stockManagement.svg';
+
 
 interface SidebarProps {
     isOpen: boolean;
@@ -42,7 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
                     {isOpen && <span className='ml-2'>Pedidos</span>}
                 </Link>
                 <Link to="/stock" className='flex items-center p-4 hover:bg-light-blue/10'>
-                    <img src={financeFluxIcon} alt='Stock' className='w-6 h-6 mx-3' />
+                    <img src={stockManagementIcon} alt='Stock' className='w-6 h-6 mx-3' />
                     {isOpen && <span className='ml-2'>Stock</span>}
                 </Link>
                 {/* TODO: agregar más enlaces... */}

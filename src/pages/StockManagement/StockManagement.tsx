@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import SellerList from './SellerList';
 import ProductTable from './ProductTable';
-import { getProductsAPI } from '../../api/product'; // Assuming this is where you get both sellers and products
+import { getProductsAPI, updateProductStockAPI } from '../../api/product'; // Assuming this is where you get both sellers and products
 import { getSellersAPI } from '../../api/seller';
-import { Button } from 'antd';
+import { Button, Input } from 'antd';
 
 const StockManagement = () => {
     const [sellers, setSellers] = useState<any[]>([]);
@@ -11,14 +11,19 @@ const StockManagement = () => {
     const [selectedSeller, setSelectedSeller] = useState<number | null>(null);
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
     const [stockData, setStockData] = useState<any[]>([]);
-    
+    const [ingresoData, setIngresoData] = useState<{ [key: number]: number }>({});
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const sellersResponse = await getSellersAPI();
+                sellersResponse.unshift({id_vendedor: null, name: "Todos"})
                 setSellers(sellersResponse);
 
-                const productsResponse = await getProductsAPI(); // Fetch all products initially
+                const productsResponse = await getProductsAPI()// Fetch all products initially
+                for(const product of productsResponse){
+                    product.categoria = product.categoria.categoria
+                }
                 setProducts(productsResponse);
                 setStockData(productsResponse); // Initialize stock data
             } catch (error) {
@@ -43,16 +48,35 @@ const StockManagement = () => {
         setSelectedSeller(sellerId);
     };
 
-    const handleStockUpdate = () => {
-        // Update stock values here
-        const updatedProducts = filteredProducts.map(product => {
-            const updatedStock = stockData.find(item => item.id_producto === product.id_producto);
-            return {
-                ...product,
-                producto_sucursal: updatedStock ? updatedStock.producto_sucursal : product.producto_sucursal,
-            };
-        });
+    const handleIngresoChange = (productId: number, value: number) => {
+        setIngresoData((prev) => ({ ...prev, [productId]: value }));
+    };
+
+    const handleStockUpdate = async () => {
+
+        const updatedProducts = products
+
+        
+        const newStock = [] as any[];
+        for(const product of updatedProducts){
+            if(product.producto_sucursal[0]){
+                // TODO Change when there will be more than one sucursal
+                product.producto_sucursal[0].cantidad_por_sucursal += ingresoData[product.id_producto] || 0
+                if(ingresoData[product.id_producto])
+                    newStock.push({
+                        productId: product.id_producto,
+                        sucursalId: 3,
+                        stock: ingresoData[product.id_producto]
+                    })
+            }
+        }
+
+        
+        await updateProductStockAPI(newStock)
+
         setFilteredProducts(updatedProducts);
+        setSelectedSeller(null)
+        setIngresoData({});
     };
 
     const columns = [
@@ -66,14 +90,22 @@ const StockManagement = () => {
             dataIndex: 'producto_sucursal',
             key: 'producto_sucursal',
             render: (producto_sucursal: any) =>
-                producto_sucursal.reduce((acc: number, cur: any) => acc + cur.cantidad_por_sucursal, 0),
-            // Highlight row if stock is non-zero
-            className: (record: any) => {
-                const totalStock = record.producto_sucursal.reduce(
-                    (acc: number, cur: any) => acc + cur.cantidad_por_sucursal, 0
-                );
-                return totalStock > 0 ? 'highlight-row' : '';
-            }
+                producto_sucursal.reduce((acc: number, cur: any) => acc + cur.cantidad_por_sucursal, 0)
+        },
+        {
+            title: 'Ingreso/Entrada',
+            dataIndex: 'ingreso',
+            key: 'ingreso',
+            render: (_: any, record: any) => (
+                <Input
+                    type="number"
+                    value={ingresoData[record.id_producto] || ''}
+                    onChange={(e) =>
+                        handleIngresoChange(record.id_producto, parseInt(e.target.value, 10) || 0)
+                    }
+                />
+            ),
+            width: "10%"
         },
         {
             title: 'Precio',
@@ -82,8 +114,8 @@ const StockManagement = () => {
         },
         {
             title: 'Categoría',
-            dataIndex: 'id_categoria',
-            key: 'id_categoria',
+            dataIndex: 'categoria',
+            key: 'categoria',
         },
     ];
 
@@ -103,6 +135,7 @@ const StockManagement = () => {
                         data={filteredProducts}
                         onSelectProduct={(product: any) => console.log(product)}
                         columns={columns}
+                        ingresoData={ingresoData}
                     />
                     <Button 
                         style={{ marginTop: '20px' }}

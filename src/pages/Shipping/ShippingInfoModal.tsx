@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber } from 'antd';
+import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber, Select } from 'antd';
 import moment from 'moment';
+import { getProductByShippingAPI } from '../../api/sales';
+import EmptySalesTable from '../Sales/EmptySalesTable';
+import useProducts from '../../hooks/useProducts';
+import useEditableTable from '../../hooks/useEditableTable';
 
 const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
+    const [products, setProducts, handleValueChange] = useEditableTable([])
+    const [totalAmount, setTotalAmount] = useState<number>(0);
+
+    const { data } = useProducts();
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -21,9 +29,19 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 pagado_al_vendedor: order.pagado_al_vendedor || '',
             });
         }
+        if (order && order.id_pedido) {
+            getProductByShippingAPI(order.id_pedido).then((data: any[]) => {
+                // Asegúrate de que `data` sea un array
+                if (Array.isArray(data)) {
+                    setProducts(data);
+                } else {
+                    setProducts([]);
+                    console.error('Expected data to be an array', data);
+                }
+            });
+        }
     }, [order, form]);
     // console.log(order)
-
     const handleSave = () => {
         form.validateFields()
             .then(values => {
@@ -33,6 +51,34 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
             .catch(info => {
                 console.log('Validate Failed:', info);
             });
+    };
+
+    const handleProductSelect = (value: any) => {
+        const selectedProduct = data.find((product: any) => product.key === value);
+        if (selectedProduct) {
+            setProducts((prevProducts: any) => {
+                const exists = prevProducts.find((p: any) => p.key === selectedProduct.key);
+                if (!exists) {
+                    return [...prevProducts, {
+                        key: selectedProduct.key, // Usa id_producto como clave única
+                        producto: selectedProduct.producto,
+                        cantidad: 1,
+                        precio_unitario: selectedProduct.precio,
+                        utilidad: 1
+                    }];
+                }
+                return prevProducts;
+            });
+        }
+    };
+    const handleDeleteProduct = (key: any) => {
+        setProducts((prevProducts: any) => {
+            const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
+            return updatedProducts;
+        });
+    };
+    const updateTotalAmount = (amount: number) => {
+        setTotalAmount(amount);
     };
 
     return (
@@ -141,6 +187,33 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                         </Col>
                     </Row>
                 )}
+                <Form.Item>
+                    <EmptySalesTable
+                        products={products}
+                        onDeleteProduct={handleDeleteProduct} 
+                        onUpdateTotalAmount={updateTotalAmount} 
+                        handleValueChange={handleValueChange} 
+                    />
+                </Form.Item>
+                <Form.Item
+                    name="productos_lista"
+                    label="Producto"
+                >
+                    <Select
+                        onChange={(value) => {handleProductSelect(value)}}
+                        placeholder="Selecciona un producto"
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLowerCase().includes(input.toLowerCase())
+                        }
+                    >
+                        {data.map((product: any) => (
+                            <Select.Option key={product.id_producto} value={product.key}>
+                                {product.producto}
+                            </Select.Option>
+                        ))}
+                    </Select>
+                </Form.Item>
                 <Form.Item
                     name="monto_total"
                     label="Monto Total de la Venta"
@@ -148,7 +221,7 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                     <Input disabled />
                 </Form.Item>
             </Form>
-        </Modal>
+        </Modal >
     );
 };
 

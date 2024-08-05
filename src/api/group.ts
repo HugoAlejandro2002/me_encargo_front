@@ -26,3 +26,13 @@ export const getProductsInGroupAPI = async (id: number) => {
         return parseError(error as AxiosError)
     }
 }
+
+export const updateGroupAPI = async (updateGroupData: any, groupId: number) => {
+    try {
+        const res = await apiClient.put(`/group/${groupId}`, { newData: updateGroupData })
+        return { success: true, ...res.data }
+    }
+    catch (error) {
+        return parseError(error as AxiosError)
+    }
+}

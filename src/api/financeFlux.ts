@@ -1,9 +1,9 @@
 import { AxiosError } from "axios"
 import { apiClient } from "./apiClient"
 
-export const getSalesAPI = async () => {
+export const getFinancesFluxAPI = async () => {
     try {
-        const res = await apiClient.get(`/sale`)
+        const res = await apiClient.get(`/financeFlux`)
         return res.data
     } catch (error) {
         const err = error as AxiosError
@@ -14,9 +14,9 @@ export const getSalesAPI = async () => {
     }
 }
 
-export const registerSalesAPI = async (salesData: any) => {
+export const registerFinanceFluxAPI = async (financeFluxData: any) => {
     try {
-        const res = await apiClient.post(`/sale/register`, salesData)
+        const res = await apiClient.post(`/financeFlux/register`, financeFluxData)
         return res.data
     } catch (error) {
         const err = error as AxiosError
@@ -26,9 +26,22 @@ export const registerSalesAPI = async (salesData: any) => {
         return { success: false }
     }
 }
-export const getProductByShippingAPI = async (shippingId: any) => {
+export const getSellerByShippingAPI = async (sellerId: any) => {
     try {
-        const res = await apiClient.get(`/sale/products/${shippingId}`)
+        const res = await apiClient.get(`/financeFlux/seller/${sellerId}`)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+
+    }
+}
+export const getWorkerByShippingAPI = async (workerId: any) => {
+    try {
+        const res = await apiClient.get(`/financeFlux/worker/${workerId}`)
         return res.data
     } catch (error) {
         const err = error as AxiosError

@@ -1,25 +1,20 @@
-import { useEffect, useState } from "react"
-import { getSellersAPI } from "../api/seller"
+
+import { useState, useEffect } from 'react';
+import { getSellersAPI } from '../api/seller';
 
 const useSellers = () => {
-
-    const [sellers, setSellers] = useState<any>()
+    const [sellers, setSellers] = useState([]);
 
     const fetchSellers = async () => {
-        try {
-            const res = await getSellersAPI()
-            setSellers(res)
-        } catch (error) {
-            console.error('Error obteniendo los vendedores', error)
-            setSellers([])
-        }
-    }
+        const response = await getSellersAPI();
+        setSellers(response);
+    };
 
     useEffect(() => {
-        fetchSellers()
-    }, [])
+        fetchSellers();
+    }, []);
 
-    return { sellers }
-}
+    return { sellers, fetchSellers };
+};
 
-export default useSellers
+export default useSellers;

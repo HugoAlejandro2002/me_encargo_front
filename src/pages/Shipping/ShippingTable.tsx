@@ -8,9 +8,9 @@ import ShippingStateModal from './ShippingStateModal';
 const { RangePicker } = DatePicker;
 
 const ShippingTable = (refreshKey: any) => {
+    const [shippingData, setShippingData] = useState([])
     const [esperaData, setEsperaData] = useState([]);
     const [porEntregarData, setPorEntregarData] = useState([]);
-    const [stockInsuficienteData, setStockInsuficienteData] = useState([]);
     const [entregadoData, setEntregadoData] = useState([]);
     const [filteredEsperaData, setFilteredEsperaData] = useState([]);
     const [filteredPorEntregarData, setFilteredPorEntregarData] = useState([]);
@@ -18,9 +18,9 @@ const ShippingTable = (refreshKey: any) => {
     const [selectedLocation, setSelectedLocation] = useState('');
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
     const [visibility, setVisibility] = useState({
-        espera: false,
-        porEntregar: false,
-        entregado: false,
+        espera: true,
+        porEntregar: true,
+        entregado: true,
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModaStatelVisible, setIsModalStateVisible] = useState(false);
@@ -33,9 +33,8 @@ const ShippingTable = (refreshKey: any) => {
                 ...pedido,
                 key: pedido.id_pedido
             }));
-            setEsperaData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
-            setPorEntregarData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
-            setEntregadoData(dataWithKey.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
+            console.log(dataWithKey, 'fetched>')
+            setShippingData(dataWithKey)
         } catch (error) {
             console.error("Error fetching shipping data:", error);
         }
@@ -81,6 +80,11 @@ const ShippingTable = (refreshKey: any) => {
             render: (text: string) => new Date(text).toLocaleDateString('es-ES')
         },
         {
+            title: 'Lugar de entrega',
+            dataIndex: 'lugar_entrega',
+            key: 'lugar_entrega'
+        },
+        {
             title: 'Vendedor',
             dataIndex: 'vendedor',
             key: 'vendedor',
@@ -102,9 +106,23 @@ const ShippingTable = (refreshKey: any) => {
     };
 
     useEffect(() => {
-        fetchShippings();
-        //handleSearch();     Con esto se podria sin el boton
-    }, [refreshKey, selectedLocation, dateRange, esperaData, porEntregarData, entregadoData])
+        const fetchData = async () => {
+            return await fetchShippings();
+        }
+        const newData = fetchData()
+        console.log(newData, 'ship')
+    }, [refreshKey])
+
+    useEffect(() => {
+        setEsperaData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
+        setPorEntregarData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
+        setEntregadoData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
+
+        setFilteredEsperaData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
+        setFilteredPorEntregarData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
+        setFilteredEntregadoData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
+    }, [shippingData])
+
 
     return (
         <div>

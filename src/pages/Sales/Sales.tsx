@@ -73,7 +73,7 @@ export const Sales = () => {
     };
 
     const fetchSucursal = async () => {
-        try{
+        try {
             console.log("Fetch Sucursal")
             const response = await getSucursalsAPI()
             setSucursal(response)
@@ -209,7 +209,7 @@ export const Sales = () => {
                 selectedProducts={selectedProducts}
                 handleSales={createSales}
                 totalAmount={totalAmount}
-                sucursals = {sucursal}
+                sucursals={sucursal}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
@@ -219,7 +219,7 @@ export const Sales = () => {
                 selectedProducts={selectedProducts}
                 handleSales={createSales}
                 totalAmount={totalAmount}
-                sucursals = {sucursal}
+                sucursals={sucursal}
             />
         </div>
     );

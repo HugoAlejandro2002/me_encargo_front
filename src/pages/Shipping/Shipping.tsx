@@ -2,7 +2,7 @@ import { useState } from "react";
 import useProducts from "../../hooks/useProducts";
 import ShippingTable from "./ShippingTable";
 
-const Product = () => {
+const Shipping = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [refreshKey, setRefreshKey] = useState(0)
 
@@ -29,4 +29,4 @@ const Product = () => {
     );
 };
 
-export default Product;
+export default Shipping;

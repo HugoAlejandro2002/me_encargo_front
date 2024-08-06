@@ -86,7 +86,6 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
     };
 
     const handleSave = (formData: any) => {
-        console.log(formData, 'xd?')
         form.validateFields()
             .then(values => {
                 onSave({ ...shipping, ...values });

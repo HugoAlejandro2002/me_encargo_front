@@ -108,9 +108,9 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                 };
                 if (adelantoVisible) {
                     updateShippingInfo.adelanto_cliente = shippingInfoData.adelanto_cliente;
-                } if(shippingInfoData.pagado_al_vendedor === '1'){
+                } if (shippingInfoData.pagado_al_vendedor === '1') {
                     updateShippingInfo.pagado_al_vendedor = true;
-                }else{updateShippingInfo.pagado_al_vendedor = false}
+                } else { updateShippingInfo.pagado_al_vendedor = false }
 
                 updateShippingAPI(updateShippingInfo, shipping.id_pedido)
                 onSave({ ...shipping, ...values });

@@ -30,7 +30,7 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
 
     const { fetchProducts } = useProducts()
     const [localData, setLocalData] = useState<any>([])
-    const [selectedSeller, setSelectedSeller] = useState<any>({})
+    const [selectedSeller, setSelectedSeller] = useState<any>({ key: 'all' })
     const { sellers } = useSellers()
 
     useEffect(() => {

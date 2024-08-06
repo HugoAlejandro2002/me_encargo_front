@@ -1,36 +1,40 @@
 import { useEffect, useState } from 'react';
 import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber, Select } from 'antd';
 import moment from 'moment';
-import { getProductByShippingAPI } from '../../api/sales';
+import { deleteProductsByShippingAPI, getProductByShippingAPI, registerSalesAPI, updateProductsByShippingAPI } from '../../api/sales';
 import EmptySalesTable from '../Sales/EmptySalesTable';
 import useProducts from '../../hooks/useProducts';
 import useEditableTable from '../../hooks/useEditableTable';
+import { registerSalesToShippingAPI, updateShippingAPI } from '../../api/shipping';
 
-const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
+const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
     const [products, setProducts, handleValueChange] = useEditableTable([])
     const [totalAmount, setTotalAmount] = useState<number>(0);
+    const [deletedProducts, setDeletedProducts] = useState<number[]>([]);
+    const [loading, setLoading] = useState(false)
 
     const { data } = useProducts();
     const [form] = Form.useForm();
 
     useEffect(() => {
-        if (order) {
+        if (shipping) {
             form.setFieldsValue({
-                ...order,
-                fecha_pedido: order.fecha_pedido ? moment(order.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_acordada: order.hora_entrega_acordada ? moment(order.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_real: order.hora_entrega_real ? moment(order.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_final: order.hora_final || '',
-                observaciones: order.observaciones || '',
-                telefono_cliente: order.telefono_cliente || '',
-                monto_total: order.monto_total || '',
-                pagado_al_vendedor: order.pagado_al_vendedor || '',
+                ...shipping,
+                fecha_pedido: shipping.fecha_pedido ? moment(shipping.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_acordada: shipping.hora_entrega_acordada ? moment(shipping.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_real: shipping.hora_entrega_real ? moment(shipping.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_final: shipping.hora_final || '',
+                observaciones: shipping.observaciones || '',
+                telefono_cliente: shipping.telefono_cliente || '',
+                monto_total: shipping.monto_total || '',
+                //pagado_al_vendedor: shipping.pagado_al_vendedor || '',
+                //adelanto_cliente: shipping.adelanto_cliente || '',
             });
         }
-        if (order && order.id_pedido) {
-            getProductByShippingAPI(order.id_pedido).then((data: any[]) => {
+        if (shipping && shipping.id_pedido) {
+            getProductByShippingAPI(shipping.id_pedido).then((data: any[]) => {
                 // Asegúrate de que `data` sea un array
                 if (Array.isArray(data)) {
                     setProducts(data);
@@ -40,19 +44,83 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 }
             });
         }
-    }, [order, form]);
-    // console.log(order)
-    const handleSave = () => {
+    }, [shipping, form]);
+    //console.log(products)
+    const handleSave = (shippingInfoData: any) => {
+        setLoading(true)
         form.validateFields()
             .then(values => {
-                onSave({ ...order, ...values });
+                const newProducts = products.filter((product: any) => !product.id_venta);
+                const existingProducts = products.filter((product: any) => product.id_venta);
+
+                const formattedExistingProducts = existingProducts.map((product: any) => ({
+                    id_venta: product.id_venta,
+                    id_producto: product.id_producto,
+                    cantidad: product.cantidad,
+                    precio_unitario: product.precio_unitario,
+                    utilidad: product.utilidad
+                }));
+                const formattedNewProducts = newProducts.map((product: any) => ({
+                    cantidad: product.cantidad,
+                    precio_unitario: product.precio_unitario,
+                    utilidad: product.utilidad,
+                    id_producto: product.key,
+                    id_pedido: shipping.id_pedido,
+                    id_vendedor: product.id_vendedor,
+                    deposito_realizado: false
+                }));
+
+                // Actualizar productos existentes
+                if (existingProducts.length > 0) {
+                    updateProductsByShippingAPI(shipping.id_pedido, formattedExistingProducts).catch((error: any) => {
+                        console.error("Error updating products:", error);
+                    });
+                }
+                //console.log(formattedNewProducts)
+                // Insertar nuevos productos
+                if (newProducts.length > 0) {
+                    // registerSalesToShippingAPI({
+                    //     shippingId: shipping.id_pedido,
+                    //     sales: formattedNewProducts
+                    // }).catch((error:any) => {
+                    //     console.error("Error adding new products:", error);
+                    // });
+
+                    registerSalesAPI(formattedNewProducts).catch((error: any) => {
+                        console.error("Error adding new products:", error);
+                    });
+                }
+
+                // Eliminar productos eliminados
+                if (deletedProducts.length > 0) {
+                    deleteProductsByShippingAPI(shipping.id_pedido, deletedProducts).catch((error: any) => {
+                        console.error("Error deleting products:", error);
+                    });
+                }
+                let updateShippingInfo = {
+                    fecha_pedido: (shippingInfoData.fecha_pedido).format('YYYY-MM-DD HH:mm:ss.SSS'),
+                    hora_entrega_acordada: (shippingInfoData.hora_entrega_acordada).format('YYYY-MM-DD HH:mm:ss'),
+                    observaciones: shippingInfoData.observaciones,
+                    telefono_cliente: shippingInfoData.telefono_cliente,
+                    lugar_entrega: shippingInfoData.lugar_entrega,
+                    pagado_al_vendedor: shipping.pagado_al_vendedor,
+                    adelanto_cliente: shipping.adelanto_cliente,
+                };
+                if (adelantoVisible) {
+                    updateShippingInfo.adelanto_cliente = shippingInfoData.adelanto_cliente;
+                } if(shippingInfoData.pagado_al_vendedor === '1'){
+                    updateShippingInfo.pagado_al_vendedor = true;
+                }else{updateShippingInfo.pagado_al_vendedor = false}
+                
+                updateShippingAPI(updateShippingInfo, shipping.id_pedido)
+                onSave({ ...shipping, ...values });
                 onClose();
+                setLoading(false)
             })
             .catch(info => {
                 console.log('Validate Failed:', info);
             });
     };
-
     const handleProductSelect = (value: any) => {
         const selectedProduct = data.find((product: any) => product.key === value);
         if (selectedProduct) {
@@ -64,7 +132,9 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                         producto: selectedProduct.producto,
                         cantidad: 1,
                         precio_unitario: selectedProduct.precio,
-                        utilidad: 1
+                        utilidad: 1,
+                        id_venta: null,
+                        id_vendedor: selectedProduct.id_vendedor,
                     }];
                 }
                 return prevProducts;
@@ -74,23 +144,40 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
     const handleDeleteProduct = (key: any) => {
         setProducts((prevProducts: any) => {
             const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
+            const deletedProduct = prevProducts.find((product: any) => product.key === key);
+            if (deletedProduct && deletedProduct.id_venta) {
+                setDeletedProducts((prevDeleted: any) => [...prevDeleted,
+                {
+                    id_venta: deletedProduct.id_venta,
+                    id_producto: deletedProduct.id_producto
+
+                }
+                ]);
+            }
+            //console.log(deletedProducts)
             return updatedProducts;
         });
     };
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
     };
+    //console.log(deletedProducts)
 
     return (
         <Modal
-            title={`Detalles del Pedido ${order ? order.id_pedido : ''}`}
+            title={`Detalles del Pedido ${shipping ? shipping.id_pedido : ''}`}
             open={visible}
             onCancel={onClose}
             footer={[
                 <Button key="back" onClick={onClose}>
                     Cancelar
                 </Button>,
-                <Button key="submit" type="primary" onClick={handleSave}>
+                <Button
+                    key="submit"
+                    type="primary"
+                    loading={loading}
+                    onClick={() => form.submit()}
+                >
                     Guardar
                 </Button>
             ]}
@@ -101,6 +188,7 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 form={form}
                 layout="vertical"
                 name="shipping_info_form"
+                onFinish={handleSave}
             >
                 <Row gutter={16}>
                     <Col span={6}>
@@ -115,15 +203,6 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                         <Form.Item
                             name="hora_entrega_acordada"
                             label="Hora de entrega"
-                        >
-                            <TimePicker format="HH:mm" />
-
-                        </Form.Item>
-                    </Col>
-                    <Col span={6}>
-                        <Form.Item
-                            name="hora_entrega_real"
-                            label="Hora de Entrega Final"
                         >
                             <TimePicker format="HH:mm" />
 
@@ -174,9 +253,9 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                name='adelanto_cliente2'
+                                name='adelanto_cliente'
                                 label='Adelanto Cliente'
-                                initialValue={0}
+                                initialValue={shipping.adelanto_cliente}
                             >
                                 <Input
                                     prefix='Bs.'
@@ -190,9 +269,9 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                 <Form.Item>
                     <EmptySalesTable
                         products={products}
-                        onDeleteProduct={handleDeleteProduct} 
-                        onUpdateTotalAmount={updateTotalAmount} 
-                        handleValueChange={handleValueChange} 
+                        onDeleteProduct={handleDeleteProduct}
+                        onUpdateTotalAmount={updateTotalAmount}
+                        handleValueChange={handleValueChange}
                     />
                 </Form.Item>
                 <Form.Item
@@ -200,7 +279,7 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                     label="Producto"
                 >
                     <Select
-                        onChange={(value) => {handleProductSelect(value)}}
+                        onChange={(value) => { handleProductSelect(value) }}
                         placeholder="Selecciona un producto"
                         showSearch
                         filterOption={(input, option: any) =>
@@ -218,7 +297,12 @@ const ShippingInfoModal = ({ visible, onClose, order, onSave }: any) => {
                     name="monto_total"
                     label="Monto Total de la Venta"
                 >
-                    <Input disabled />
+                    <Input
+                        prefix='Bs.'
+                        value={totalAmount ?? 0}
+                        readOnly
+                        style={{ width: '100%' }}
+                    />
                 </Form.Item>
             </Form>
         </Modal >

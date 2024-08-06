@@ -82,8 +82,8 @@ const ShippingTable = (refreshKey: any) => {
         },
         {
             title: 'Vendedor',
-            dataIndex: 'stockActual',
-            key: 'stockActual',
+            dataIndex: 'vendedor',
+            key: 'vendedor',
         },
         {
             title: 'Cliente',
@@ -163,7 +163,7 @@ const ShippingTable = (refreshKey: any) => {
             )}
             <ShippingInfoModal
                 visible={isModalVisible && !isModaStatelVisible}
-                order={selectedShipping}
+                shipping={selectedShipping}
                 onClose={() => setIsModalVisible(false)}
                 onSave={() => {
                     setIsModalVisible(false);

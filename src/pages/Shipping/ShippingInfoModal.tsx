@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, InputNumber, Select } from 'antd';
+import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, Select } from 'antd';
 import moment from 'moment';
 import { deleteProductsByShippingAPI, getProductByShippingAPI, registerSalesAPI, updateProductsByShippingAPI } from '../../api/sales';
 import EmptySalesTable from '../Sales/EmptySalesTable';
 import useProducts from '../../hooks/useProducts';
 import useEditableTable from '../../hooks/useEditableTable';
-import { registerSalesToShippingAPI, updateShippingAPI } from '../../api/shipping';
+import { updateShippingAPI } from '../../api/shipping';
 
 const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
@@ -111,7 +111,7 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                 } if(shippingInfoData.pagado_al_vendedor === '1'){
                     updateShippingInfo.pagado_al_vendedor = true;
                 }else{updateShippingInfo.pagado_al_vendedor = false}
-                
+
                 updateShippingAPI(updateShippingInfo, shipping.id_pedido)
                 onSave({ ...shipping, ...values });
                 onClose();

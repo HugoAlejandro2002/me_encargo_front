@@ -1,4 +1,4 @@
-import { Button, Input, Table } from "antd"
+import { Input, Select, Table } from "antd"
 import { getFinancesFluxAPI, getSellerByShippingAPI, getWorkerByShippingAPI } from "../../api/financeFlux";
 import { useEffect, useState } from "react";
 
@@ -6,6 +6,12 @@ const FinanceFluxTable = (refreshKey: any) => {
     const [dataWithKey, setDataWithKey] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [selectedType, setSelectedType] = useState('');
+
+    const financeFluxTypes: any = {
+        1: "GASTO",
+        2: "INGRESO",
+        3: "INVERSION"
+    }
 
     const fetchFinances = async () => {
         try {
@@ -31,17 +37,22 @@ const FinanceFluxTable = (refreshKey: any) => {
             console.error("Error fetching financeFlux data:", error);
         }
     }
-    const handleSearch = () => {
-        const filterByType = (data: any) => {
-            return data.filter((financeFlux: any) => {
-                return (!selectedType || financeFlux.tipo.toLowerCase().includes(selectedType.toLowerCase()));
-            })
-        }
-        setFilteredData(filterByType(dataWithKey));
-    }
+
     useEffect(() => {
         fetchFinances();
     }, [refreshKey])
+
+    useEffect(() => {
+        const filterByType = (data: any) => {
+            if (!selectedType || selectedType === '') {
+                return data; 
+            }
+            return data.filter((financeFlux: any) => {
+                return financeFlux.tipo.toLowerCase() === financeFluxTypes[selectedType].toLowerCase()
+            });
+        };
+        setFilteredData(filterByType(dataWithKey));
+    }, [selectedType, dataWithKey])
 
     const columns = [
         {
@@ -80,18 +91,20 @@ const FinanceFluxTable = (refreshKey: any) => {
 
     return (
         <div>
-            <Input
-                placeholder="Buscar por tipo"
-                value={selectedType}
-                onChange={(e: any) => setSelectedType(e.target.value)}
-                style={{ width: 200, marginRight: 8 }}
+            <Select
+            className="mr-2 w-1/5"
+                placeholder="Filtrar por tipo"
+                onChange={(value) => setSelectedType(value || '')}
+                options={Object.entries(financeFluxTypes).map(([key, value]) => ({
+                    value: key,
+                    label: value
+                }))}
+                allowClear
             />
-            <Button type="primary" onClick={handleSearch}>Buscar</Button>
             <Table
                 columns={columns}
                 dataSource={filteredData}
                 pagination={false}
-                //title={() => <h2 className="text-2xl font-bold">GASTOS E INGRESOS</h2>}
             />
         </div>
     )

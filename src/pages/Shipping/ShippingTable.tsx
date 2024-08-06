@@ -18,9 +18,9 @@ const ShippingTable = (refreshKey: any) => {
     const [selectedLocation, setSelectedLocation] = useState('');
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
     const [visibility, setVisibility] = useState({
-        espera: true,
-        porEntregar: true,
-        entregado: true,
+        espera: false,
+        porEntregar: false,
+        entregado: false,
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModaStatelVisible, setIsModalStateVisible] = useState(false);

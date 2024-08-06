@@ -1,8 +1,9 @@
-import { Button, Table } from "antd";
-import { getProductsInGroupAPI } from "../../api/group";
+import { Button, Input, Table, message } from "antd";
+import { getProductsInGroupAPI, updateGroupAPI } from "../../api/group";
 import { useEffect, useState } from "react";
 import ProductInfoModal from "./ProductInfoModal";
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import useEditable from "../../hooks/useEditableProperty";
 
 
 const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
@@ -42,6 +43,15 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
 
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const {
+        isEditing,
+        value: groupName,
+        editedValue: newGroupName,
+        startEditing,
+        setEditedValue,
+        cancelEditing,
+        saveEditing,
+    } = useEditable(group.name);
 
     const showModal = (product: any) => {
         setSelectedProduct(product)
@@ -80,6 +90,19 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
     }, [])
 
 
+    const saveGroupName = async () => {
+        saveEditing(newGroupName)
+        const res = await updateGroupAPI({ name: newGroupName }, group.id)
+        if (res.success) {
+
+            message.success('Nombre del grupo actualizado con éxito')
+            group.name = newGroupName
+        } else {
+            message.error('Error al actualizar el nombre del grupo')
+        }
+
+    }
+
     return (
         <div style={{ margin: '1rem' }}>
             <Table
@@ -88,7 +111,42 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
                 pagination={false}
                 title={() => (
                     <div className="flex justify-between items-center">
-                        <h2 className="font-semibold">{group.name}</h2>
+                        {/* <div className="flex item ">
+                            <h2 className="font-semibold">{group.name}</h2>
+                            <Button className="mx-2" type="default" onClick={editGroupName}><EditOutlined /></Button>
+                        </div> */}
+                        <div className="flex items-center">
+                            {isEditing ? (
+                                <div className="flex items-center">
+                                    <Input
+                                        value={newGroupName}
+                                        onChange={(e) => setEditedValue(e.target.value)}
+                                        style={{ width: 200 }}
+                                    />
+                                    <Button
+                                        type="primary"
+                                        className="mx-2"
+                                        icon={<CheckOutlined />}
+                                        onClick={saveGroupName}
+                                    />
+                                    <Button
+                                        icon={<CloseOutlined />}
+                                        onClick={cancelEditing}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="flex items-center">
+                                    <h2 className="font-semibold">{groupName}</h2>
+                                    <Button
+                                        className="mx-2"
+                                        type="default"
+                                        onClick={startEditing}
+                                    >
+                                        <EditOutlined />
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                         <Button type="primary" onClick={onAddVariant}>Agregar Variante</Button>
                     </div>
                 )}

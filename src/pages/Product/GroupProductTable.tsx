@@ -1,5 +1,5 @@
 import { Button, Input, Table, message } from "antd";
-import { getProductsInGroupAPI, updateGroupAPI } from "../../api/group";
+import { getProductsInGroupAPI, updateGroupAndProductNamesAPI } from "../../api/group";
 import { useEffect, useState } from "react";
 import ProductInfoModal from "./ProductInfoModal";
 import { InfoCircleOutlined, EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
@@ -92,11 +92,11 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
 
     const saveGroupName = async () => {
         saveEditing(newGroupName)
-        const res = await updateGroupAPI({ name: newGroupName }, group.id)
+        const res = await updateGroupAndProductNamesAPI({ name: newGroupName }, group.id)
         if (res.success) {
-
             message.success('Nombre del grupo actualizado con éxito')
             group.name = newGroupName
+            refreshProducts(group.id)
         } else {
             message.error('Error al actualizar el nombre del grupo')
         }

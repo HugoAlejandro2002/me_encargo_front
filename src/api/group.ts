@@ -27,9 +27,9 @@ export const getProductsInGroupAPI = async (id: number) => {
     }
 }
 
-export const updateGroupAPI = async (updateGroupData: any, groupId: number) => {
+export const updateGroupAndProductNamesAPI = async (updateGroupData: any, groupId: number) => {
     try {
-        const res = await apiClient.put(`/group/${groupId}`, { newData: updateGroupData })
+        const res = await apiClient.put(`/group/products/${groupId}`, { newData: updateGroupData })
         return { success: true, ...res.data }
     }
     catch (error) {

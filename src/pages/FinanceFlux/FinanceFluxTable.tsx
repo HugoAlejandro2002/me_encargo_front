@@ -1,4 +1,4 @@
-import { Input, Select, Table } from "antd"
+import { DatePicker, Select, Table } from "antd"
 import { getFinancesFluxAPI, getSellerByShippingAPI, getWorkerByShippingAPI } from "../../api/financeFlux";
 import { useEffect, useState } from "react";
 
@@ -6,6 +6,8 @@ const FinanceFluxTable = (refreshKey: any) => {
     const [dataWithKey, setDataWithKey] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [selectedType, setSelectedType] = useState('');
+    const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+    const { RangePicker } = DatePicker;
 
     const financeFluxTypes: any = {
         1: "GASTO",
@@ -17,10 +19,10 @@ const FinanceFluxTable = (refreshKey: any) => {
         try {
             const apiData = await getFinancesFluxAPI();
             const sellerPromises = apiData.map((financeFlux: any) =>
-                getSellerByShippingAPI(financeFlux.id_vendedor)
+                financeFlux.id_vendedor ? getSellerByShippingAPI(financeFlux.id_vendedor) : Promise.resolve(null)
             );
             const workerPromises = apiData.map((financeFlux: any) =>
-                getWorkerByShippingAPI(financeFlux.id_trabajador)
+                financeFlux.id_trabajador ? getWorkerByShippingAPI(financeFlux.id_trabajador) : Promise.resolve(null)
             );
             const sellers = await Promise.all(sellerPromises);
             const workers = await Promise.all(workerPromises);
@@ -28,8 +30,8 @@ const FinanceFluxTable = (refreshKey: any) => {
             const dataWithKeys = apiData.map((financeFlux: any, index: number) => ({
                 ...financeFlux,
                 key: financeFlux.id_flujo_financiero, // Usa un campo único como key
-                vendedor: sellers[index]?.nombre + " " + sellers[index]?.apellido,
-                encargado: workers[index]?.nombre,
+                vendedor: sellers[index]?.nombre && sellers[index]?.apellido ? `${sellers[index]?.nombre} ${sellers[index]?.apellido}` : '',
+                encargado: workers[index]?.nombre || '',
             }));
             setDataWithKey(dataWithKeys);
             setFilteredData(dataWithKeys);
@@ -43,22 +45,33 @@ const FinanceFluxTable = (refreshKey: any) => {
     }, [refreshKey])
 
     useEffect(() => {
-        const filterByType = (data: any) => {
-            if (!selectedType || selectedType === '') {
-                return data; 
-            }
+        const filterData = (data: any) => {
             return data.filter((financeFlux: any) => {
-                return financeFlux.tipo.toLowerCase() === financeFluxTypes[selectedType].toLowerCase()
+                // Filtrar por tipo si está seleccionado
+                const matchesType = !selectedType || selectedType === '' || financeFlux.tipo.toLowerCase() === financeFluxTypes[selectedType].toLowerCase();
+                // Filtrar por fecha si el rango de fechas está definido
+                const matchesDateRange = dateRange[0] && dateRange[1] ?
+                    (new Date(financeFlux.fecha) >= dateRange[0] && new Date(financeFlux.fecha) <= dateRange[1])
+                    : true;
+                // Solo se necesita que uno de los filtros coincida
+                return matchesType && matchesDateRange;
             });
         };
-        setFilteredData(filterByType(dataWithKey));
-    }, [selectedType, dataWithKey])
+        setFilteredData(filterData(dataWithKey));
+    }, [selectedType, dateRange, dataWithKey]);
+
 
     const columns = [
         {
             title: "Tipo",
             dataIndex: "tipo",
             key: "finance_flux_type"
+        },
+        {
+            title: "Fecha",
+            dataIndex: "fecha",
+            key: "finance_flux_date",
+            render: (text: string) => new Date(text).toLocaleDateString('es-ES')
         },
         {
             title: "Categoría",
@@ -91,16 +104,29 @@ const FinanceFluxTable = (refreshKey: any) => {
 
     return (
         <div>
-            <Select
-            className="mr-2 w-1/5"
-                placeholder="Filtrar por tipo"
-                onChange={(value) => setSelectedType(value || '')}
-                options={Object.entries(financeFluxTypes).map(([key, value]) => ({
-                    value: key,
-                    label: value
-                }))}
-                allowClear
-            />
+            <div>
+
+                <Select
+                    className="mr-2 w-1/5"
+                    placeholder="Filtrar por tipo"
+                    onChange={(value) => setSelectedType(value || '')}
+                    options={Object.entries(financeFluxTypes).map(([key, value]) => ({
+                        value: key,
+                        label: value
+                    }))}
+                    allowClear
+                />
+                <RangePicker
+                    onChange={(dates) => {
+                        if (dates && dates[0] && dates[1]) {
+                            setDateRange([dates[0].toDate(), dates[1].toDate()]);
+                        } else {
+                            setDateRange([null, null]);
+                        }
+                    }}
+                    style={{ marginRight: 8 }}
+                />
+            </div>
             <Table
                 columns={columns}
                 dataSource={filteredData}

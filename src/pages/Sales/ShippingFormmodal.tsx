@@ -68,7 +68,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
         
         // Only update form fields if the values have changed
         if (form.getFieldValue('montoTotal') !== montoTotal || form.getFieldValue('saldoCobrar') !== saldoCobrar) {
-            form.setFieldsValue({
+            form.setFieldsValue({   
                 montoTotal: montoTotal,
                 saldoCobrar: saldoCobrar,
             });

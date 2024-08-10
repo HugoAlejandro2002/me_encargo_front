@@ -1,4 +1,4 @@
-import { Button, Col, Form, Input, InputNumber, message, Modal, Radio, Row, Select } from "antd";
+import { Button, Col, DatePicker, Form, Input, InputNumber, message, Modal, Radio, Row, Select } from "antd";
 import { CommentOutlined, NotificationOutlined } from '@ant-design/icons';
 import { useEffect, useState } from "react";
 import { registerFinanceFluxAPI } from "../../api/financeFlux";
@@ -53,7 +53,7 @@ function FinanceFluxFormModal({ visible, onCancel, onSuccess }: any) {
         }
     };
     const handleTipoChange = () => {
-        form.validateFields(['id_vendedor']); 
+        form.validateFields(['id_trabajador']); 
     };
 
     useEffect(() => {
@@ -105,16 +105,6 @@ function FinanceFluxFormModal({ visible, onCancel, onSuccess }: any) {
                         <Form.Item
                             name='id_vendedor'
                             label='Vendedor'
-                            rules={[
-                                ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                        if (getFieldValue('tipo') === 'Ingreso' && !value) {
-                                            return Promise.reject(new Error('Este campo es obligatorio'));
-                                        }
-                                        return Promise.resolve();
-                                    },
-                                }),
-                            ]}
                         >
                             <Select
                                 placeholder="Selecciona un vendedor"
@@ -152,6 +142,17 @@ function FinanceFluxFormModal({ visible, onCancel, onSuccess }: any) {
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
+                            name='fecha'
+                            label='Fecha'
+                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                            >
+                            <DatePicker format="DD/MM/YYYY" />
+                        </Form.Item>
+                    </Col>
+                </Row>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Form.Item
                             name='concepto'
                             label='Concepto'
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
@@ -166,10 +167,10 @@ function FinanceFluxFormModal({ visible, onCancel, onSuccess }: any) {
                             name='monto'
                             label='Monto'
                             rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                            initialValue={0.00}
                         >
                             <InputNumber
                                 prefix={"Bs. "}
-                                defaultValue={0.00}
                                 style={{ width: '30%' }}
                             >
                             </InputNumber>
@@ -182,7 +183,16 @@ function FinanceFluxFormModal({ visible, onCancel, onSuccess }: any) {
                         <Form.Item
                             name='id_trabajador'
                             label='Trabajador'
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                            rules={[
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (getFieldValue('tipo') === 'Inversion' && !value) {
+                                            return Promise.reject(new Error('Este campo es obligatorio'));
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                }),
+                            ]}
                         >
                             <Select
                                 placeholder="Selecciona un Trabajador"

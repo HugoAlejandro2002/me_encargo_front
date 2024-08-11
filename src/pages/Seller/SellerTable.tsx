@@ -4,7 +4,7 @@ import { getSellersAPI } from '../../api/seller';
 import DebtModal from './DebtModal';
 import { DollarOutlined } from '@ant-design/icons';
 
-const SellerTable = (refreshKey: any) => {
+const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
     const columns = [
         {
@@ -104,6 +104,10 @@ const SellerTable = (refreshKey: any) => {
         setIsModalVisible(false)
     }
 
+    const handleSuccess = () => {
+        setIsModalVisible(false)
+        setRefreshKey((prev: number) => prev + 1)
+    }
 
     useEffect(() => {
         fetchSellers();
@@ -127,7 +131,9 @@ const SellerTable = (refreshKey: any) => {
             {selectedSeller && (<DebtModal
                 visible={isModalVisible}
                 onCancel={handleCancel}
-                seller={selectedSeller} />)}
+                onSuccess={handleSuccess}
+                seller={selectedSeller}
+            />)}
 
         </div>
     );

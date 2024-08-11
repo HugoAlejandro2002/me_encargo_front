@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export const Seller = () => {
     const [isModalVisible, setIsModalVisible] = useState(false)
-    const [refreshKey, setRefreshKey] = useState(0)
+    const [refreshKey, setRefreshKey] = useState<number>(0)
 
     const showModal = () => {
         setIsModalVisible(true);
@@ -31,7 +31,7 @@ export const Seller = () => {
                 <h1 className="text-2xl font-bold">Vendedores</h1>
                 <Button onClick={showModal} type="primary">Agregar Vendedor</Button>
             </div>
-            <SellerTable key={refreshKey}/>
+            <SellerTable refreshKey={refreshKey} setRefreshKey={setRefreshKey} />
             <SellerForm
                 visible={isModalVisible}
                 onCancel={handleCancel}

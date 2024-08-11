@@ -1,28 +1,43 @@
-import { Modal, Form, Input, DatePicker, Radio, InputNumber, Button, Col, Row, message } from 'antd';
-import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { Modal, Form, DatePicker, Radio, InputNumber, Button, Col, Row, message } from 'antd';
+import { useState } from 'react';
 import { updateSellerAPI } from '../../api/seller';
 import { registerFinanceFluxAPI } from '../../api/financeFlux';
+import dayjs from 'dayjs';
 
 const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
     const [loading, setLoading] = useState(false);
-    const [fechaVigencia, setFechaVigencia] = useState(moment(seller.fecha_vigencia, "D/M/YYYY/"))
 
     const handleFinish = async (debtInfo: any) => {
         setLoading(true)
-        const res = await updateSellerAPI(parseInt(seller.key), debtInfo)
-        if (res?.success) {
-            message.success('Vendedor renovado con éxito')
-            //TODO: add financeFlux register 
-        } else {
-            message.error('Error al renovar el vendedor')
+        const resSeller = await updateSellerAPI(parseInt(seller.key), debtInfo)
+        if (!resSeller?.success) {
+            message.error('Error al renovar el vendedor');
+            setLoading(false);
+            return;
         }
-        setLoading(false)
-    };
+        message.success('Vendedor renovado con éxito')
+        const sellerInfo = resSeller.data.updatedSeller
+        const montoFinanceFlux = parseInt(sellerInfo.alquiler) + parseInt(sellerInfo.exhibicion) + parseInt(sellerInfo.delivery)
 
-    useEffect(() => {
-        console.log(seller, 'mi seller')
-    })
+        const financeFluxData = {
+            id_vendedor: parseInt(seller.key),
+            categoria: 'RENOVACION',
+            tipo: 'INGRESO',
+            concepto: `Vendedor ${sellerInfo.nombre} ${sellerInfo.apellido} - ${sellerInfo.marca} renovado`,
+            monto: montoFinanceFlux,
+            esDeuda: debtInfo.isDebt
+        }
+
+        const resFinanceFlux = await registerFinanceFluxAPI(financeFluxData)
+        if (resFinanceFlux.status) {
+            message.success('Ingreso registrado con éxito')
+        } else {
+            message.error(`Error al registrar el ingreso con monto Bs. ${montoFinanceFlux}`)
+        }
+        onSuccess()
+        setLoading(false)
+    }
+
 
     return (
         <Modal
@@ -46,13 +61,10 @@ const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                     name="fecha_vigencia"
                     label="Fecha Final del Servicio*"
                     rules={[{ required: true, message: 'Por favor seleccione una fecha final del servicio' }]}
-                // initialValue={fechaVigencia}
                 >
                     <DatePicker
                         className='w-full'
-                        // defaultValue={fechaVigencia}
-                        value={fechaVigencia}
-                        onChange={date => setFechaVigencia(date)}
+                        defaultValue={(dayjs(seller.fecha_vigencia, "D/M/YYYY/"))}
                         format="DD/MM/YYYY"
                     />
                 </Form.Item>

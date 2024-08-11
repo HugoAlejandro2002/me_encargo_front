@@ -19,3 +19,12 @@ export const registerSellerAPI = async (sellerData: any) => {
         parseError(error as AxiosError)
     }
 }
+
+export const updateSellerAPI = async (sellerId: number, updateData: any) => {
+    try {
+        const res = await apiClient.put(`/seller/update/${sellerId}`, { newData: updateData })
+        return { success: true, data: res.data }
+    } catch (error) {
+        parseError(error as AxiosError)
+    }
+}

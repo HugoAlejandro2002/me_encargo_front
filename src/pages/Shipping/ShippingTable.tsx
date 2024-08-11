@@ -39,20 +39,20 @@ const ShippingTable = (refreshKey: any) => {
             console.error("Error fetching shipping data:", error);
         }
     }
-    const handleSearch = () => {
-        const filterByLocationAndDate = (data: any) => {
-            return data.filter((pedido: any) => {
-                const matchesLocation = !selectedLocation || pedido.lugar_entrega.toLowerCase().includes(selectedLocation.toLowerCase());
-                const matchesDateRange = dateRange[0] && dateRange[1] ? (
-                    new Date(pedido.fecha_pedido) >= dateRange[0] && new Date(pedido.fecha_pedido) <= dateRange[1]
-                ) : true;
-                return matchesLocation && matchesDateRange;
-            });
-        };
-        setFilteredEsperaData(filterByLocationAndDate(esperaData));
-        setFilteredPorEntregarData(filterByLocationAndDate(porEntregarData));
-        setFilteredEntregadoData(filterByLocationAndDate(entregadoData));
+
+    const filterByLocationAndDate = (data: any) => {
+        return data.filter((pedido: any) => {
+            const matchesLocation = !selectedLocation || pedido.lugar_entrega.toLowerCase().includes(selectedLocation.toLowerCase());
+            const matchesDateRange = dateRange[0] && dateRange[1] ? (
+                new Date(pedido.fecha_pedido) >= dateRange[0] && new Date(pedido.fecha_pedido) <= dateRange[1]
+            ) : true;
+            return matchesLocation && matchesDateRange;
+        });
     };
+    // setFilteredEsperaData(filterByLocationAndDate(esperaData));
+    // setFilteredPorEntregarData(filterByLocationAndDate(porEntregarData));
+    // setFilteredEntregadoData(filterByLocationAndDate(entregadoData));
+
     const toggleVisibility = (key: 'espera' | 'porEntregar' | 'entregado') => {
         setVisibility(prevState => ({
             ...prevState,
@@ -121,7 +121,11 @@ const ShippingTable = (refreshKey: any) => {
         setFilteredEsperaData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
         setFilteredPorEntregarData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
         setFilteredEntregadoData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
-    }, [shippingData])
+
+        setFilteredEsperaData(filterByLocationAndDate(esperaData));
+        setFilteredPorEntregarData(filterByLocationAndDate(porEntregarData));
+        setFilteredEntregadoData(filterByLocationAndDate(entregadoData));
+    }, [shippingData, selectedLocation, dateRange, esperaData, porEntregarData, entregadoData])
 
 
     return (
@@ -143,7 +147,6 @@ const ShippingTable = (refreshKey: any) => {
                     }}
                     style={{ marginRight: 8 }}
                 />
-                <Button type="primary" onClick={handleSearch}>Buscar</Button>
             </div>
             <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('espera')}>En espera</h2>
             {visibility.espera && (

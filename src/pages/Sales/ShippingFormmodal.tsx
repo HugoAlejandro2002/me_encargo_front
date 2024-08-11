@@ -61,10 +61,9 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     const handleDecrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
         setter(prevValue => parseFloat((prevValue - value).toFixed(2)));
     };
-
     useEffect(() => {
         const montoTotal = totalAmount ? totalAmount.toFixed(2) : '0.00';
-        const saldoCobrar = ((totalAmount) >= 0 ? (totalAmount - qrInput - efectivoInput).toFixed(2) : '0.00');
+        const saldoCobrar = ((totalAmount) >= 0 ? (totalAmount + montoCobradoDelivery- adelantoClienteInput).toFixed(2) : '0.00');
         
         // Only update form fields if the values have changed
         if (form.getFieldValue('montoTotal') !== montoTotal || form.getFieldValue('saldoCobrar') !== saldoCobrar) {
@@ -73,7 +72,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                 saldoCobrar: saldoCobrar,
             });
         }
-    }, [totalAmount, qrInput, efectivoInput, adelantoClienteInput]);
+    }, [totalAmount, qrInput, efectivoInput, adelantoClienteInput, montoCobradoDelivery]);
 
 
     return (

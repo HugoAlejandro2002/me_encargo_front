@@ -119,7 +119,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                         <Form.Item
                             name="montoCobradoDelivery"
                             label="Monto cobrado por el Delivery"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <InputNumber
@@ -153,7 +152,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                         <Form.Item
                             name="costoRealizarDelivery"
                             label="Costo de realizar el Delivery"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <InputNumber

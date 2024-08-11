@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, Select } from 'antd';
+import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, Select, InputNumber } from 'antd';
 import moment from 'moment';
 import { deleteProductsByShippingAPI, getProductByShippingAPI, registerSalesAPI, updateProductsByShippingAPI } from '../../api/sales';
 import EmptySalesTable from '../Sales/EmptySalesTable';
@@ -10,6 +10,7 @@ import { updateShippingAPI } from '../../api/shipping';
 const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
+    const [cargoDeliveryInput, setCargoDeliveryInput] = useState<number>(0);
     const [products, setProducts, handleValueChange] = useEditableTable([])
     const [totalAmount, setTotalAmount] = useState<number>(0);
     const [deletedProducts, setDeletedProducts] = useState<number[]>([]);
@@ -29,9 +30,14 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                 observaciones: shipping.observaciones || '',
                 telefono_cliente: shipping.telefono_cliente || '',
                 monto_total: shipping.monto_total || '',
-                //pagado_al_vendedor: shipping.pagado_al_vendedor || '',
-                //adelanto_cliente: shipping.adelanto_cliente || '',
+                // cargo_delivery : shipping.cargo_delivery || '',
+                // pagado_al_vendedor: shipping.pagado_al_vendedor || '',
+                // adelanto_cliente: shipping.adelanto_cliente || '',
             });
+            setCargoDeliveryInput(shipping.cargo_delivery)
+            setAdelantoClienteInput(shipping.adelanto_cliente)
+            setAdelantoVisible(false)
+            if (shipping.adelanto_cliente > 0 || shipping.adelanto_cliente < 0) { setAdelantoVisible(true) }
         }
         if (shipping && shipping.id_pedido) {
             getProductByShippingAPI(shipping.id_pedido).then((data: any[]) => {
@@ -45,6 +51,14 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
             });
         }
     }, [shipping, form]);
+    useEffect(() => {
+        const saldo_cobrar = ((totalAmount) >= 0 ? (totalAmount - adelantoClienteInput + cargoDeliveryInput ).toFixed(2) : '0.00')
+        if (form.getFieldValue('saldo_cobrar') !== saldo_cobrar) {
+            form.setFieldsValue({
+                saldo_cobrar: saldo_cobrar,
+            });
+        }
+    }, [totalAmount, adelantoClienteInput, cargoDeliveryInput])
     //console.log(products)
     const handleSave = (shippingInfoData: any) => {
         setLoading(true)
@@ -105,13 +119,14 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                     lugar_entrega: shippingInfoData.lugar_entrega,
                     pagado_al_vendedor: shipping.pagado_al_vendedor,
                     adelanto_cliente: shipping.adelanto_cliente,
+                    cargo_delivery: shippingInfoData.cargo_delivery,
                 };
                 if (adelantoVisible) {
                     updateShippingInfo.adelanto_cliente = shippingInfoData.adelanto_cliente;
                 } if (shippingInfoData.pagado_al_vendedor === '1') {
                     updateShippingInfo.pagado_al_vendedor = true;
                 } else { updateShippingInfo.pagado_al_vendedor = false }
-
+                console.log(updateShippingInfo)
                 updateShippingAPI(updateShippingInfo, shipping.id_pedido)
                 onSave({ ...shipping, ...values });
                 onClose();
@@ -255,9 +270,9 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                             <Form.Item
                                 name='adelanto_cliente'
                                 label='Adelanto Cliente'
-                                initialValue={shipping.adelanto_cliente}
+                                //initialValue={shipping.adelanto_cliente}
                             >
-                                <Input
+                                <InputNumber
                                     prefix='Bs.'
                                     onChange={((e: any) => setAdelantoClienteInput(e))}
                                     style={{ width: '100%' }}
@@ -266,6 +281,21 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                         </Col>
                     </Row>
                 )}
+                <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name='cargo_delivery'
+                                label='Cargo Delivery'
+                                //initialValue={shipping.cargo_delivery}
+                            >
+                                <InputNumber
+                                    prefix='Bs.'
+                                    onChange={((e: any) => setCargoDeliveryInput(e))}
+                                    style={{ width: '100%' }}
+                                />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 <Form.Item>
                     <EmptySalesTable
                         products={products}
@@ -283,23 +313,22 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                         placeholder="Selecciona un producto"
                         showSearch
                         filterOption={(input, option: any) =>
-                            option.label.toLowerCase().includes(input.toLowerCase())
+                            option?.label?.toLowerCase().includes(input.toLowerCase())
                         }
                     >
                         {data.map((product: any) => (
-                            <Select.Option key={product.id_producto} value={product.key}>
+                            <Select.Option key={product.id_producto} value={product.key} label={product.producto}>
                                 {product.producto}
                             </Select.Option>
                         ))}
                     </Select>
                 </Form.Item>
                 <Form.Item
-                    name="monto_total"
-                    label="Monto Total de la Venta"
+                    name="saldo_cobrar"
+                    label="Saldo a cobrar"
                 >
                     <Input
                         prefix='Bs.'
-                        value={totalAmount ?? 0}
                         readOnly
                         style={{ width: '100%' }}
                     />

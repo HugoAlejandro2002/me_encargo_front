@@ -1,11 +1,13 @@
-import { DatePicker, Input, Table } from 'antd';
+import { DatePicker, Input, message, Select, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { getShippingsAPI } from '../../api/shipping';
 import ShippingInfoModal from './ShippingInfoModal';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import ShippingStateModal from './ShippingStateModal';
+import { getSucursalsAPI } from '../../api/sucursal';
 
 const { RangePicker } = DatePicker;
+const { Option } = Select;
 
 const ShippingTable = (refreshKey: any) => {
     const [shippingData, setShippingData] = useState([])
@@ -15,7 +17,6 @@ const ShippingTable = (refreshKey: any) => {
     const [filteredEsperaData, setFilteredEsperaData] = useState([]);
     const [filteredPorEntregarData, setFilteredPorEntregarData] = useState([]);
     const [filteredEntregadoData, setFilteredEntregadoData] = useState([]);
-    const [selectedLocation, setSelectedLocation] = useState('');
     const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
     const [visibility, setVisibility] = useState({
         espera: false,
@@ -25,6 +26,9 @@ const ShippingTable = (refreshKey: any) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isModaStatelVisible, setIsModalStateVisible] = useState(false);
     const [selectedShipping, setSelectedShipping] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState('');
+    const [otherLocation, setOtherLocation] = useState('');
+    const [sucursal, setSucursal] = useState([] as any[]);
 
     const fetchShippings = async () => {
         try {
@@ -42,7 +46,17 @@ const ShippingTable = (refreshKey: any) => {
 
     const filterByLocationAndDate = (data: any) => {
         return data.filter((pedido: any) => {
-            const matchesLocation = !selectedLocation || pedido.lugar_entrega.toLowerCase().includes(selectedLocation.toLowerCase());
+            const isOtherLocation = selectedLocation === 'other';
+            const matchesLocation = isOtherLocation
+            ? !sucursal.some((suc) => suc.nombre.toLowerCase() === pedido.lugar_entrega.toLowerCase()) &&
+              (!otherLocation || pedido.lugar_entrega.toLowerCase().includes(otherLocation.toLowerCase()))
+            : !selectedLocation || pedido.lugar_entrega.toLowerCase().includes(selectedLocation.toLowerCase());
+
+            // const matchesLocation = isOtherLocation
+            // ? !sucursal.some((suc) => suc.nombre.toLowerCase() === pedido.lugar_entrega.toLowerCase())
+            // : !selectedLocation || pedido.lugar_entrega.toLowerCase().includes(selectedLocation.toLowerCase());
+
+            // const matchesLocation = !selectedLocation || pedido.lugar_entrega.toLowerCase().includes(selectedLocation.toLowerCase());
             const matchesDateRange = dateRange[0] && dateRange[1] ? (
                 new Date(pedido.fecha_pedido) >= dateRange[0] && new Date(pedido.fecha_pedido) <= dateRange[1]
             ) : true;
@@ -104,12 +118,21 @@ const ShippingTable = (refreshKey: any) => {
         setSelectedShipping(order);
         setIsModalVisible(true);
     };
-
+    const fetchSucursal = async () => {
+        try {
+            console.log("Fetch Sucursal")
+            const response = await getSucursalsAPI()
+            setSucursal(response)
+        } catch (error) {
+            message.error('Error al obtener los vendedores');
+        }
+    }
     useEffect(() => {
         const fetchData = async () => {
             return await fetchShippings();
         }
         const newData = fetchData()
+        fetchSucursal();
         console.log(newData, 'ship')
     }, [refreshKey])
 
@@ -127,16 +150,36 @@ const ShippingTable = (refreshKey: any) => {
         setFilteredEntregadoData(filterByLocationAndDate(entregadoData));
     }, [shippingData, selectedLocation, dateRange, esperaData, porEntregarData, entregadoData])
 
-
     return (
         <div>
             <div style={{ marginBottom: 16 }}>
-                <Input
-                    placeholder="Buscar por lugar de entrega"
-                    value={selectedLocation}
-                    onChange={(e) => setSelectedLocation(e.target.value)}
-                    style={{ width: 200, marginRight: 8 }}
-                />
+                <Select
+                    className="mr-2 w-1/5"
+                    placeholder="Filtrar por lugar/sucursales"
+                    onChange={(value) => {
+                        setSelectedLocation(value || '');
+                        if (value !== 'other') {
+                            setOtherLocation('');
+                        }
+                    }}
+                    allowClear
+                >
+                    <Option value="other">Otro lugar</Option>
+                    {sucursal.map((sucursal: any) => (
+                        <Option key={sucursal.id_sucursal} value={sucursal.nombre}>
+                            {sucursal.nombre}
+                        </Option>
+                    ))}
+
+                </Select>
+                {selectedLocation === 'other' && (
+                    <Input
+                        className="mt-2 w-1/5"
+                        placeholder="Especificar otro lugar"
+                        value={otherLocation}
+                        onChange={(e) => setOtherLocation(e.target.value)}
+                    />
+                )}
                 <RangePicker
                     onChange={(dates) => {
                         if (dates && dates[0] && dates[1]) {

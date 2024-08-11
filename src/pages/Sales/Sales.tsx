@@ -109,14 +109,11 @@ export const Sales = () => {
         });
     };
 
-
     const createSales = async (shipping: any, productsToAdd: any) => {
-        console.log(productsToAdd)
         productsToAdd.map((item: any) => {
-            item.producto = item.key
+            item.productos = item.key
             item.vendedor = item.id_vendedor
         })
-        console.log(productsToAdd)
         try {
             await registerSalesToShippingAPI({
                 shippingId: shipping.id_pedido,

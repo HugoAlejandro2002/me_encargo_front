@@ -53,8 +53,13 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
         const response = await registerShippingAPI(apiShippingData);
 
         if (response.success) {
-            message.success('Venta registrada con éxito');
-            await handleSales(response.newShipping, selectedProducts)
+            message.success('Pedido registrado con éxito');
+            const parsedSelectedProducts = selectedProducts.map((product: any) => ({
+                id_producto: product.key,
+                ...product,
+            }))
+            console.log(parsedSelectedProducts, 'parsed')
+            await handleSales(response.newShipping, parsedSelectedProducts)
             onSuccess();
         } else {
             message.error('Error al registrar el pedido');

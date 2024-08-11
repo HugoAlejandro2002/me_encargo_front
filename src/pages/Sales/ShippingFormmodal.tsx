@@ -41,12 +41,15 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             "id_trabajador": 1,
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
         }
-        console.log({apiShippingData})
+        console.log({ apiShippingData })
         const response = await registerShippingAPI(apiShippingData);
-        console.log(response)
         if (response.status) {
             message.success('Entrega registrada con éxito');
-            await handleSales(response.newShipping, selectedProducts)
+            const parsedSelectedProducts = selectedProducts.map((product: any) => ({
+                id_producto: product.key,
+                ...product,
+            }))
+            await handleSales(response.newShipping, parsedSelectedProducts)
             onSuccess();
         } else {
             message.error('Error al registrar el pedido');
@@ -63,11 +66,11 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     };
     useEffect(() => {
         const montoTotal = totalAmount ? totalAmount.toFixed(2) : '0.00';
-        const saldoCobrar = ((totalAmount) >= 0 ? (totalAmount + montoCobradoDelivery- adelantoClienteInput).toFixed(2) : '0.00');
-        
+        const saldoCobrar = ((totalAmount) >= 0 ? (totalAmount + montoCobradoDelivery - adelantoClienteInput).toFixed(2) : '0.00');
+
         // Only update form fields if the values have changed
         if (form.getFieldValue('montoTotal') !== montoTotal || form.getFieldValue('saldoCobrar') !== saldoCobrar) {
-            form.setFieldsValue({   
+            form.setFieldsValue({
                 montoTotal: montoTotal,
                 saldoCobrar: saldoCobrar,
             });
@@ -242,7 +245,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                         precision={2}
                                         onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
                                         style={{ flex: 1, marginRight: '8px', width: '80%' }}
-                                        
+
                                         defaultValue={0}
                                     />
                                     <Button

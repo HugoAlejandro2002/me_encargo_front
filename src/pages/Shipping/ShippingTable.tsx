@@ -118,9 +118,9 @@ const ShippingTable = (refreshKey: any) => {
         setPorEntregarData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
         setEntregadoData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
 
-        setFilteredEsperaData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
-        setFilteredPorEntregarData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
-        setFilteredEntregadoData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
+        // setFilteredEsperaData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'En espera'));
+        // setFilteredPorEntregarData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Por entregar'));
+        // setFilteredEntregadoData(shippingData.filter((pedido: any) => pedido.estado_pedido === 'Entregado'));
 
         setFilteredEsperaData(filterByLocationAndDate(esperaData));
         setFilteredPorEntregarData(filterByLocationAndDate(porEntregarData));

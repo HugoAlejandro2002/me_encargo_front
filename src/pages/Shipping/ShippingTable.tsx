@@ -1,4 +1,4 @@
-import { Button, DatePicker, Input, Table } from 'antd';
+import { DatePicker, Input, Table } from 'antd';
 import { useEffect, useState } from 'react';
 import { getShippingsAPI } from '../../api/shipping';
 import ShippingInfoModal from './ShippingInfoModal';

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Row, Col, TimePicker, Radio, InputNumber, message } from 'antd';
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
 import { updateShippingAPI } from '../../api/shipping';
 
 const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
@@ -26,9 +28,9 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
         if (shipping) {
             form.setFieldsValue({
                 ...shipping,
-                fecha_pedido: shipping.fecha_pedido ? moment(shipping.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_acordada: shipping.hora_entrega_acordada ? moment(shipping.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_real: shipping.hora_entrega_real ? moment(shipping.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                fecha_pedido: shipping.fecha_pedido ? dayjs(shipping.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_acordada: shipping.hora_entrega_acordada ? dayjs(shipping.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_real: shipping.hora_entrega_real ? dayjs(shipping.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
                 hora_final: shipping.hora_final || '',
                 observaciones: shipping.observaciones || '',
                 telefono_cliente: shipping.telefono_cliente || '',
@@ -62,7 +64,7 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
                 costo_delivery: parseInt(shippingStateData.costo_delivery),
                 estado_pedido: estadoPedidoMap[intEstadoPedido],
                 tipo_de_pago: tipoPagoMap[intTipoPago],
-                hora_entrega_real: moment.utc().subtract(4, 'hours').format('YYYY-MM-DD HH:mm:ss')
+                hora_entrega_real: dayjs().utc().subtract(4, 'hours').format('YYYY-MM-DD HH:mm:ss')
             }
         }
 
@@ -98,7 +100,8 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
     const handleEstadoChange = (e:any) => {
         setEstadoPedido(e.target.value);
     };
-
+    // console.log("El costo es "+ costoRealizarDelivery)
+    // console.log(montoCobradoDelivery)
     return (
         <Modal
             title={`Estado del pedido ${shipping ? shipping.id_pedido : ''}`}

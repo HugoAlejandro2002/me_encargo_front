@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Modal, Button, Form, Input, DatePicker, Row, Col, TimePicker, Radio, Select, InputNumber } from 'antd';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { deleteProductsByShippingAPI, getProductByShippingAPI, registerSalesAPI, updateProductsByShippingAPI } from '../../api/sales';
 import EmptySalesTable from '../Sales/EmptySalesTable';
 import useProducts from '../../hooks/useProducts';
@@ -23,9 +23,9 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
         if (shipping) {
             form.setFieldsValue({
                 ...shipping,
-                fecha_pedido: shipping.fecha_pedido ? moment(shipping.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_acordada: shipping.hora_entrega_acordada ? moment(shipping.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
-                hora_entrega_real: shipping.hora_entrega_real ? moment(shipping.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                fecha_pedido: shipping.fecha_pedido ? dayjs(shipping.fecha_pedido, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_acordada: shipping.hora_entrega_acordada ? dayjs(shipping.hora_entrega_acordada, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
+                hora_entrega_real: shipping.hora_entrega_real ? dayjs(shipping.hora_entrega_real, 'YYYY-MM-DD HH:mm:ss.SSS') : null,
                 hora_final: shipping.hora_final || '',
                 observaciones: shipping.observaciones || '',
                 telefono_cliente: shipping.telefono_cliente || '',

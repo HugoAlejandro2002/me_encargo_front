@@ -18,7 +18,6 @@ export const Sales = () => {
     const [newSeller, setNewSeller] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
-    // const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
     const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
     const { data } = useProducts();
     const [totalAmount, setTotalAmount] = useState<number>(0);
@@ -88,6 +87,10 @@ export const Sales = () => {
         fetchSucursal();
     }, []);
 
+    useEffect(() => {
+        console.log(sellers, 'sellers')
+    }, [sellers])
+
     const filteredProducts = selectedSellerId
         ? data.filter(product => product.id_vendedor === selectedSellerId)
         : data;
@@ -130,7 +133,7 @@ export const Sales = () => {
             const { id_vendedor } = producto;
             if (!acc[id_vendedor]) {
                 acc[id_vendedor] = {
-                    id_vendedor: id_vendedor,
+                    vendedor: sellers.find((seller: any) => seller.id_vendedor === id_vendedor) || id_vendedor,
                     productos: []
                 };
             }
@@ -141,9 +144,9 @@ export const Sales = () => {
         }, {});
 
         const debtBySeller = Object.values(productsBySeller).map((product_seller: any) => ({
-            id_vendedor: product_seller.id_vendedor,
+            id_vendedor: product_seller.vendedor.id_vendedor || product_seller.vendedor,
             deuda: product_seller.productos.reduce((acc: number, producto: any) =>
-                acc + (producto.cantidad * producto.precio_unitario), 0)
+                acc + (producto.cantidad * producto.precio_unitario), product_seller.vendedor.deuda)
         }))
 
         const debtsRes = await Promise.all(debtBySeller.map(async (vendedor: any) =>
@@ -153,7 +156,6 @@ export const Sales = () => {
             if (!debtRes.success) message.error('Error al registrar una deuda')
         })
         message.success('Deudas registradas con éxito')
-        // TODO: las deudas no se suman con la anterior
         console.log(debtsRes, 'sales res')
 
     }

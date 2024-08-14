@@ -69,6 +69,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
                     key: seller.id_vendedor.toString(),
                     nombre: `${seller.nombre} ${seller.apellido}`,
                     deuda: `Bs. ${seller.deuda}`,
+                    deudaInt: seller.deuda,
                     fecha_vigencia: finish_date.toLocaleDateString('es-ES'),
                     pago_mensual: `Bs. ${seller.alquiler + seller.exhibicion + seller.delivery}`,
                     alquiler: seller.alquiler.toString(),
@@ -114,7 +115,9 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             <Table
                 columns={columns}
                 dataSource={pendingPaymentData}
-                title={() => <h2 className='text-2xl font-bold'>Pago pendiente</h2>}
+                title={() => <h2 className='text-2xl font-bold'>
+                    Pago pendiente Bs. {pendingPaymentData.reduce((acc: number, seller: any) => acc + seller.deudaInt, 0)}
+                </h2>}
                 pagination={false}
             />
             <Table

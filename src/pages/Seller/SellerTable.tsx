@@ -19,9 +19,9 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             key: 'nombre',
         },
         {
-            title: 'Pago Total',
-            dataIndex: 'pago_total',
-            key: 'pago_total',
+            title: 'Deuda',
+            dataIndex: 'deuda',
+            key: 'deuda',
         },
         {
             title: 'Fecha Vigencia',
@@ -50,11 +50,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
     const [selectedSeller, setSelectedSeller] = useState()
     const [isModalVisible, setIsModalVisible] = useState(false)
 
-    const getRandomInt = (min: number, max: number) => {
-        return Math.floor(Math.random() * (max - min + 1) + min)
-    }
-
-
     async function fetchSellers() {
         try {
             const response = await getSellersAPI();
@@ -73,7 +68,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
                 return {
                     key: seller.id_vendedor.toString(),
                     nombre: `${seller.nombre} ${seller.apellido}`,
-                    pago_total: `Bs. ${getRandomInt(0, 8)}`,
+                    deuda: `Bs. ${seller.deuda}`,
                     fecha_vigencia: finish_date.toLocaleDateString('es-ES'),
                     pago_mensual: `Bs. ${seller.alquiler + seller.exhibicion + seller.delivery}`,
                     alquiler: seller.alquiler.toString(),
@@ -85,8 +80,8 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             })
 
             // Separar los datos según algún criterio (en este caso, si el pago es pendiente o al día)
-            const pendingPayments: any = formattedData.filter((seller: any) => seller.pago_total !== 'Bs. 0');
-            const onTimePayments: any = formattedData.filter((seller: any) => seller.pago_total === 'Bs. 0');
+            const pendingPayments: any = formattedData.filter((seller: any) => seller.deuda !== 'Bs. 0');
+            const onTimePayments: any = formattedData.filter((seller: any) => seller.deuda === 'Bs. 0');
 
             setPendingPaymentData(pendingPayments);
             setOnTimePaymentData(onTimePayments);

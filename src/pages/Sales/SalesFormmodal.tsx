@@ -248,7 +248,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                                     placeholder="Seleccione una sucursal"
                                     allowClear
                                 >
-                                    {sucursals.map((sucursal) => (
+                                    {sucursals.map((sucursal: any) => (
                                         <Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
                                             {sucursal.nombre}
                                         </Option>

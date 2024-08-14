@@ -2,7 +2,7 @@ import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
 import { useEffect, useState } from "react";
 import SalesFormModal from "./SalesFormmodal";
 import ProductTable from "../Product/ProductTable";
-import { getSellersAPI, registerSellerAPI } from "../../api/seller";
+import { getSellersAPI, registerSellerAPI, updateSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
 import useEditableTable from "../../hooks/useEditableTable";
@@ -124,6 +124,40 @@ export const Sales = () => {
         }
     }
 
+    const updateSellerDebt = async (selectedProducts: any) => {
+
+        const productsBySeller = selectedProducts.reduce((acc: any, producto: any) => {
+            const { id_vendedor } = producto;
+            if (!acc[id_vendedor]) {
+                acc[id_vendedor] = {
+                    id_vendedor: id_vendedor,
+                    productos: []
+                };
+            }
+            acc[id_vendedor].productos.push({
+                id_producto: producto.key, cantidad: producto.cantidad, precio_unitario: producto.precio_unitario
+            });
+            return acc;
+        }, {});
+
+        const debtBySeller = Object.values(productsBySeller).map((product_seller: any) => ({
+            id_vendedor: product_seller.id_vendedor,
+            deuda: product_seller.productos.reduce((acc: number, producto: any) =>
+                acc + (producto.cantidad * producto.precio_unitario), 0)
+        }))
+
+        const debtsRes = await Promise.all(debtBySeller.map(async (vendedor: any) =>
+            updateSellerAPI(vendedor.id_vendedor, { deuda: vendedor.deuda })
+        ))
+        debtsRes.map((debtRes: any,) => {
+            if (!debtRes.success) message.error('Error al registrar una deuda')
+        })
+        message.success('Deudas registradas con éxito')
+        // TODO: las deudas no se suman con la anterior
+        console.log(debtsRes, 'sales res')
+
+    }
+
 
     return (
         <div className="p-4">
@@ -207,6 +241,7 @@ export const Sales = () => {
                 handleSales={createSales}
                 totalAmount={totalAmount}
                 sucursals={sucursal}
+                handleDebt={updateSellerDebt}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
@@ -217,6 +252,7 @@ export const Sales = () => {
                 handleSales={createSales}
                 totalAmount={totalAmount}
                 sucursals={sucursal}
+                handleDebt={updateSellerDebt}
             />
         </div>
     );

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
 
-function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -43,17 +43,17 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
         }
         console.log({ apiShippingData })
         const response = await registerShippingAPI(apiShippingData);
-        if (response.status) {
-            message.success('Entrega registrada con éxito');
-            const parsedSelectedProducts = selectedProducts.map((product: any) => ({
-                id_producto: product.key,
-                ...product,
-            }))
-            await handleSales(response.newShipping, parsedSelectedProducts)
-            onSuccess();
-        } else {
+        if (!response.status) {
             message.error('Error al registrar el pedido');
         }
+        message.success('Entrega registrada con éxito');
+        const parsedSelectedProducts = selectedProducts.map((product: any) => ({
+            id_producto: product.key,
+            ...product,
+        }))
+        await handleDebt(parsedSelectedProducts)
+        await handleSales(response.newShipping, parsedSelectedProducts)
+        onSuccess();
         setLoading(false);
     };
 

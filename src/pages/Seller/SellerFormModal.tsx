@@ -3,20 +3,38 @@ import { UserOutlined, PhoneOutlined, IdcardOutlined, MailOutlined, HomeOutlined
 import { registerSellerAPI } from '../../api/seller';
 import { useState } from 'react';
 import { sellerModel } from '../../models/sellerModels';
+import { registerFinanceFluxAPI } from '../../api/financeFlux';
 
-function SellerFormModal({ visible, onCancel, onSuccess}: any) {
+function SellerFormModal({ visible, onCancel, onSuccess }: any) {
     const [loading, setLoading] = useState(false);
 
     const handleFinish = async (sellerData: sellerModel) => {
         setLoading(true);
         const response = await registerSellerAPI(sellerData);
-        setLoading(false);
-        if (response.status) {
-            message.success('Vendedor registrado con éxito');
-            onSuccess()
-        } else {
+        if (!response.status) {
             message.error('Error al registrar el vendedor');
+            setLoading(false)
+            return
         }
+
+        message.success('Vendedor registrado con éxito');
+        const montoFinanceFlux = parseInt(response.newSeller.alquiler) + parseInt(response.newSeller.exhibicion) + parseInt(response.newSeller.delivery)
+
+        const financeFluxData = {
+            id_vendedor: parseInt(response.newSeller.id_vendedor),
+            categoria: 'RENOVACION',
+            tipo: 'INGRESO',
+            concepto: `Vendedor ${response.newSeller.nombre} ${response.newSeller.apellido} - ${response.newSeller.marca} renovado`,
+            monto: montoFinanceFlux,
+        }
+
+        const resFinanceFlux = await registerFinanceFluxAPI(financeFluxData)
+        if (!resFinanceFlux.status) {
+            message.error(`Error al registrar el ingreso con monto Bs. ${montoFinanceFlux}`)
+        }
+        message.success('Ingreso registrado con éxito')
+        onSuccess()
+        setLoading(false);
     };
 
     return (

@@ -21,7 +21,6 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
     const [sucursales, setSucursales] = useState<any[]>([]);
     const [sucursalesLoaded, setSucursalesLoaded] = useState(false);
 
-
     const fetchSucursales = async () => {
         try{
             const response = await getSucursalsAPI();
@@ -38,7 +37,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
 
             const pedidos = response.map((product: any) => product.id_pedido);
             const uniquePedidos = Array.from(new Set<number>(pedidos));
-
+            console.log(totalNoPagadas)
             const shippingsResponse = await getShipingByIdsAPI(uniquePedidos);
             if (shippingsResponse.success) {
                 const totalAdelanto = shippingsResponse.data.reduce((total: number, pedido: any) => {

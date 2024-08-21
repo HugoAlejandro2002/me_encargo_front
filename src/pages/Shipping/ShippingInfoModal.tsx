@@ -52,7 +52,10 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
         }
     }, [shipping, form]);
     useEffect(() => {
-        const saldo_cobrar = ((totalAmount) >= 0 ? (totalAmount - adelantoClienteInput + cargoDeliveryInput ).toFixed(2) : '0.00')
+        const total = totalAmount || 0;
+        const adelanto = adelantoClienteInput || 0;
+        const delivery = cargoDeliveryInput || 0;
+        const saldo_cobrar = (total - adelanto + delivery).toFixed(2);
         if (form.getFieldValue('saldo_cobrar') !== saldo_cobrar) {
             form.setFieldsValue({
                 saldo_cobrar: saldo_cobrar,
@@ -270,7 +273,7 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                             <Form.Item
                                 name='adelanto_cliente'
                                 label='Adelanto Cliente'
-                                //initialValue={shipping.adelanto_cliente}
+                            //initialValue={shipping.adelanto_cliente}
                             >
                                 <InputNumber
                                     prefix='Bs.'
@@ -282,20 +285,20 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                     </Row>
                 )}
                 <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name='cargo_delivery'
-                                label='Cargo Delivery'
-                                //initialValue={shipping.cargo_delivery}
-                            >
-                                <InputNumber
-                                    prefix='Bs.'
-                                    onChange={((e: any) => setCargoDeliveryInput(e))}
-                                    style={{ width: '100%' }}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                    <Col span={12}>
+                        <Form.Item
+                            name='cargo_delivery'
+                            label='Cargo Delivery'
+                        //initialValue={shipping.cargo_delivery}
+                        >
+                            <InputNumber
+                                prefix='Bs.'
+                                onChange={((e: any) => setCargoDeliveryInput(e))}
+                                style={{ width: '100%' }}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
                 <Form.Item>
                     <EmptySalesTable
                         products={products}

@@ -40,6 +40,19 @@ export const getProductByShippingAPI = async (shippingId: any) => {
 
     }
 }
+export const getProductsBySellerIdAPI = async (sellerId: any) => {
+    try {
+        const res = await apiClient.get(`/sale/products/seller/${sellerId}`)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+
+    }
+}
 export const updateProductsByShippingAPI = async (shippingId: number, updatedEmtpySalesTable: any, ) => {
     try {
         const res = await apiClient.put(`/sale/products/update/${shippingId}`, updatedEmtpySalesTable )

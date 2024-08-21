@@ -15,6 +15,20 @@ const getShippingsAPI = async () => {
     }
 }
 
+const getShipingByIdsAPI = async(ids:number[])=>{
+    try {
+        const idsString = ids.join(',');
+        const res = await apiClient.get(`/shipping/${idsString}`);
+        return { success: true, data: res.data };
+    } catch (error) {
+        const err = error as AxiosError;
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data };
+        }
+        return { success: false };
+    }
+};
+
 const registerShippingAPI = async (shippingData: any) => {
     try {
         const res = await apiClient.post('/shipping/register', shippingData)
@@ -50,4 +64,4 @@ const updateShippingAPI = async (updateShippingData: any, shippingId: number) =>
     }
 }
 
-export { getShippingsAPI, registerShippingAPI, registerSalesToShippingAPI, updateShippingAPI }
+export { getShippingsAPI, registerShippingAPI, registerSalesToShippingAPI, updateShippingAPI, getShipingByIdsAPI }

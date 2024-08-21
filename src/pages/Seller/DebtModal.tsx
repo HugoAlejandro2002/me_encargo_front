@@ -38,7 +38,6 @@ const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
         setLoading(false)
     }
 
-
     return (
         <Modal
             title={'Renovar vendedor'}

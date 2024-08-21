@@ -59,9 +59,10 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
         }
 
         if (intEstadoPedido == 3) {
+            console.log(parseInt(shippingStateData.cargo_delivery))
             updateShippingInfo = {
-                cargo_delivery: parseInt(shippingStateData.cargo_delivery),
-                costo_delivery: parseInt(shippingStateData.costo_delivery),
+                cargo_delivery: parseFloat(shippingStateData.cargo_delivery),
+                costo_delivery: parseFloat(shippingStateData.costo_delivery),
                 estado_pedido: estadoPedidoMap[intEstadoPedido],
                 tipo_de_pago: tipoPagoMap[intTipoPago],
                 hora_entrega_real: dayjs().utc().subtract(4, 'hours').format('YYYY-MM-DD HH:mm:ss')

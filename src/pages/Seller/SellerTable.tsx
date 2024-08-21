@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { getSellersAPI } from '../../api/seller';
 import DebtModal from './DebtModal';
 import { DollarOutlined } from '@ant-design/icons';
+import SellerInfoModal from './SellerInfoModal';
 
 const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
@@ -47,8 +48,9 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
     const [pendingPaymentData, setPendingPaymentData] = useState([]);
     const [onTimePaymentData, setOnTimePaymentData] = useState([]);
-    const [selectedSeller, setSelectedSeller] = useState()
+    const [selectedSeller, setSelectedSeller] = useState(null)
     const [isModalVisible, setIsModalVisible] = useState(false)
+    const [isSellerModalVisible, setIsSellerModalVisible] = useState(false);
 
     async function fetchSellers() {
         try {
@@ -65,18 +67,24 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             // Aquí ajusta cómo mapeas los datos según la estructura de tu respuesta de la API
             const formattedData = sellersData.map((seller: any) => {
                 const finish_date = new Date(seller.fecha_vigencia)
+                const date = new Date(seller.fecha)
                 return {
                     key: seller.id_vendedor.toString(),
                     nombre: `${seller.nombre} ${seller.apellido}`,
                     deuda: `Bs. ${seller.deuda}`,
                     deudaInt: seller.deuda,
                     fecha_vigencia: finish_date.toLocaleDateString('es-ES'),
+                    fecha: date.toLocaleDateString('es-ES'),
                     pago_mensual: `Bs. ${seller.alquiler + seller.exhibicion + seller.delivery}`,
-                    alquiler: seller.alquiler.toString(),
-                    exhibicion: seller.exhibicion.toString(),
-                    delivery: seller.delivery.toString(),
+                    alquiler: seller.alquiler,
+                    exhibicion: seller.exhibicion,
+                    delivery: seller.delivery,
                     comision_porcentual: `${seller.comision_porcentual}%`,
                     comision_fija: `Bs. ${seller.comision_fija}`,
+                    telefono: seller.telefono,
+                    mail: seller.mail,
+                    carnet: seller.carnet,
+                    adelanto_servicio: seller.adelanto_servicio,
                 };
             })
 
@@ -98,17 +106,23 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
     const handleCancel = () => {
         setIsModalVisible(false)
+        setIsSellerModalVisible(false)
+        setSelectedSeller(null);
     }
 
     const handleSuccess = () => {
         setIsModalVisible(false)
+        setSelectedSeller(null);
         setRefreshKey((prev: number) => prev + 1)
     }
+    const handleRowClick = (seller: any) => {
+        setSelectedSeller(seller);
+        setIsSellerModalVisible(true);
+    };
 
     useEffect(() => {
         fetchSellers();
     }, [refreshKey]);
-
 
     return (
         <div>
@@ -119,15 +133,27 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
                     Pago pendiente Bs. {pendingPaymentData.reduce((acc: number, seller: any) => acc + seller.deudaInt, 0)}
                 </h2>}
                 pagination={false}
+                onRow={(record) => ({
+                    onClick: () => handleRowClick(record)
+                })}
             />
             <Table
                 columns={columns}
                 dataSource={onTimePaymentData}
                 title={() => <h2 className='text-2xl font-bold'>Pago al día</h2>}
                 pagination={false}
+                onRow={(record) => ({
+                    onClick: () => handleRowClick(record)
+                })}
             />
             {selectedSeller && (<DebtModal
                 visible={isModalVisible}
+                onCancel={handleCancel}
+                onSuccess={handleSuccess}
+                seller={selectedSeller}
+            />)}
+            {selectedSeller && (<SellerInfoModal
+                visible={isSellerModalVisible && !isModalVisible}
                 onCancel={handleCancel}
                 onSuccess={handleSuccess}
                 seller={selectedSeller}

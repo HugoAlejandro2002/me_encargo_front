@@ -32,6 +32,7 @@ const FinanceFluxTable = (refreshKey: any) => {
                 key: financeFlux.id_flujo_financiero, // Usa un campo único como key
                 vendedor: sellers[index]?.nombre && sellers[index]?.apellido ? `${sellers[index]?.nombre} ${sellers[index]?.apellido}` : '',
                 encargado: workers[index]?.nombre || '',
+                esDeuda: financeFlux.esDeuda ? 'SI' : 'NO'
             }));
             setDataWithKey(dataWithKeys);
             setFilteredData(dataWithKeys);
@@ -93,6 +94,11 @@ const FinanceFluxTable = (refreshKey: any) => {
             title: "Vendedor",
             dataIndex: "vendedor",
             key: "finance_flux_seller"
+        },
+        {
+            title: "¿Es deuda?",
+            dataIndex: "esDeuda",
+            key: "finance_flux_isDebt"
         },
         {
             title: "Encargado",

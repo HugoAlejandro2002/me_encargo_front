@@ -36,3 +36,12 @@ export const updateGroupAPI = async (updateGroupData: any, groupId: number) => {
         return parseError(error as AxiosError)
     }
 }
+
+export const getGroupByIdAPI = async (idGroup: number) => {
+    try {
+        const res = await apiClient.get(`/${idGroup}`)
+        return {sucess: true, ...res.data}
+    } catch (error) {
+        return parseError(error as AxiosError)
+    }
+}

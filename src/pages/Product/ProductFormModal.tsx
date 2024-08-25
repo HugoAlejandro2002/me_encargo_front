@@ -77,8 +77,9 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
                 productFeaturesMap.get(productId).push(...featuresForProduct)
             })
 
-            await createProductStock(res.products, productVariants, productData.sucursal)
+            const products = await createProductStock(res.products, productVariants, productData.sucursal)
             await createProductFeatures(res.products, productFeaturesMap)
+            console.log("New Producst", products)
             onSuccess()
         } else {
             message.error('Error al crear los productos, inténtelo de nuevo')

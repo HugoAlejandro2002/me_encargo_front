@@ -1,20 +1,36 @@
 import { Modal, Button, Form, Input, InputNumber, Select } from 'antd';
 import { useState } from 'react';
+import { addProductFeaturesAPI, registerVariantAPI } from '../../api/product';
 
 const { Option } = Select;
 
 const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     const [form] = Form.useForm();
-    const [features, setFeatures] = useState([{ feature: '', value: '' }]);
-    const [selectedFeatures, setSelectedFeatures] = useState(new Set());
     
+    const example = group.product
+    
+    const [features, setFeatures] = useState(example.features)
+
+    const handleVariantAdd = async (newVariant) => {
+
+        const {product,  featuresFilter:features} = newVariant
+        const stock = {
+            cantidad_por_sucursal: product.stock,
+            //TODO Add Sucursal Field in the form
+            id_sucursal: 3
+        }
+        const {newProduct} = await registerVariantAPI({product,stock})
+        await addProductFeaturesAPI({productId: newProduct.id_producto, features})
+            
+        onAdd()
+    };
+
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
             console.log({values, onAdd, group})
             const featuresFilter = features.filter(feat => feat.feature!== "")
 
-            const example = group.products[0]
             const variant = {
                 product:{
                     ...values,
@@ -25,50 +41,19 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                 featuresFilter
             }
 
-            await onAdd(variant);
+            await handleVariantAdd(variant);
             
             form.resetFields();
-            setFeatures([{ feature: '', value: '' }]); // Reset features state
-            setSelectedFeatures(new Set()); // Reset selected features state
         } catch (error) {
             console.error('Failed to add variant:', error);
         }
     };
 
-    const handleFeatureChange = (index, value) => {
-        const newFeatures = [...features];
-        const prevFeature = newFeatures[index].feature;
-
-        // Remove the previously selected feature if it exists
-        if (prevFeature) {
-            selectedFeatures.delete(prevFeature);
-        }
-
-        newFeatures[index].feature = value;
-        setFeatures(newFeatures);
-        setSelectedFeatures(new Set([...selectedFeatures, value]));
-
-        // If the last feature-value pair is filled, add a new empty pair
-        if (index === features.length - 1 && value) {
-            setFeatures([...features, { feature: '', value: '' }]);
-        }
-
-    }
 
     const handleValueChange = (index, value) => {
         const newFeatures = [...features];
         newFeatures[index].value = value;
         setFeatures(newFeatures);
-    };
-
-    // Filter out already selected features from the dropdown
-    const getAvailableFeatures = (index) => {
-        const selected = new Set(features.map(f => f.feature));
-
-        if (features[index].feature) {
-            selected.delete(features[index].feature);
-        }
-        return group.features.filter(f => !selected.has(f));
     };
 
     return (
@@ -83,6 +68,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     label="Nombre del Producto"
                     name="nombre_producto"
                     rules={[{ required: true, message: 'Por favor ingrese el nombre del producto' }]}
+                    initialValue={`${example.nombre_producto}`}
                 >
                     <Input />
                 </Form.Item>
@@ -90,6 +76,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     label="Precio"
                     name="precio"
                     rules={[{ required: true, message: 'Por favor ingrese el precio' }]}
+                    initialValue={example.precio}
                 >
                     <InputNumber min={0} style={{ width: '100%' }} />
                 </Form.Item>
@@ -106,16 +93,8 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                 >
                     {features.map((feature, index) => (
                         <div key={index} style={{ display: 'flex', marginBottom: 8 }}>
-                            <Select
-                                placeholder="Seleccionar característica"
-                                value={feature.feature}
-                                style={{ marginRight: 8, flex: 1 }}
-                                onChange={(value) => handleFeatureChange(index, value)}
-                            >
-                                {getAvailableFeatures(index).map((featureOption, idx) => (
-                                    <Option key={idx} value={featureOption}>{featureOption}</Option>
-                                ))}
-                            </Select>
+                          
+                            <h3 style={{margin: 10}}>{feature.feature}</h3>
                             <Input
                                 placeholder="Valor"
                                 value={feature.value}

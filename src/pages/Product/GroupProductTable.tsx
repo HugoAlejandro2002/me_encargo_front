@@ -18,7 +18,23 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
             title: 'Producto',
             dataIndex: 'producto',
             key: 'producto',
-            width: "40%"
+            width: "30%"
+        },
+        {
+            title: 'Ingreso/Entrada',
+            dataIndex: 'ingreso',
+            key: 'ingreso',
+            render: (_: any, record: any) => (
+                <Input
+                    type="number"
+                    value={''}
+                    // value={ingresoData[record.id_producto] || ''}
+                    // onChange={(e) =>
+                    //     handleIngresoChange(record.id_producto, parseInt(e.target.value, 10) || 0)
+                    // }
+                />
+            ),
+            width: "10%"
         },
         {
             title: 'Stock actual',

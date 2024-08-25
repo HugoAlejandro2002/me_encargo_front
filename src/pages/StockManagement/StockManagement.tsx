@@ -1,149 +1,242 @@
 import React, { useEffect, useState } from 'react';
 import SellerList from './SellerList';
 import ProductTable from './ProductTable';
-import { getProductsAPI, updateProductStockAPI } from '../../api/product'; // Assuming this is where you get both sellers and products
+import { addProductFeaturesAPI, getProductsAPI, registerVariantAPI, updateProductStockAPI } from '../../api/product'; // Assuming this is where you get both sellers and products
+import { Button, Input, Select } from 'antd';
+import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import ProductInfoModal from '../Product/ProductInfoModal';
+import ProductFormModal from '../Product/ProductFormModal';
+import AddVariantModal from '../Product/AddVariantModal';
+import { Option } from 'antd/es/mentions';
+import { getGroupByIdAPI, getGroupsAPI } from '../../api/group';
 import { getSellersAPI } from '../../api/seller';
-import { Button, Input } from 'antd';
+import { getCategoriesAPI } from '../../api/category';
 
 const StockManagement = () => {
-    const [sellers, setSellers] = useState<any[]>([]);
-    const [products, setProducts] = useState<any[]>([]);
-    const [selectedSeller, setSelectedSeller] = useState<number | null>(null);
+    // const [products, setProducts] = useState<any[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-    const [stockData, setStockData] = useState<any[]>([]);
-    const [ingresoData, setIngresoData] = useState<{ [key: number]: number }>({});
+    // const [stockData, setStockData] = useState<any[]>([]);
+    // const [ingresoData, setIngresoData] = useState<{ [key: number]: number }>({});
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const [selectedGroup, setSelectedGroup] = useState(null)
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const sellersResponse = await getSellersAPI();
-                sellersResponse.unshift({id_vendedor: null, name: "Todos"})
-                setSellers(sellersResponse);
+    const [selectedSeller, setSelectedSeller] = useState<number | null>(null);
+    const [infoModalVisible, setInfoModalVisible] = useState<boolean>(false);
+    const [isProductFormVisible, setProductFormVisible] = useState<boolean>(false);
+    const [isVariantModalVisible, setIsVariantModalVisible] = useState<boolean> (false)
+    const [prevKey, setPrevKey] = useState(0)
+    const [criteriaFilter, setCriteriaFilter] = useState(0)
+    const [criteriaGroup, setCriteriaGroup] = useState(0)
 
-                const productsResponse = await getProductsAPI()// Fetch all products initially
-                for(const product of productsResponse){
-                    product.categoria = product.categoria.categoria
-                }
-                setProducts(productsResponse);
-                setStockData(productsResponse); // Initialize stock data
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-    }, []);
+    const [options, setOptions] = useState<any[]>([{option: "Vendedor",group: [], groupFunction: () => {}}])
 
-    useEffect(() => {
-        if (selectedSeller !== null) {
-            const filterProducts = products.filter(
-                (product) => product.id_vendedor === selectedSeller
-            );
-            setFilteredProducts(filterProducts);
-        } else {
-            setFilteredProducts(products);
-        }
-    }, [selectedSeller, products]);
 
-    const handleSelectSeller = (sellerId: number) => {
+    const showVariantModal = async (product: any) => {
+        const group = await getGroupByIdAPI(product.groupId)
+        group.product = product
+        setSelectedGroup(group)
+        setIsVariantModalVisible(true)
+    }
+
+    const succesAddVariant = async () => {
+        
+        const productsResponse = await getProductsAPI()
+        
+        setProducts(productsResponse)
+        setFilteredProducts(productsResponse)
+
+        closeModal()
+    }
+
+    const showModal = (product: any) => {
+        setSelectedProduct(product)
+        setInfoModalVisible(true)
+    }
+
+    const closeModal = () => {
+        setSelectedProduct(null)
+        setInfoModalVisible(false)
+
+        setSelectedGroup(null)
+        setIsVariantModalVisible(false)
+    }
+    
+    const filterBySeller =  (product, sellerId) => {
+        return sellerId === null || product.id_vendedor === sellerId
+    }
+
+    const filterByCategoria = (product, sellerId) => {
+        return sellerId === null || product.id_categoria === sellerId
+    }
+
+    const filterByGroup =  (product, sellerId) => {
+        return sellerId === null || product.groupId === sellerId
+    }
+
+    const handleSelectSeller =  (sellerId: number) => {
+        
         setSelectedSeller(sellerId);
+
+
     };
 
-    const handleIngresoChange = (productId: number, value: number) => {
-        setIngresoData((prev) => ({ ...prev, [productId]: value }));
-    };
+    useEffect(() => {
 
-    const handleStockUpdate = async () => {
+        const filter = options[criteriaFilter].filter
+        const newList = products.filter(product => 
+            filter(product, selectedSeller)
+        )
 
-        const updatedProducts = products
+        // console.log("stock", {products, selectedSeller, newList, filter})
 
+
+        setFilteredProducts(newList)        
         
-        const newStock = [] as any[];
-        for(const product of updatedProducts){
-            if(product.producto_sucursal[0]){
-                // TODO Change when there will be more than one sucursal
-                product.producto_sucursal[0].cantidad_por_sucursal += ingresoData[product.id_producto] || 0
-                if(ingresoData[product.id_producto])
-                    newStock.push({
-                        productId: product.id_producto,
-                        sucursalId: 3,
-                        stock: ingresoData[product.id_producto]
-                    })
+    }, [selectedSeller])
+
+    useEffect( () => {
+        fetchData()
+    }, [prevKey])
+
+    const [products, setProducts] = useState<any[]>([])
+    const [sellers, setSellers] = useState<any[]>([])
+    const [categories, setCategories] = useState<any[]>([])
+    const [groups, setGroups] = useState<any[]>([])
+
+    const fetchData = async () => {
+        const sellersResponse = await getSellersAPI()
+        const categoriesResponse = await getCategoriesAPI()
+        const groupsResponse = await getGroupsAPI()
+        const productsResponse = await getProductsAPI()
+
+        setSellers(sellersResponse)
+        setCategories(categoriesResponse)
+        setGroups(groupsResponse)
+        setProducts(productsResponse)
+        setFilteredProducts(productsResponse)
+    
+       
+    }
+
+    useEffect(() => {fetchData()}, [])
+
+    useEffect(() => {
+        setOptions([
+            {
+                option: 'Vendedor',
+                filter: filterBySeller,
+                group: sellers,
+                groupFunction: (seller) => {
+                    const agrouped = filteredProducts.filter((product) => product.id_vendedor == seller.id_vendedor)
+                    return agrouped
+                }
+            }, {
+                option: 'Categoria',
+                filter: filterByCategoria,
+                group: categories,
+                groupFunction: (category) => 
+                    filteredProducts.filter((product) => product.id_categoria == category.id_categoria)
+    
+            }, {
+                option: 'Grupo',
+                filter: filterByGroup,
+                group: groups,
+                groupFunction: (group) => 
+                    filteredProducts.filter((product) => product.groupId == group.id)
+    
             }
-        }
+        ])
+    }, [filteredProducts])
 
-        
-        await updateProductStockAPI(newStock)
+    const handleChangeFilter = (index: number) => {
+        setCriteriaFilter(index)
+    }
 
-        setFilteredProducts(updatedProducts);
-        setSelectedSeller(null)
-        setIngresoData({});
-    };
-
-    const columns = [
-        {
-            title: 'Producto',
-            dataIndex: 'nombre_producto',
-            key: 'nombre_producto',
-        },
-        {
-            title: 'Stock actual',
-            dataIndex: 'producto_sucursal',
-            key: 'producto_sucursal',
-            render: (producto_sucursal: any) =>
-                producto_sucursal.reduce((acc: number, cur: any) => acc + cur.cantidad_por_sucursal, 0)
-        },
-        {
-            title: 'Ingreso/Entrada',
-            dataIndex: 'ingreso',
-            key: 'ingreso',
-            render: (_: any, record: any) => (
-                <Input
-                    type="number"
-                    value={ingresoData[record.id_producto] || ''}
-                    onChange={(e) =>
-                        handleIngresoChange(record.id_producto, parseInt(e.target.value, 10) || 0)
-                    }
-                />
-            ),
-            width: "10%"
-        },
-        {
-            title: 'Precio',
-            dataIndex: 'precio',
-            key: 'precio',
-        },
-        {
-            title: 'Categoría',
-            dataIndex: 'categoria',
-            key: 'categoria',
-        },
-    ];
+    const handleChangeGroup = (index: number) => {
+        setCriteriaGroup(index)
+    }
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ width: '30%' }}>
+                <div style={{ width: '25%' }}>
                     <h2>Lista de Vendedores</h2>
                     <SellerList
-                        sellers={sellers}
+                        filterSelected={criteriaFilter}
                         onSelectSeller={handleSelectSeller}
                     />
                 </div>
-                <div style={{ width: '70%' }}>
-                    <h2>Productos</h2>
+                <div style={{ width: '75%' }}>
+                    {/* <h2>Productos</h2> */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <Select style={{ width: 200, marginRight: 24 }} placeholder="Select an option"
+                            onChange={handleChangeFilter}
+                            defaultValue={0}
+                        >
+                            {options.map((option, index) => (
+                            <Option key={option.option} value={index}>
+                                {option.option}
+                            </Option>
+                            ))}
+                        </Select>
+
+                        <Select style={{ width: 200, marginLeft: 16, marginRight: 50 }} placeholder="Select an option"
+                            onChange={handleChangeGroup}
+                            defaultValue={0}
+                        >
+                            {options.map((option, index) => (
+                            <Option key={option.option} value={index}>
+                                {option.option}
+                            </Option>
+                            ))}
+                        </Select>
+                        
+                        <Button onClick={() => setProductFormVisible(true)} type='primary'>Agregar Producto</Button>
+                    </div>
+                    
                     <ProductTable
-                        data={filteredProducts}
-                        onSelectProduct={(product: any) => console.log(product)}
-                        columns={columns}
-                        ingresoData={ingresoData}
+                        groupList = {options[criteriaGroup].group}
+                        groupCriteria = {options[criteriaGroup].groupFunction}
+                        showModal = {showModal}
+                        showVariantModal = {showVariantModal}
+                        products = {filteredProducts}
+                        handleUpdate = { async () => {
+                            const productsResponse = await getProductsAPI()
+                            setProducts(productsResponse)
+                        }}
                     />
-                    <Button 
-                        style={{ marginTop: '20px' }}
-                        onClick={handleStockUpdate}>
-                        Actualizar Stock
-                    </Button>
+                    
                 </div>
             </div>
+
+            {infoModalVisible && 
+                <ProductInfoModal
+                    visible={infoModalVisible}
+                    onClose={closeModal}
+                    product={selectedProduct}
+                />
+            }
+
+            {isProductFormVisible && 
+                <ProductFormModal
+                    visible={isProductFormVisible}
+                    onCancel={() => setProductFormVisible(false)}
+                    onSuccess={() => {
+                        setProductFormVisible(false)
+                        setPrevKey(key => key+1)
+                    }}
+                />
+            }
+
+            { isVariantModalVisible &&
+                <AddVariantModal
+                    group={selectedGroup}
+                    onAdd={succesAddVariant}
+                    onCancel={closeModal}
+                    visible={isVariantModalVisible}
+                />
+                
+            }
         </div>
     );
 };

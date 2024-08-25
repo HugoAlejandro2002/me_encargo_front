@@ -15,6 +15,7 @@ const AppRoutes = () => {
       <Route path='/shipping' element={<Shipping />} />
       <Route path='/financeFlux' element={<FinanceFlux />} />
       <Route path='/stock' element={<StockManagement/>}/>
+      
     </Routes>
   );
 };

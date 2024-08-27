@@ -13,10 +13,7 @@ import { getSellersAPI } from '../../api/seller';
 import { getCategoriesAPI } from '../../api/category';
 
 const StockManagement = () => {
-    // const [products, setProducts] = useState<any[]>([]);
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-    // const [stockData, setStockData] = useState<any[]>([]);
-    // const [ingresoData, setIngresoData] = useState<{ [key: number]: number }>({});
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [selectedGroup, setSelectedGroup] = useState(null)
 
@@ -74,23 +71,21 @@ const StockManagement = () => {
     }
 
     const handleSelectSeller =  (sellerId: number) => {
-        
         setSelectedSeller(sellerId);
-
-
     };
 
-    useEffect(() => {
-
+    const filter =  () => {
+        
         const filter = options[criteriaFilter].filter
         const newList = products.filter(product => 
             filter(product, selectedSeller)
         )
+        console.log(selectedSeller)
+        setFilteredProducts(newList)  
+    }
 
-        // console.log("stock", {products, selectedSeller, newList, filter})
-
-
-        setFilteredProducts(newList)        
+    useEffect(() => {
+        filter()
         
     }, [selectedSeller])
 
@@ -126,23 +121,23 @@ const StockManagement = () => {
                 option: 'Vendedor',
                 filter: filterBySeller,
                 group: sellers,
-                groupFunction: (seller) => {
-                    const agrouped = filteredProducts.filter((product) => product.id_vendedor == seller.id_vendedor)
+                groupFunction: (seller, products) => {
+                    const agrouped = products.filter((product) => product.id_vendedor == seller.id_vendedor)
                     return agrouped
                 }
             }, {
                 option: 'Categoria',
                 filter: filterByCategoria,
                 group: categories,
-                groupFunction: (category) => 
-                    filteredProducts.filter((product) => product.id_categoria == category.id_categoria)
+                groupFunction: (category, products) => 
+                    products.filter((product) => product.id_categoria == category.id_categoria)
     
             }, {
                 option: 'Grupo',
                 filter: filterByGroup,
                 group: groups,
-                groupFunction: (group) => 
-                    filteredProducts.filter((product) => product.groupId == group.id)
+                groupFunction: (group, products) => 
+                    products.filter((product) => product.groupId == group.id)
     
             }
         ])
@@ -199,7 +194,7 @@ const StockManagement = () => {
                         groupCriteria = {options[criteriaGroup].groupFunction}
                         showModal = {showModal}
                         showVariantModal = {showVariantModal}
-                        products = {filteredProducts}
+                        productsList = {filteredProducts}
                         handleUpdate = { async () => {
                             const productsResponse = await getProductsAPI()
                             setProducts(productsResponse)
@@ -235,7 +230,6 @@ const StockManagement = () => {
                     onCancel={closeModal}
                     visible={isVariantModalVisible}
                 />
-                
             }
         </div>
     );

@@ -5,6 +5,7 @@ import DebtModal from "./DebtModal";
 import { EditOutlined } from "@ant-design/icons";
 import PayDebtButton from "./components/PayDebtButton";
 import SellerInfoModal from "./SellerInfoModal";
+import { getSellerAdvancesById } from "../../helpers/sellerHelpers";
 const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
   const columns = [
     {
@@ -65,47 +66,44 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
       const sellersData = response.data || response;
 
-      // Verifica si sellersData es un array
       if (!Array.isArray(sellersData)) {
         console.error("Los datos de vendedores no son un array:", sellersData);
         return;
       }
-
-      // Aquí ajusta cómo mapeas los datos según la estructura de tu respuesta de la API
-      const formattedData = sellersData.map((seller: any) => {
-        const finish_date = new Date(seller.fecha_vigencia);
-        const ventasNoPagadas = seller.deuda;
-        // const deudas
-        // const pagoTotal = ventasNoPagadas - deudas - adelantos
-        const date = new Date(seller.fecha);
-        return {
-          key: seller.id_vendedor.toString(),
-          nombre: `${seller.nombre} ${seller.apellido}`,
-          deuda: `Bs. ${seller.deuda}`,
-          deudaInt: seller.deuda,
-          fecha_vigencia: finish_date.toLocaleDateString("es-ES"),
-          fecha: date.toLocaleDateString("es-ES"),
-          pago_mensual: `Bs. ${
-            seller.alquiler + seller.exhibicion + seller.delivery
-          }`,
-          alquiler: seller.alquiler,
-          exhibicion: seller.exhibicion,
-          delivery: seller.delivery,
-          comision_porcentual: `${seller.comision_porcentual}%`,
-          comision_fija: `Bs. ${seller.comision_fija}`,
-          telefono: seller.telefono,
-          mail: seller.mail,
-          carnet: seller.carnet,
-          adelanto_servicio: seller.adelanto_servicio,
-        };
-      });
+      const formattedData = await Promise.all(
+        sellersData.map(async (seller: any) => {
+          const finish_date = new Date(seller.fecha_vigencia);
+          const advances = await getSellerAdvancesById(seller.id_vendedor);
+          const date = new Date(seller.fecha);
+          return {
+            key: seller.id_vendedor.toString(),
+            nombre: `${seller.nombre} ${seller.apellido}`,
+            deuda: `Bs. ${seller.deuda - advances}`,
+            pagoTotalInt: seller.deuda - parseInt(advances),
+            fecha_vigencia: finish_date.toLocaleDateString("es-ES"),
+            fecha: date.toLocaleDateString("es-ES"),
+            pago_mensual: `Bs. ${
+              seller.alquiler + seller.exhibicion + seller.delivery
+            }`,
+            alquiler: seller.alquiler,
+            exhibicion: seller.exhibicion,
+            delivery: seller.delivery,
+            comision_porcentual: `${seller.comision_porcentual}%`,
+            comision_fija: `Bs. ${seller.comision_fija}`,
+            telefono: seller.telefono,
+            mail: seller.mail,
+            carnet: seller.carnet,
+            adelanto_servicio: seller.adelanto_servicio,
+          };
+        })
+      );
 
       // Separar los datos según algún criterio (en este caso, si el pago es pendiente o al día)
       const pendingPayments: any = formattedData.filter(
-        (seller: any) => seller.deuda !== "Bs. 0"
+        (seller: any) => seller.pagoTotal !== "Bs. 0"
       );
       const onTimePayments: any = formattedData.filter(
-        (seller: any) => seller.deuda === "Bs. 0"
+        (seller: any) => seller.pagoTotal === "Bs. 0"
       );
 
       setPendingPaymentData(pendingPayments);
@@ -138,6 +136,8 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
   useEffect(() => {
     fetchSellers();
+    console.log(pendingPaymentData, "ts");
+    console.log(onTimePaymentData, "tsa");
   }, [refreshKey]);
 
   return (
@@ -149,7 +149,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
           <h2 className="text-2xl font-bold">
             Pago pendiente Bs.{" "}
             {pendingPaymentData.reduce(
-              (acc: number, seller: any) => acc + seller.deudaInt,
+              (acc: number, seller: any) => acc + seller.pagoTotalInt,
               0
             )}
           </h2>

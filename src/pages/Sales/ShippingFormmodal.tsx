@@ -51,7 +51,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             id_producto: product.key,
             ...product,
         }))
-        await handleDebt(parsedSelectedProducts)
+        await handleDebt(parsedSelectedProducts, response.newShipping.adelanto_cliente)
         await handleSales(response.newShipping, parsedSelectedProducts)
         onSuccess();
         setLoading(false);

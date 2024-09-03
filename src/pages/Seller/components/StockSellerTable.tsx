@@ -1,9 +1,16 @@
-import { Table } from "antd";
+import { InputNumber, Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 
-const StockSellerTable
- = ({ data }: { data: any[] }) => {
+interface StockSellerTableProps {
+  data: any[];
+  handleValueChange: (key: any, field: any, value: any) => void;
+}
+
+const StockSellerTable = ({
+  data,
+  handleValueChange
+}:StockSellerTableProps)=> {
     const columns = [
         {
             title: "Fecha",
@@ -22,8 +29,13 @@ const StockSellerTable
             title: "Cantidad",
             dataIndex: "cantidad_por_sucursal",
             key: "cantidad_por_sucursal",
-            render: (_: any, record: any) => 
-              record.producto_sucursal[0]?.cantidad_por_sucursal || 0,
+            render: (_: any, record: any) => (
+              <InputNumber
+                min={0}
+                value={record.producto_sucursal[0]?.cantidad_por_sucursal || 0}
+                onChange={(value) => handleValueChange(record.key, "precio_unitario", value)}
+              />
+            ),
         }
     ];
     useEffect(() => {
@@ -31,7 +43,7 @@ const StockSellerTable
       }, [data]);
     return (
         <div>
-          <Table columns={columns} dataSource={data} pagination={false} />
+          <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
         </div>
       );
 

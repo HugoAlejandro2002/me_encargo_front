@@ -70,7 +70,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
         console.error("Los datos de vendedores no son un array:", sellersData);
         return;
       }
-
+      console.log(sellersData)
       // Aquí ajusta cómo mapeas los datos según la estructura de tu respuesta de la API
       const formattedData = sellersData.map((seller: any) => {
         const finish_date = new Date(seller.fecha_vigencia);

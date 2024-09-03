@@ -36,7 +36,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             "subtotal_qr": 0,
             "subtotal_efectivo": 0,
             "id_trabajador": 1,
-            // SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
+            // ToDo: SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
             "cliente": salesData.cliente,
             "telefono_cliente": salesData.celular
@@ -64,7 +64,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             ...product,
         }))
 
-        await handleDebt(parsedSelectedProducts)
+        await handleDebt(parsedSelectedProducts, response.newShipping.adelanto_cliente)
         await handleSales(response.newShipping, parsedSelectedProducts)
         onSuccess();
         setLoading(false);

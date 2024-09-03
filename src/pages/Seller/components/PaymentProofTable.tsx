@@ -1,4 +1,4 @@
-import { InputNumber, Table } from "antd";
+import { Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 

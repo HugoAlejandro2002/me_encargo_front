@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 interface CustomTableProps {
   data: any[];
-  onDeleteProduct: (key: string) => void;
+  onDeleteProduct: (key: string, isEntryProduct: boolean) => void;
   handleValueChange: (key: any, field: any, value: any) => void;
   showClient: boolean; // Propiedad para alternar entre cliente y tipo
   onUpdateTotalAmount: (total: number) => void;
@@ -79,7 +79,7 @@ const CustomTable = ({
       title: "Acción",
       key: "action",
       render: (_: any, record: any) => (
-        <Button type="link" onClick={() => onDeleteProduct(record.key)}>
+        <Button type="link" onClick={() => onDeleteProduct(record.key, false)}>
           Eliminar
         </Button>
       ),

@@ -2,22 +2,23 @@ import { Button, Col, DatePicker, Form, Input, InputNumber, message, Modal, Row 
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import CustomTable from "./components/SalesTable";
-import { deleteSalesBySaleIdsAPI, getProductsBySellerIdAPI, updateProductsByShippingAPI, updateSale } from "../../api/sales";
+import { deleteSalesBySaleIdsAPI, getProductsBySellerIdAPI, updateSale } from "../../api/sales";
 import { getShipingByIdsAPI } from "../../api/shipping";
-import StockSellerTable from "./components/StockSellerTable";
 import { updateSellerAPI } from "../../api/seller";
-import { getProductAndStockBySellerId } from "../../api/product";
 import { getSucursalsAPI } from "../../api/sucursal";
 import useEditableTable from "../../hooks/useEditableTable";
 import PaymentProofTable from "./components/PaymentProofTable";
 import { getPaymentProofsBySellerIdAPI } from "../../api/paymentProof";
+import { deleteEntryProductsAPI, getProductsEntryAmount, updateEntry } from "../../api/entry";
+import EntryProductSellerTable from "./components/EntryProductSellerTable";
 
 const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
 
     const [loading, setLoading] = useState(false);
     const [products, setProducts, handleValueChange] = useEditableTable([])
+    const [entryProductsAmount, setEntryProductsAmount, handleValueChangeEntry] = useEditableTable([]);
     const [originalProducts, setOriginalProducts] = useState<any[]>([]);
-    const [productsAndStock, setProductsAndStock] = useState<any[]>([]);
+    const [originalEntryProducts, setOriginalEntryProducts] = useState<any[]>([]);
     const [paymentProofs, setPaymentProofs] = useState<any[]>([]);
     const [totalAdelantoCliente, setTotalAdelantoCliente] = useState(0);
     const [totalNoPagadas, setTotalNoPagadas] = useState(0);
@@ -25,6 +26,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
     const [deudaCalculada, setDeudaCalculada] = useState(0);
     const [sucursales, setSucursales] = useState<any[]>([]);
     const [deletedProducts, setDeletedProducts] = useState<any[]>([]);
+    const [deletedEntryProducts, setDeletedEntryProducts] = useState<any[]>([]);
     const [sucursalesLoaded, setSucursalesLoaded] = useState(false);
 
     const fetchSucursales = async () => {
@@ -36,7 +38,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             console.log('Error fetching sucursales:', error)
         }
     }
-    console.log(paymentProofs)
+    // console.log(paymentProofs)
     const fetchPaymentProofs = async (sellerId: number) => {
         try {
             const response = await getPaymentProofsBySellerIdAPI(sellerId);
@@ -49,7 +51,6 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             console.error('Error fetching payment proofs:', error);
         }
     };
-    
     const fetchProducts = async () => {
         try {
             const response = await getProductsBySellerIdAPI(seller.key);
@@ -82,40 +83,48 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             console.error('Error fetching products:', error);
         }
     };
-    const handleDeleteProduct = (key: any) => {
-        setProducts((prevProducts: any) => {
-            const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
-            const deletedProduct = prevProducts.find((product: any) => product.key === key);
-            if (deletedProduct && deletedProduct.id_venta) {
-                setDeletedProducts((prevDeleted: any) => [...prevDeleted,
-                {
-                    id_venta: deletedProduct.id_venta,
-                    id_producto: deletedProduct.id_producto
+    const handleDeleteProduct = (key: any, isEntryProduct: boolean = false) => {
+        if (isEntryProduct) {
+            setEntryProductsAmount((prevProducts: any[]) => {
+                const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
+                const deletedProduct = prevProducts.find((product: any) => product.key === key);
+                if (deletedProduct && deletedProduct.id_ingreso) {
+                    setDeletedEntryProducts((prevDeleted: any[]) => [...prevDeleted, {
+                        id_ingreso: deletedProduct.id_ingreso,
+                        id_producto: deletedProduct.id_producto
+                    }]);
                 }
-                ]);
-            }
-            return updatedProducts;
-        });
+                return updatedProducts;
+            });
+
+        } else {
+            setProducts((prevProducts: any) => {
+                const updatedProducts = prevProducts.filter((product: any) => product.key !== key);
+                const deletedProduct = prevProducts.find((product: any) => product.key === key);
+                if (deletedProduct && deletedProduct.id_venta) {
+                    setDeletedProducts((prevDeleted: any) => [...prevDeleted,
+                    {
+                        id_venta: deletedProduct.id_venta,
+                        id_producto: deletedProduct.id_producto
+                    }
+                    ]);
+                }
+                return updatedProducts;
+            });
+        }
     };
-    const fetchProductsAndStock = async () => {
+
+    const fetchEntryProductAmount = async () => {
         try {
-            const response = await getProductAndStockBySellerId(seller.key);
-            // const productosConKey = response.map((product: any) => {
-            //     const keys = product.producto_sucursal.map((sucursal: any) => {
-            //         return `${product.id_producto}-${sucursal.id_ingreso}`;
-            //     });
-            //     return {
-            //         ...product,
-            //         key: keys.join(', '),
-            //         producto_sucursal: product.producto_sucursal.map((sucursal: any, index: number) => ({
-            //             ...sucursal,
-            //             key: keys[index],
-            //         })),
-            //     };
-            // });
-            setProductsAndStock(response)
+            const response = await getProductsEntryAmount(seller.key);
+            const productsWithKey = response.map((item: any) => ({
+                ...item,
+                key: item.id_ingreso,
+            }));
+            setEntryProductsAmount(productsWithKey)
+            setOriginalEntryProducts(productsWithKey)
         } catch (error) {
-            console.log('Error fetching products with stock:', error)
+            console.log('Error fetching products with entry amount:', error)
         }
     };
     const calcularDeuda = () => {
@@ -140,12 +149,13 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
     useEffect(() => {
         if (sucursalesLoaded) {
             fetchProducts();
-            fetchProductsAndStock();
+            fetchEntryProductAmount();
             fetchPaymentProofs(seller.key);
             calcularDeuda();
         }
     }, [sucursalesLoaded]);
-
+    // console.log(originalEntryProducts + "ES el original")
+    // console.log(entryProductsAmount)
     const handleFinish = async (sellerInfo: any) => {
         setLoading(true)
         const resSeller = await updateSellerAPI(parseInt(seller.key), sellerInfo)
@@ -168,10 +178,28 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                 await updateSale(updateData, product.id_venta);
             }
         }
+        for (const product of entryProductsAmount) {
+            const originalEntryProduct = originalEntryProducts.find((p: any) => p.key === product.key);
+            if (
+                originalEntryProduct &&
+                (product.cantidad_ingreso !== originalEntryProduct.cantidad_ingreso)
+            ) {
+                const updateData = {
+                    cantidad_ingreso: product.cantidad_ingreso,
+                };
+                await updateEntry(updateData, product.id_ingreso);
+            }
+        }
         // Elimina productos
         if (deletedProducts.length > 0) {
             const productIds = deletedProducts.map(p => p.id_venta);
             await deleteSalesBySaleIdsAPI(productIds);
+        }
+
+        // Elimina ingreso de productos
+        if (deletedEntryProducts.length > 0) {
+            const productIds = deletedEntryProducts.map(p => p.id_ingreso);
+            await deleteEntryProductsAPI(productIds);
         }
 
 
@@ -179,7 +207,6 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
         onSuccess()
         setLoading(false)
     }
-    console.log(deletedProducts)
     const ventasNoPagadasProductos = products.filter((product: any) => product.deposito_realizado === false);
     return (
         <Modal
@@ -294,9 +321,10 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                 </div>
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
                     <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ingreso</h4>
-                    <StockSellerTable
-                        data={productsAndStock}
-                        handleValueChange={handleValueChange}
+                    <EntryProductSellerTable
+                        data={entryProductsAmount}
+                        handleValueChange={handleValueChangeEntry}
+                        onDeleteProduct={handleDeleteProduct}
                     />
                 </div>
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>

@@ -79,6 +79,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             key: seller.id_vendedor.toString(),
             nombre: `${seller.nombre} ${seller.apellido}`,
             deuda: `Bs. ${seller.deuda - advances}`,
+            deudaInt: seller.deuda,
             pagoTotalInt: seller.deuda - parseInt(advances),
             fecha_vigencia: finish_date.toLocaleDateString("es-ES"),
             fecha: date.toLocaleDateString("es-ES"),
@@ -98,34 +99,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
         })
       );
       console.log(sellersData)
-      // Aquí ajusta cómo mapeas los datos según la estructura de tu respuesta de la API
-      const formattedData = sellersData.map((seller: any) => {
-        const finish_date = new Date(seller.fecha_vigencia);
-        const ventasNoPagadas = seller.deuda;
-        // const deudas
-        // const pagoTotal = ventasNoPagadas - deudas - adelantos
-        const date = new Date(seller.fecha);
-        return {
-          key: seller.id_vendedor.toString(),
-          nombre: `${seller.nombre} ${seller.apellido}`,
-          deuda: `Bs. ${seller.deuda}`,
-          deudaInt: seller.deuda,
-          fecha_vigencia: finish_date.toLocaleDateString("es-ES"),
-          fecha: date.toLocaleDateString("es-ES"),
-          pago_mensual: `Bs. ${
-            seller.alquiler + seller.exhibicion + seller.delivery
-          }`,
-          alquiler: seller.alquiler,
-          exhibicion: seller.exhibicion,
-          delivery: seller.delivery,
-          comision_porcentual: `${seller.comision_porcentual}%`,
-          comision_fija: `Bs. ${seller.comision_fija}`,
-          telefono: seller.telefono,
-          mail: seller.mail,
-          carnet: seller.carnet,
-          adelanto_servicio: seller.adelanto_servicio,
-        };
-      });
 
       // Separar los datos según algún criterio (en este caso, si el pago es pendiente o al día)
       const pendingPayments: any = formattedData.filter(

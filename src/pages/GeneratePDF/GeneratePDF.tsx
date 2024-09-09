@@ -28,12 +28,12 @@ const styles = StyleSheet.create({
 });
 
 const data = {
-  title: 'Table title',
-  headers: ['head 1', 'head 2', 'head 3'],
+  title: 'Fecha: 02/09/2024',
+  headers: ['Producto', 'Precio unitario', 'Cantidad', 'Precio Total'],
   rows: [
-    ['in head 1 - 1', 'in head 2 - 1', 'in head 3 - 1'],
-    ['in head 1 - 2', 'in head 2 - 2', 'in head 3 - 2'],
-    ['in head 1 - 3', 'in head 2 - 3', 'in head 3 - 3']
+    ['Adidas Cross Guindo rosado', '170,00 Bs', '-1', '-170,00 Bs'],
+    ['in head 1 - 2', 'in head 2 - 2', 'in head 3 - 2', 'in head 3 - 1'],
+    ['in head 1 - 3', 'in head 2 - 3', 'in head 3 - 3', 'in head 3 - 1']
   ],
   footer: (
     <View style={styles.footerContainer}>
@@ -48,7 +48,8 @@ const MyDocument = () => (
   <Document>
     <Page size="A4" style={styles.page}>
       <View style={styles.title}>
-        <Text>Pago</Text>
+        <Text>COMPROBANTE DE PRODUCTOS ENTREGADOS </Text>
+        <Text>AL ALMACÉN</Text>
       </View>
 
       <Table

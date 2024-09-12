@@ -43,6 +43,8 @@ export const Sales = () => {
         console.log('Form values:', values);
         // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
+        setSelectedProducts([]);
+        setTotalAmount(0);
     };
 
     const handleSuccess = () => {
@@ -275,6 +277,7 @@ export const Sales = () => {
                 totalAmount={totalAmount}
                 sucursals={sucursal}
                 handleDebt={updateSellerDebt}
+                clearSelectedProducts={() => setSelectedProducts([])}
             />
             <ShippingFormModal
                 visible={modalType === 'shipping'}
@@ -286,6 +289,7 @@ export const Sales = () => {
                 totalAmount={totalAmount}
                 sucursals={sucursal}
                 handleDebt={updateSellerDebt}
+                clearSelectedProducts={() => setSelectedProducts([])}
             />
         </div>
     );

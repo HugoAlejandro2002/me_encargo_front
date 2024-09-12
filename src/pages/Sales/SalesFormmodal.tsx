@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
 
-function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt }: any) {
+function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts }: any) {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
@@ -38,7 +38,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             "id_trabajador": 1,
             // ToDo: SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
-            "cliente": salesData.cliente,
+            "cliente": salesData.cliente || "",
             "telefono_cliente": salesData.celular
         }
 
@@ -66,8 +66,16 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
 
         await handleDebt(parsedSelectedProducts, response.newShipping.adelanto_cliente)
         await handleSales(response.newShipping, parsedSelectedProducts)
+        clearSelectedProducts();
+        resetForm();
         onSuccess();
         setLoading(false);
+    };
+
+    const resetForm = () => {
+        form.resetFields();
+        setMontoCobradoDelivery(0);
+        setCostoRealizarDelivery(0);
     };
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
@@ -200,7 +208,6 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
                         <Form.Item
                             name="cliente"
                             label="Cliente"
-                            rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                         >
                             <Input prefix={<UserOutlined />} />
                         </Form.Item>

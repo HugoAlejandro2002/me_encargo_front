@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
 
-function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -53,8 +53,19 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
         }))
         await handleDebt(parsedSelectedProducts, response.newShipping.adelanto_cliente)
         await handleSales(response.newShipping, parsedSelectedProducts)
+        clearSelectedProducts();
+        resetForm();
         onSuccess();
         setLoading(false);
+    };
+    const resetForm = () => {
+        form.resetFields();
+        setMontoCobradoDelivery(0);
+        setCostoRealizarDelivery(0);
+        setQrInput(0);
+        setEfectivoInput(0);
+        setAdelantoClienteInput(0);
+        setAdelantoVisible(false);
     };
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
@@ -109,6 +120,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                             <Form.Item
                                 name="telefono_cliente"
                                 label="Celular"
+                                rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                             >
                                 <Input
                                     onKeyDown={(e) => {

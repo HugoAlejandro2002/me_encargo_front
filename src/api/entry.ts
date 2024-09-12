@@ -14,17 +14,18 @@ export const getProductsEntryAmount = async (sellerId: any) => {
         return { succcess: false }
     }
 }
-export const deleteEntryProductsAPI = async (entryIds: number[]) => {
+export const deleteEntryProductsAPI = async (entries: any[]) => {
     try {
-        const res = await apiClient.delete(`/entry/`, { data: { ids: entryIds } });
+        const res = await apiClient.delete(`/entry`, { data: { entries } });
         return { success: true, ...res.data };
     } catch (error) {
         parseError(error as AxiosError);
+        return { success: false, error };
     }
 }
-export const updateEntry = async (updateEntryData: any, entryId: number) => {
+export const updateEntry = async (entriesData: any[]) => {
     try {
-        const res = await apiClient.put(`/entry/${entryId}`, { newData: updateEntryData })
+        const res = await apiClient.put(`/entry`, { entries: entriesData })
         return { success: true, ...res.data }
     } catch (error) {
         parseError(error as AxiosError)

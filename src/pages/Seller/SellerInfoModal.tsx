@@ -2,7 +2,7 @@ import { Button, Col, DatePicker, Form, Input, InputNumber, message, Modal, Row 
 import { useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import CustomTable from "./components/SalesTable";
-import { deleteSalesBySaleIdsAPI, getProductsBySellerIdAPI, updateSale } from "../../api/sales";
+import { deleteSalesAPI, getProductsBySellerIdAPI, updateSale } from "../../api/sales";
 import { getShipingByIdsAPI } from "../../api/shipping";
 import { updateSellerAPI } from "../../api/seller";
 import { getSucursalsAPI } from "../../api/sucursal";
@@ -156,6 +156,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
     }, [sucursalesLoaded]);
     // console.log(originalEntryProducts + "ES el original")
     // console.log(entryProductsAmount)
+    console.log(products)
     const handleFinish = async (sellerInfo: any) => {
         setLoading(true)
         const resSeller = await updateSellerAPI(parseInt(seller.key), sellerInfo)
@@ -164,42 +165,19 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             setLoading(false);
             return;
         }
-        for (const product of products) {
-            const originalProduct = originalProducts.find((p: any) => p.key === product.key);
-            if (
-                originalProduct &&
-                (product.precio_unitario !== originalProduct.precio_unitario ||
-                    product.cantidad !== originalProduct.cantidad)
-            ) {
-                const updateData = {
-                    cantidad: product.cantidad,
-                    precio_unitario: product.precio_unitario
-                };
-                await updateSale(updateData, product.id_venta);
-            }
-        }
-        for (const product of entryProductsAmount) {
-            const originalEntryProduct = originalEntryProducts.find((p: any) => p.key === product.key);
-            if (
-                originalEntryProduct &&
-                (product.cantidad_ingreso !== originalEntryProduct.cantidad_ingreso)
-            ) {
-                const updateData = {
-                    cantidad_ingreso: product.cantidad_ingreso,
-                };
-                await updateEntry(updateData, product.id_ingreso);
-            }
-        }
+        // console.log('Seller Info:', sellerInfo);
+        // console.log('Products:', products);
+        // console.log('Entry Products Amount:', entryProductsAmount);
+        await updateSale(products)
+        await updateEntry(entryProductsAmount)
         // Elimina productos
         if (deletedProducts.length > 0) {
-            const productIds = deletedProducts.map(p => p.id_venta);
-            await deleteSalesBySaleIdsAPI(productIds);
+            await deleteSalesAPI(deletedProducts);
         }
 
         // Elimina ingreso de productos
         if (deletedEntryProducts.length > 0) {
-            const productIds = deletedEntryProducts.map(p => p.id_ingreso);
-            await deleteEntryProductsAPI(productIds);
+            await deleteEntryProductsAPI(deletedEntryProducts);
         }
 
 

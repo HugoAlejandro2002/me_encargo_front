@@ -13,7 +13,6 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
   const handleSave = () => {
     onClose()
   }
-
   return (
     <Modal
       title={product.nombre_producto}

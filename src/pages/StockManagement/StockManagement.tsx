@@ -27,14 +27,12 @@ const StockManagement = () => {
 
     const [options, setOptions] = useState<any[]>([{option: "Vendedor",group: [], groupFunction: () => {}}])
 
-
     const showVariantModal = async (product: any) => {
         const group = await getGroupByIdAPI(product.groupId)
         group.product = product
         setSelectedGroup(group)
         setIsVariantModalVisible(true)
     }
-
     const succesAddVariant = async () => {
         
         const productsResponse = await getProductsAPI()
@@ -103,7 +101,6 @@ const StockManagement = () => {
         const categoriesResponse = await getCategoriesAPI()
         const groupsResponse = await getGroupsAPI()
         const productsResponse = await getProductsAPI()
-
         setSellers(sellersResponse)
         setCategories(categoriesResponse)
         setGroups(groupsResponse)

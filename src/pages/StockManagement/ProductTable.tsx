@@ -14,7 +14,8 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
     const [tableGroup, setTableGroup] = useState<any[]>([])
 
     for(const product of productsList){
-        product.categoria = product.categoria.categoria || "Sin categoria"
+        //TODO: Check if this will be used later because it overwrites always and shows "Sin categoria" 
+        // product.categoria = product.categoria.categoria || "Sin categoria"
         product.infoButton = (
             <Button type="primary" onClick={() => showModal(product)}>
                 <InfoCircleOutlined />
@@ -108,6 +109,7 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
             title: 'Categoría',
             dataIndex: 'categoria',
             key: 'categoria',
+            render: (categoria: any) => categoria?.categoria || "Sin categoria",
         },
     ];
 
@@ -136,7 +138,7 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
         }
         newGroupList.sort((groupA, groupB) => (groupA.products.length>groupB.products.length)?-1:1) 
         setTableGroup([...newGroupList])
-        console.log({productsList, newGroupList})
+        // console.log({productsList, newGroupList})
     } 
 
     useEffect(() => {

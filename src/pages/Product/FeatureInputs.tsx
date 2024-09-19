@@ -56,12 +56,16 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
             selectedFeatures.forEach((featureId: any, idx: number) => {
                 combination[featureId] = combo[idx];
             });
-            combination.stock = 0;
-            combination.price = 0;
+            const existingCombination = combinations.find((comb: any) =>
+                selectedFeatures.every((featureId: any) => comb[featureId] === combination[featureId])
+            );
+            combination.stock = existingCombination?.stock || 0;
+            combination.price = existingCombination?.price || 0;
+
             return combination;
         });
 
-        setCombinations(newCombinations);
+        setCombinations([...newCombinations]);
     };
 
     const handleCombinationChange = (key: any, field: any, value: any) => {

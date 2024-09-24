@@ -72,13 +72,15 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
       }
       const formattedData = await Promise.all(
         sellersData.map(async (seller: any) => {
+          console.log("Esto es la deuda ",seller.deuda)
           const finish_date = new Date(seller.fecha_vigencia);
           const advances = await getSellerAdvancesById(seller.id_vendedor);
           const date = new Date(seller.fecha);
           return {
             key: seller.id_vendedor.toString(),
             nombre: `${seller.nombre} ${seller.apellido}`,
-            deuda: `Bs. ${seller.deuda - advances}`,
+            deuda: `Bs. ${seller.deuda}`,
+            // deuda: `Bs. ${seller.deuda - advances}`,
             deudaInt: seller.deuda,
             pagoTotalInt: seller.deuda - parseInt(advances),
             fecha_vigencia: finish_date.toLocaleDateString("es-ES"),
@@ -95,6 +97,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             mail: seller.mail,
             carnet: seller.carnet,
             adelanto_servicio: seller.adelanto_servicio,
+            marca:seller.marca,
           };
         })
       );

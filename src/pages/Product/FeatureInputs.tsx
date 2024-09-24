@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Form, Input, InputNumber, Table, Button, Tag } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 
 const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureValues, combinations, setCombinations }: any) => {
     const [inputValues, setInputValues] = useState<any>({});

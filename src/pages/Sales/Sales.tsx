@@ -2,7 +2,7 @@ import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
 import { useEffect, useState } from "react";
 import SalesFormModal from "./SalesFormmodal";
 import ProductTable from "../Product/ProductTable";
-import { getSellersAPI, registerSellerAPI, updateSellerAPI } from "../../api/seller";
+import { getSellerAPI, getSellersAPI, registerSellerAPI, updateSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
 import useEditableTable from "../../hooks/useEditableTable";
@@ -10,6 +10,7 @@ import { registerSalesToShippingAPI } from "../../api/shipping";
 import ShippingFormModal from "./ShippingFormmodal";
 import { getSucursalsAPI } from "../../api/sucursal";
 import { getSellerInfoAPI } from "../../api/financeFlux";
+import { getSellerProductsById } from "../../helpers/salesHelpers";
 
 
 export const Sales = () => {
@@ -83,12 +84,13 @@ export const Sales = () => {
             message.error('Error al obtener los vendedores');
         }
     }
-    const fetchFinanceSellerInfo = async(sellerId:number) =>{
-        try{
+    const fetchFinanceSellerInfo = async (sellerId: number) => {
+        try {
             console.log("Fetch seller information from financeFlux")
             const response = await getSellerInfoAPI(sellerId)
             setSucursal(response)
-        }catch(error){
+            return response
+        } catch (error) {
             message.error('Error al obtener los vendedores');
         }
     }
@@ -111,7 +113,7 @@ export const Sales = () => {
         // setEditableProducts((prevProducts: any) => {
         setSelectedProducts((prevProducts: any) => {
             const exists = prevProducts.find((p: any) => p.key === product.key);
-            if (!exists) { 
+            if (!exists) {
                 return [...prevProducts, { ...product, cantidad: 1, precio_unitario: product.precio, utilidad: 1 }];
             }
             return prevProducts;
@@ -133,64 +135,85 @@ export const Sales = () => {
             await registerSalesToShippingAPI({
                 shippingId: shipping.id_pedido,
                 sales: productsToAdd
-            }) 
+            })
         } catch (error) {
             message.error('Error registrando ventas del pedido')
         }
     }
     const calculateSellerDebt = async (id_vendedor: number): Promise<number> => {
         try {
-            const sellerDebtInfo:any= await fetchFinanceSellerInfo(id_vendedor);
-            const deudaTotalFinance = sellerDebtInfo?.deudas?.filter((deuda: any) => deuda.esDeuda)
-                .reduce((acc: number, deuda: any) => acc + deuda.monto, 0) || 0;
+            const sellerDebtInfo: any = await fetchFinanceSellerInfo(id_vendedor);
+            const deudaTotalFinance = sellerDebtInfo?.filter((deuda: any) => deuda.esDeuda)
+                .reduce((acc: number, deuda: any) => acc + parseFloat(deuda.monto), 0) || 0;
             return deudaTotalFinance;
         } catch (error) {
             console.error('Error al calcular la deuda del vendedor:', error);
             return 0;
         }
     };
-    
 
-    const updateSellerDebt = async (selectedProducts: any, prepayment:number) => {
-        const productsBySeller = selectedProducts.reduce((acc: any, producto: any) => {
-            const { id_vendedor } = producto;
-            if (!acc[id_vendedor]) {
-                acc[id_vendedor] = {    
-                    vendedor: sellers.find((seller: any) => seller.id_vendedor === id_vendedor) || id_vendedor,
-                    productos: []
+    const previousProductsDebt = async (sellerId: number) => {
+        //TODO:Delete if it is not useful anymore
+        const sellerProducts = await getSellerProductsById(sellerId);
+        const ventasNoPagadasProductos = sellerProducts.filter((product: any) => product.deposito_realizado === false);
+        const totalDeudaProductos = ventasNoPagadasProductos.reduce((acc: number, producto: any) => {
+            return acc + (producto.cantidad * producto.precio_unitario);
+        }, 0);
+        // console.log("Productos sin depósito del vendedor:", ventasNoPagadasProductos);
+        // console.log("Total de la deuda de productos no pagados:", totalDeudaProductos);
+
+        return totalDeudaProductos;
+    }
+
+    const updateSellerDebt = async (selectedProducts: any, prepayment: number) => {
+        try {
+            const productsBySeller = selectedProducts.reduce((acc: any, producto: any) => {
+                const { id_vendedor } = producto;
+                if (!acc[id_vendedor]) {
+                    acc[id_vendedor] = {
+                        vendedor: sellers.find((seller: any) => seller.id_vendedor === id_vendedor) || id_vendedor,
+                        productos: []
+                    };
+                }
+                acc[id_vendedor].productos.push({
+                    id_producto: producto.key, cantidad: producto.cantidad, precio_unitario: producto.precio_unitario
+                });
+                return acc;
+            }, {});
+
+            // const debtBySeller = Object.values(productsBySeller).map((product_seller: any) => ({
+            //     id_vendedor: product_seller.vendedor.id_vendedor || product_seller.vendedor,
+            //     deuda: product_seller.productos.reduce((acc: number, producto: any) =>
+            //         acc + (producto.cantidad * producto.precio_unitario), product_seller.vendedor.deuda)
+            // }))
+            const debtBySeller = await Promise.all(Object.values(productsBySeller).map(async (product_seller: any) => {
+                const id_vendedor = product_seller.vendedor.id_vendedor || product_seller.vendedor;
+                // const sellerDebtFinanceFlux = await calculateSellerDebt(id_vendedor);
+                // const sellerProductsDebt = await previousProductsDebt(id_vendedor);
+                const sellerInfo = await getSellerAPI(id_vendedor);
+                const sellerCurrentDoubt = sellerInfo.deuda;
+                const deudaTotalProducts = product_seller.productos.reduce((acc: number, producto: any) =>
+                    acc + (producto.cantidad * producto.precio_unitario), 0);
+                console.log("deuda total", deudaTotalProducts, " la deuda vendedor", sellerCurrentDoubt, " pago previo ", prepayment)
+                const deudaTotal = sellerCurrentDoubt + deudaTotalProducts - prepayment;
+                console.log("la deuda essss ", deudaTotal)
+                return {
+                    id_vendedor,
+                    deuda: deudaTotal
                 };
-            }
-            acc[id_vendedor].productos.push({
-                id_producto: producto.key, cantidad: producto.cantidad, precio_unitario: producto.precio_unitario
-            });
-            return acc;
-        }, {});
-
-        // const debtBySeller = Object.values(productsBySeller).map((product_seller: any) => ({
-        //     id_vendedor: product_seller.vendedor.id_vendedor || product_seller.vendedor,
-        //     deuda: product_seller.productos.reduce((acc: number, producto: any) =>
-        //         acc + (producto.cantidad * producto.precio_unitario), product_seller.vendedor.deuda)
-        // }))
-        const debtBySeller = await Promise.all(Object.values(productsBySeller).map(async (product_seller: any) => {
-            const id_vendedor = product_seller.vendedor.id_vendedor || product_seller.vendedor;
-            const sellerDebtFinanceFlux = await calculateSellerDebt(id_vendedor);
-            const deudaTotalProducts = product_seller.productos.reduce((acc: number, producto: any) =>
-                acc + (producto.cantidad * producto.precio_unitario), 0);
-            const deudaTotal = deudaTotalProducts - sellerDebtFinanceFlux;
-            return {
-                id_vendedor,
-                deuda: deudaTotal
-            };
-        }));
-        const debtsRes = await Promise.all(debtBySeller.map(async (vendedor: any) =>
-            updateSellerAPI(vendedor.id_vendedor, { deuda: vendedor.deuda })
-        ))
-        debtsRes.map((debtRes: any,) => {
-            if (!debtRes.success) message.error('Error al registrar una deuda')
-        })
-        message.success('Deudas registradas con éxito')
-        console.log(debtsRes, 'sales res')
-
+            }));
+            const debtsRes = await Promise.all(debtBySeller.map(async (vendedor: any) =>
+                updateSellerAPI(vendedor.id_vendedor, { deuda: vendedor.deuda })
+            ))
+            debtsRes.map((debtRes: any,) => {
+                if (!debtRes.success) message.error('Error al registrar una deuda')
+            })
+            message.success('Deudas registradas con éxito')
+            console.log(debtsRes, 'sales res')
+        } catch (error) {
+            console.error("Error actualizando la deuda del vendedor:", error);
+            message.error('Error al actualizar las deudas');
+        }
     }
 
 

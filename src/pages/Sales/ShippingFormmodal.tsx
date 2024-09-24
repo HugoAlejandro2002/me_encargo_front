@@ -12,6 +12,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     const [efectivoInput, setEfectivoInput] = useState<number>(0);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
     const [adelantoVisible, setAdelantoVisible] = useState(false);
+    const [mismoVendedor, setMismoVendedor] = useState(false);
     const [form] = Form.useForm();
 
     const handleFinish = async (shippingData: any) => {
@@ -87,6 +88,16 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             });
         }
     }, [totalAmount, qrInput, efectivoInput, adelantoClienteInput, montoCobradoDelivery]);
+
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            const vendedorIds = selectedProducts.map((product: any) => product.id_vendedor);
+            const sonMismoVendedor = vendedorIds.every((vendedorId: any, _: any, arr: any) => vendedorId === arr[0]);
+            setMismoVendedor(sonMismoVendedor);
+        } else {
+            setMismoVendedor(false);
+        }
+    }, [selectedProducts]);
 
 
     return (
@@ -320,12 +331,14 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                 >
                                     <Radio.Button value='1'>Si</Radio.Button>
                                     <Radio.Button value='2'>No</Radio.Button>
-                                    <Radio.Button value='3'>Pago Adelanto</Radio.Button>
+                                    {mismoVendedor && (
+                                        <Radio.Button value='3'>Pago Adelanto</Radio.Button>
+                                    )}
                                 </Radio.Group>
                             </Form.Item>
                         </Col>
                     </Row>
-                    {adelantoVisible && (
+                    {mismoVendedor && adelantoVisible && (
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item
@@ -334,6 +347,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                 >
                                     <InputNumber
                                         prefix='Bs.'
+                                        defaultValue={0}
                                         onChange={((e: any) => setAdelantoClienteInput(e))}
                                         style={{ width: '100%' }}
                                     />

@@ -10,6 +10,14 @@ export const getSellersAPI = async () => {
         parseError(error as AxiosError)
     }
 }
+export const getSellerAPI = async (sellerId:number) => {
+    try {
+        const res = await apiClient.get(`/seller/${sellerId}`)
+        return res.data
+    } catch (error) {
+        parseError(error as AxiosError)
+    }
+}
 
 export const registerSellerAPI = async (sellerData: any) => {
     try {

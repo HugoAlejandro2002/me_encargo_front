@@ -1,12 +1,24 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
-import { checkLogin } from "../../api/user";
+import { checkLogin, getUserByCookie } from "../../api/user";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/userContext";
+import { useContext } from "react";
 
 const LoginPage = () => {
+  const { setUser } = useContext(UserContext)!;
+  const navigate = useNavigate();
   const handleFinish = async (values: any) => {
-    const res = await checkLogin(values);
-    // TODO: make this homepage
-    message.success("¡Inicio de sesión exitoso!");
+    try {
+      await checkLogin(values);
+      const user = await getUserByCookie();
+      setUser(user);
+      message.success("¡Inicio de sesión exitoso!");
+      navigate("/product");
+    } catch (error) {
+      message.error("Error al iniciar sesión");
+      console.error(error);
+    }
   };
 
   return (

@@ -9,11 +9,13 @@ interface RoleGuardProps {
 
 const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles, children }) => {
   const userContext = useContext(UserContext);
+  console.log(userContext, "im guardiing");
   if (!userContext) {
     return <Navigate to="/login" replace />;
   }
 
   const { user } = userContext;
+  console.log(user, "im guardiing the user");
   if (!user) {
     return <Navigate to="/login" replace />;
   }

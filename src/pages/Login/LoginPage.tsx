@@ -1,12 +1,18 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
 import { checkLogin } from "../../api/user";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const handleFinish = async (values: any) => {
-    const res = await checkLogin(values);
-    // TODO: make this homepage
-    message.success("¡Inicio de sesión exitoso!");
+    try {
+      const res = await checkLogin(values);
+      message.success("¡Inicio de sesión exitoso!");
+      navigate("/products");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

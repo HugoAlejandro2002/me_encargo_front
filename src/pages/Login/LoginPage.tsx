@@ -1,9 +1,12 @@
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
+import { checkLogin } from "../../api/user";
 
 const LoginPage = () => {
-  const handleFinish = (values: any) => {
+  const handleFinish = async (values: any) => {
     console.log("Received values:", values);
+    const res = await checkLogin(values);
+    console.log(res, "xd");
     message.success("¡Inicio de sesión exitoso!");
   };
 
@@ -31,11 +34,11 @@ const LoginPage = () => {
       >
         <>
           <Form.Item
-            name="username"
+            name="email"
             rules={[
               {
                 required: true,
-                message: "¡Por favor ingrese su nombre de usuario!",
+                message: "¡Por favor ingrese su email!",
               },
             ]}
           >

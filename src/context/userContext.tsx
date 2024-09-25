@@ -23,7 +23,7 @@ export const UserContextProvider = ({ children }: UserContextProviderProps) => {
   };
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [user]);
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}

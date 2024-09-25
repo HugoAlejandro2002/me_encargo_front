@@ -7,6 +7,8 @@ import FinanceFlux from "../pages/FinanceFlux/FinanceFlux";
 import StockManagement from "../pages/StockManagement/StockManagement";
 import LoginPage from "../pages/Login/LoginPage";
 import RoleGuard from "./RoleGuard";
+import { useContext } from "react";
+import { UserContext } from "../context/userContext";
 
 const AppRoutes = () => {
   return (

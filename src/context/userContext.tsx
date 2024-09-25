@@ -1,7 +1,10 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { getUserByCookie } from "../api/user";
-
-export const UserContext = createContext({});
+interface UserContextType {
+  user: any;
+  setUser: React.Dispatch<React.SetStateAction<any>>;
+}
+export const UserContext = createContext<UserContextType | null>(null);
 
 interface UserContextProviderProps {
   children: ReactNode;
@@ -10,8 +13,13 @@ interface UserContextProviderProps {
 export const UserContextProvider = ({ children }: UserContextProviderProps) => {
   const [user, setUser] = useState(null);
   const fetchUser = async () => {
-    const res = await getUserByCookie();
-    console.log(res, "contect re");
+    try {
+      const userData = await getUserByCookie();
+      setUser(userData);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setUser(null);
+    }
   };
   useEffect(() => {
     fetchUser();

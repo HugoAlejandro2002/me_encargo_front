@@ -1,16 +1,13 @@
 import { AxiosError } from "axios";
 import { apiClient } from "./apiClient";
+import { parseError } from "./util";
 
 export const checkLogin = async (userData: any) => {
   try {
     const res = await apiClient.post("/user/login", userData);
     return res.data;
   } catch (error) {
-    const err = error as AxiosError;
-    if (err && err.response && err.response.data) {
-      return { success: false, ...err.response.data };
-    }
-    return { success: false };
+    parseError(error as AxiosError);
   }
 };
 
@@ -19,10 +16,6 @@ export const getUserByCookie = async () => {
     const res = await apiClient.get("/user/info");
     return res.data;
   } catch (error) {
-    const err = error as AxiosError;
-    if (err && err.response && err.response.data) {
-      return { success: false, ...err.response.data };
-    }
-    return { success: false };
+    parseError(error as AxiosError);
   }
 };

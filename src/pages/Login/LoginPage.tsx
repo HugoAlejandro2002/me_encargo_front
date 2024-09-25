@@ -4,9 +4,8 @@ import { checkLogin } from "../../api/user";
 
 const LoginPage = () => {
   const handleFinish = async (values: any) => {
-    console.log("Received values:", values);
     const res = await checkLogin(values);
-    console.log(res, "xd");
+    // TODO: make this homepage
     message.success("¡Inicio de sesión exitoso!");
   };
 

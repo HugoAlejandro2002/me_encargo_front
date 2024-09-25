@@ -7,6 +7,8 @@ import FinanceFlux from "../pages/FinanceFlux/FinanceFlux";
 import StockManagement from "../pages/StockManagement/StockManagement";
 import LoginPage from "../pages/Login/LoginPage";
 import RoleGuard from "./RoleGuard";
+import { useContext } from "react";
+import { UserContext } from "../context/userContext";
 
 const AppRoutes = () => {
   return (
@@ -16,7 +18,7 @@ const AppRoutes = () => {
       <Route
         path="/product"
         element={
-          <RoleGuard allowedRoles={["admin", "seller"]}>
+          <RoleGuard allowedRoles={["admin"]}>
             <Product />
           </RoleGuard>
         }
@@ -40,7 +42,7 @@ const AppRoutes = () => {
       <Route
         path="/shipping"
         element={
-          <RoleGuard allowedRoles={["admin", "seller"]}>
+          <RoleGuard allowedRoles={["admin"]}>
             <Shipping />
           </RoleGuard>
         }
@@ -56,7 +58,7 @@ const AppRoutes = () => {
       <Route
         path="/stock"
         element={
-          <RoleGuard allowedRoles={["admin", "seller"]}>
+          <RoleGuard allowedRoles={["admin"]}>
             <StockManagement />
           </RoleGuard>
         }

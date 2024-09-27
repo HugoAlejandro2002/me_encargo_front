@@ -86,7 +86,6 @@ export const Sales = () => {
     }
     const fetchFinanceSellerInfo = async (sellerId: number) => {
         try {
-            console.log("Fetch seller information from financeFlux")
             const response = await getSellerInfoAPI(sellerId)
             setSucursal(response)
             return response

@@ -19,3 +19,15 @@ export const getUserByCookie = async () => {
     parseError(error as AxiosError);
   }
 };
+
+export const logoutUser = async () => {
+  try {
+    const res = await apiClient.post("/user/logout");
+    if (res.status !== 200) {
+      throw new AxiosError("Error while logging out");
+    }
+    return res.data;
+  } catch (error) {
+    parseError(error as AxiosError);
+  }
+};

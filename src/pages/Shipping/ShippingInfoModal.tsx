@@ -172,7 +172,6 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                 }
                 ]);
             }
-            //console.log(deletedProducts)
             return updatedProducts;
         });
     };

@@ -8,7 +8,7 @@ const ErrorPage = () => {
       <p className="mt-4 text-gray-600">
         Lo sentimos, la página que buscas no existe o fue movida.
       </p>
-      <Link to="/" className="mt-6 text-blue-500 text-lg">
+      <Link to="/" className="mt-6 text-neutral-blue text-lg">
         Volver al inicio
       </Link>
     </div>

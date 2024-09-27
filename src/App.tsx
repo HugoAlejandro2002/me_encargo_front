@@ -1,11 +1,13 @@
 import { ConfigProvider } from "antd";
 import { App as AntdApp } from "antd";
-import { HashRouter } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import { UserContextProvider } from "./context/userContext";
-import AppLayout from "./layout/AppLayout";
 import "./App.css";
+import publicRoutes from "./routes/publicRoutes";
+import protectedRoutes from "./routes/protectedRoutes";
 
 export const App = () => {
+  const router = createHashRouter([...publicRoutes, ...protectedRoutes]);
   return (
     <AntdApp>
       <UserContextProvider>
@@ -19,9 +21,7 @@ export const App = () => {
             },
           }}
         >
-          <HashRouter>
-            <AppLayout />
-          </HashRouter>
+          <RouterProvider router={router} />
         </ConfigProvider>
       </UserContextProvider>
     </AntdApp>

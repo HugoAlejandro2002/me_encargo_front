@@ -21,30 +21,45 @@ import { registerSellerAPI } from "../../api/seller";
 import { useState } from "react";
 import { sellerModel } from "../../models/sellerModels";
 import { registerFinanceFluxAPI } from "../../api/financeFlux";
+import { roles } from "../../constants/roles";
+import { registerUserAPI } from "../../api/user";
 
 function SellerFormModal({ visible, onCancel, onSuccess }: any) {
   const [loading, setLoading] = useState(false);
+  const { SELLER } = roles;
 
   const handleFinish = async (sellerData: sellerModel) => {
     setLoading(true);
-    const response = await registerSellerAPI(sellerData);
-    if (!response.status) {
+    const newUser = {
+      email: sellerData.mail,
+      password: `${sellerData.carnet}`,
+      role: SELLER,
+    };
+    const userResponse = await registerUserAPI(newUser);
+    if (!userResponse?.success) {
+      message.error("Error al crear la cuenta del vendedor");
+      setLoading(false);
+      return;
+    }
+    const sellerResponse = await registerSellerAPI(sellerData);
+    if (!sellerResponse.status) {
       message.error("Error al registrar el vendedor");
       setLoading(false);
       return;
     }
 
     message.success("Vendedor registrado con éxito");
+    const newSeller = sellerResponse.newSeller;
     const montoFinanceFlux =
-      parseInt(response.newSeller.alquiler) +
-      parseInt(response.newSeller.exhibicion) +
-      parseInt(response.newSeller.delivery);
+      parseInt(newSeller.alquiler) +
+      parseInt(newSeller.exhibicion) +
+      parseInt(newSeller.delivery);
 
     const financeFluxData = {
-      id_vendedor: parseInt(response.newSeller.id_vendedor),
+      id_vendedor: parseInt(newSeller.id_vendedor),
       categoria: "RENOVACION",
       tipo: "INGRESO",
-      concepto: `Vendedor ${response.newSeller.nombre} ${response.newSeller.apellido} - ${response.newSeller.marca} renovado`,
+      concepto: `Vendedor ${newSeller.nombre} ${newSeller.apellido} - ${newSeller.marca} renovado`,
       monto: montoFinanceFlux,
     };
 
@@ -109,7 +124,11 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
 
         <Row gutter={16}>
           <Col span={8}>
-            <Form.Item name="carnet" label="Carnet">
+            <Form.Item
+              name="carnet"
+              label="Carnet"
+              tooltip="El número de carnet será la contraseña para la cuenta del vendedor"
+            >
               <InputNumber
                 style={{ width: "100%" }}
                 prefix={<IdcardOutlined />}

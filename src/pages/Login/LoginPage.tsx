@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
-import { checkLogin, getUserByCookie } from "../../api/user";
+import { checkLoginAPI, getUserByCookieAPI } from "../../api/user";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 
@@ -11,11 +11,19 @@ const LoginPage = () => {
 
   const handleFinish = async (values: any) => {
     try {
-      await checkLogin(values);
-      const user = await getUserByCookie();
-      setUser(user);
-      message.success("¡Inicio de sesión exitoso!");
+      const loginRes = await checkLoginAPI(values);
+      if (!loginRes?.success) {
+        message.error("Error al iniciar sesión");
+        return;
+      }
+      const userRes = await getUserByCookieAPI();
+      if (!userRes?.success) {
+        message.error("Error al recuperar el usuario");
+        return;
+      }
+      setUser(userRes.data);
       navigate("/product");
+      message.success("¡Inicio de sesión exitoso!");
     } catch (error) {
       message.error("Error al iniciar sesión");
       console.error(error);

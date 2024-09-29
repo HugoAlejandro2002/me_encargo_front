@@ -1,7 +1,7 @@
 import { Button, Input, message } from "antd";
 import "./Header.css";
 import logoImg from "../../../src/assets/logo.png";
-import { logoutUser } from "../../api/user";
+import { logoutUserAPI } from "../../api/user";
 import { useContext } from "react";
 import { UserContext } from "../../context/userContext";
 const { Search } = Input;
@@ -10,7 +10,10 @@ const Header = () => {
   const { setUser } = useContext(UserContext)!;
   const handleLogout = async () => {
     try {
-      await logoutUser();
+      const res = await logoutUserAPI();
+      if (!res?.success) {
+        message.error("Error al cerrar sesión");
+      }
       setUser(null);
       message.success("Sesión cerrada correctamente");
     } catch (error) {

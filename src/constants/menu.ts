@@ -27,4 +27,10 @@ export const menu = [
     icon: stockManagementIcon,
     roles: ["admin", "seller"],
   },
+  {
+    path: "/seller-info",
+    label: "Mi Información",
+    icon: sellerIcon, 
+    roles: ["seller"],
+  },
 ];

@@ -8,6 +8,7 @@ import Seller from "../pages/Seller/Seller";
 import Shipping from "../pages/Shipping/Shipping";
 import StockManagement from "../pages/StockManagement/StockManagement";
 import ErrorPage from "../pages/ErrorPage";
+import SellerInfoPageWrapper from "../pages/Seller/SellerInfo";
 
 const protectedRoutes = [
   {
@@ -63,6 +64,14 @@ const protectedRoutes = [
         element: (
           <RoleGuard allowedRoles={["admin", "seller"]}>
             <StockManagement />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/seller-info",
+        element: (
+          <RoleGuard allowedRoles={["seller"]}>
+            <SellerInfoPageWrapper />
           </RoleGuard>
         ),
       },

@@ -4,8 +4,8 @@ import { getSellersAPI } from "../../api/seller";
 import DebtModal from "./DebtModal";
 import { EditOutlined } from "@ant-design/icons";
 import PayDebtButton from "./components/PayDebtButton";
-import SellerInfoModal from "./SellerInfoModal";
 import { getSellerAdvancesById } from "../../helpers/sellerHelpers";
+import SellerInfoModalTry from "./SellerInfoModal";
 const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
   const columns = [
     {
@@ -182,7 +182,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
         />
       )}
       {selectedSeller && (
-        <SellerInfoModal
+        <SellerInfoModalTry
           visible={isSellerModalVisible && !isModalVisible}
           onCancel={handleCancel}
           onSuccess={handleSuccess}

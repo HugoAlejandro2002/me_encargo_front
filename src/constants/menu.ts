@@ -4,6 +4,7 @@ import cartIcon from "../assets/cartIcon.svg";
 import shippingIcon from "../assets/shippingIcon.svg";
 import financeFluxIcon from "../assets/financeFluxIcon.svg";
 import stockManagementIcon from "../assets/stockManagement.svg";
+import statsIcon from "../assets/statsIcon.svg";
 
 export const menu = [
   {
@@ -26,5 +27,11 @@ export const menu = [
     label: "Stock",
     icon: stockManagementIcon,
     roles: ["admin", "seller"],
+  },
+  {
+    path: "/stats",
+    label: "Estadísticas",
+    icon: statsIcon,
+    roles: ["admin"],
   },
 ];

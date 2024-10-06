@@ -4,6 +4,7 @@ import { Button, Form, Input, message } from "antd";
 import { checkLoginAPI, getUserByCookieAPI } from "../../api/user";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
+import logoImg from "../../../public/logo.png";
 
 const LoginPage = () => {
   const { setUser } = useContext(UserContext)!;
@@ -34,11 +35,7 @@ const LoginPage = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <img
-            alt="logo"
-            src="/src/assets/logo.png"
-            className="mx-auto h-12 w-auto"
-          />
+          <img alt="logo" src={logoImg} className="mx-auto h-12 w-auto" />
           <h2 className="mt-6 text-3xl font-bold text-gray-900">Me encargo</h2>
         </div>
         <Form

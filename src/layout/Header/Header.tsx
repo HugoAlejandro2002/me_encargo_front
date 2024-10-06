@@ -1,6 +1,6 @@
 import { Button, Input, message } from "antd";
 import "./Header.css";
-import logoImg from "../../../src/assets/logo.png";
+import logoImg from "../../../public/logo.png";
 import { logoutUserAPI } from "../../api/user";
 import { useContext } from "react";
 import { UserContext } from "../../context/userContext";

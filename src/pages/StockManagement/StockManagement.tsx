@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { Row, Col } from 'antd';
 import SellerList from './SellerList';
 import ProductTable from './ProductTable';
 import { addProductFeaturesAPI, getProductsAPI, registerVariantAPI, updateProductStockAPI } from '../../api/product'; // Assuming this is where you get both sellers and products
@@ -11,8 +12,12 @@ import { Option } from 'antd/es/mentions';
 import { getGroupByIdAPI, getGroupsAPI } from '../../api/group';
 import { getSellersAPI } from '../../api/seller';
 import { getCategoriesAPI } from '../../api/category';
+import { UserContext } from '../../context/userContext';
 
 const StockManagement = () => {
+    const { user }: any = useContext(UserContext);
+    const isSeller = user?.role === 'seller';
+
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [selectedGroup, setSelectedGroup] = useState(null)
@@ -20,12 +25,12 @@ const StockManagement = () => {
     const [selectedSeller, setSelectedSeller] = useState<number | null>(null);
     const [infoModalVisible, setInfoModalVisible] = useState<boolean>(false);
     const [isProductFormVisible, setProductFormVisible] = useState<boolean>(false);
-    const [isVariantModalVisible, setIsVariantModalVisible] = useState<boolean> (false)
+    const [isVariantModalVisible, setIsVariantModalVisible] = useState<boolean>(false)
     const [prevKey, setPrevKey] = useState(0)
     const [criteriaFilter, setCriteriaFilter] = useState(0)
     const [criteriaGroup, setCriteriaGroup] = useState(0)
 
-    const [options, setOptions] = useState<any[]>([{option: "Vendedor",group: [], groupFunction: () => {}}])
+    const [options, setOptions] = useState<any[]>([{ option: "Vendedor", group: [], groupFunction: () => { } }])
 
     const showVariantModal = async (product: any) => {
         const group = await getGroupByIdAPI(product.groupId)
@@ -34,9 +39,9 @@ const StockManagement = () => {
         setIsVariantModalVisible(true)
     }
     const succesAddVariant = async () => {
-        
+
         const productsResponse = await getProductsAPI()
-        
+
         setProducts(productsResponse)
         setFilteredProducts(productsResponse)
 
@@ -55,8 +60,8 @@ const StockManagement = () => {
         setSelectedGroup(null)
         setIsVariantModalVisible(false)
     }
-    
-    const filterBySeller =  (product, sellerId) => {
+
+    const filterBySeller = (product, sellerId) => {
         return sellerId === null || product.id_vendedor === sellerId
     }
 
@@ -64,30 +69,30 @@ const StockManagement = () => {
         return sellerId === null || product.id_categoria === sellerId
     }
 
-    const filterByGroup =  (product, sellerId) => {
+    const filterByGroup = (product, sellerId) => {
         return sellerId === null || product.groupId === sellerId
     }
 
-    const handleSelectSeller =  (sellerId: number) => {
+    const handleSelectSeller = (sellerId: number) => {
         setSelectedSeller(sellerId);
     };
 
-    const filter =  () => {
-        
+    const filter = () => {
+
         const filter = options[criteriaFilter].filter
-        const newList = products.filter(product => 
+        const newList = products.filter(product =>
             filter(product, selectedSeller)
         )
-        console.log(selectedSeller)
-        setFilteredProducts(newList)  
+        // console.log(selectedSeller)
+        setFilteredProducts(newList)
     }
 
     useEffect(() => {
         filter()
-        
+
     }, [selectedSeller])
 
-    useEffect( () => {
+    useEffect(() => {
         fetchData()
     }, [prevKey])
 
@@ -106,38 +111,42 @@ const StockManagement = () => {
         setGroups(groupsResponse)
         setProducts(productsResponse)
         setFilteredProducts(productsResponse)
-    
-       
+
+
     }
 
-    useEffect(() => {fetchData()}, [])
+    useEffect(() => { fetchData() }, [])
 
     useEffect(() => {
-        setOptions([
+        const newOptions = [
             {
+                option: 'Categoria',
+                filter: filterByCategoria,
+                group: categories,
+                groupFunction: (category, products) =>
+                    products.filter((product) => product.id_categoria == category.id_categoria)
+            },
+            {
+                option: 'Grupo',
+                filter: filterByGroup,
+                group: groups,
+                groupFunction: (group, products) =>
+                    products.filter((product) => product.groupId == group.id)
+            }
+        ];
+
+        if (!isSeller) {
+            newOptions.unshift({
                 option: 'Vendedor',
                 filter: filterBySeller,
                 group: sellers,
                 groupFunction: (seller, products) => {
-                    const agrouped = products.filter((product) => product.id_vendedor == seller.id_vendedor)
-                    return agrouped
+                    return products.filter((product) => product.id_vendedor == seller.id_vendedor)
                 }
-            }, {
-                option: 'Categoria',
-                filter: filterByCategoria,
-                group: categories,
-                groupFunction: (category, products) => 
-                    products.filter((product) => product.id_categoria == category.id_categoria)
-    
-            }, {
-                option: 'Grupo',
-                filter: filterByGroup,
-                group: groups,
-                groupFunction: (group, products) => 
-                    products.filter((product) => product.groupId == group.id)
-    
-            }
-        ])
+            });
+        }
+
+        setOptions(newOptions);
     }, [filteredProducts])
 
     const handleChangeFilter = (index: number) => {
@@ -150,84 +159,86 @@ const StockManagement = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ width: '25%' }}>
-                    <h2>Lista de Vendedores</h2>
-                    <SellerList
-                        filterSelected={criteriaFilter}
-                        onSelectSeller={handleSelectSeller}
-                    />
-                </div>
-                <div style={{ width: '75%' }}>
-                    {/* <h2>Productos</h2> */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                        <Select style={{ width: 200, marginRight: 24 }} placeholder="Select an option"
+            <Row gutter={16}> {}
+                {!isSeller && (
+                    <Col span={8}> {}
+                        <h2>Lista de Vendedores</h2>
+                        <SellerList filterSelected={criteriaFilter} onSelectSeller={handleSelectSeller} />
+                    </Col>
+                )}
+
+                <Col span={isSeller ? 24 : 16}> {}
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px'  }}>
+                        <Select
+                            style={{ width: 200, marginRight: 24 }}
+                            placeholder="Select an option"
                             onChange={handleChangeFilter}
                             defaultValue={0}
                         >
                             {options.map((option, index) => (
-                            <Option key={option.option} value={index}>
-                                {option.option}
-                            </Option>
+                                <Option key={option.option} value={index}>
+                                    {option.option}
+                                </Option>
                             ))}
                         </Select>
 
-                        <Select style={{ width: 200, marginLeft: 16, marginRight: 50 }} placeholder="Select an option"
+                        <Select
+                            style={{ width: 200, marginLeft: 16, marginRight: 50 }}
+                            placeholder="Select an option"
                             onChange={handleChangeGroup}
                             defaultValue={0}
                         >
                             {options.map((option, index) => (
-                            <Option key={option.option} value={index}>
-                                {option.option}
-                            </Option>
+                                <Option key={option.option} value={index}>
+                                    {option.option}
+                                </Option>
                             ))}
                         </Select>
-                        
+
                         <Button onClick={() => setProductFormVisible(true)} type='primary'>Agregar Producto</Button>
                     </div>
-                    
+
                     <ProductTable
-                        groupList = {options[criteriaGroup].group}
-                        groupCriteria = {options[criteriaGroup].groupFunction}
-                        showModal = {showModal}
-                        showVariantModal = {showVariantModal}
-                        productsList = {filteredProducts}
-                        handleUpdate = { async () => {
-                            const productsResponse = await getProductsAPI()
-                            setProducts(productsResponse)
+                        groupList={options[criteriaGroup].group}
+                        groupCriteria={options[criteriaGroup].groupFunction}
+                        showModal={showModal}
+                        showVariantModal={showVariantModal}
+                        productsList={isSeller ? products.filter(product => product.id_vendedor === user.id) : filteredProducts}
+                        handleUpdate={async () => {
+                            const productsResponse = await getProductsAPI();
+                            setProducts(productsResponse);
                         }}
                     />
-                    
-                </div>
-            </div>
+                </Col>
+            </Row>
 
-            {infoModalVisible && 
+            {infoModalVisible && (
                 <ProductInfoModal
                     visible={infoModalVisible}
                     onClose={closeModal}
                     product={selectedProduct}
                 />
-            }
+            )}
 
-            {isProductFormVisible && 
+            {isProductFormVisible && (
                 <ProductFormModal
                     visible={isProductFormVisible}
                     onCancel={() => setProductFormVisible(false)}
                     onSuccess={() => {
-                        setProductFormVisible(false)
-                        setPrevKey(key => key+1)
+                        setProductFormVisible(false);
+                        setPrevKey(key => key + 1);
                     }}
                 />
-            }
+            )}
 
-            { isVariantModalVisible &&
+            {isVariantModalVisible && (
                 <AddVariantModal
                     group={selectedGroup}
                     onAdd={succesAddVariant}
                     onCancel={closeModal}
                     visible={isVariantModalVisible}
                 />
-            }
+            )}
         </div>
     );
 };

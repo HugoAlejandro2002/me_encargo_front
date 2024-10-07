@@ -136,6 +136,10 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
             })
             group.products = productsSearch
         }
+        // TODO: Check if there will be empty tables, if not, use the code below that is not used
+        // const filteredGroupList = newGroupList.filter(group => group.products.length > 0);
+        // filteredGroupList.sort((groupA, groupB) => (groupA.products.length > groupB.products.length ? -1 : 1));
+        // setTableGroup(filteredGroupList);
         newGroupList.sort((groupA, groupB) => (groupA.products.length>groupB.products.length)?-1:1) 
         setTableGroup([...newGroupList])
         // console.log({productsList, newGroupList})

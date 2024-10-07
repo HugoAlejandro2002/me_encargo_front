@@ -159,16 +159,16 @@ const StockManagement = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Row gutter={16}> {}
+            <Row gutter={16}> { }
                 {!isSeller && (
-                    <Col span={8}> {}
+                    <Col span={8}> { }
                         <h2>Lista de Vendedores</h2>
                         <SellerList filterSelected={criteriaFilter} onSelectSeller={handleSelectSeller} />
                     </Col>
                 )}
 
-                <Col span={isSeller ? 24 : 16}> {}
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px'  }}>
+                <Col span={isSeller ? 24 : 16}> { }
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
                         <Select
                             style={{ width: 200, marginRight: 24 }}
                             placeholder="Select an option"
@@ -195,7 +195,9 @@ const StockManagement = () => {
                             ))}
                         </Select>
 
-                        <Button onClick={() => setProductFormVisible(true)} type='primary'>Agregar Producto</Button>
+                        {!isSeller && (
+                            <Button onClick={() => setProductFormVisible(true)} type='primary'> Agregar Producto </Button>
+                        )}
                     </div>
 
                     <ProductTable

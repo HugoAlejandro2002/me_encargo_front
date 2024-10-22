@@ -59,7 +59,6 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
         }
 
         if (intEstadoPedido == 3) {
-            console.log(parseInt(shippingStateData.cargo_delivery))
             updateShippingInfo = {
                 cargo_delivery: parseFloat(shippingStateData.cargo_delivery),
                 costo_delivery: parseFloat(shippingStateData.costo_delivery),

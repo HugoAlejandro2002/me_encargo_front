@@ -1,11 +1,12 @@
-import { Card, Row, Col, Statistic, Select } from "antd";
+import { Card, Row, Col, Statistic, Select, Spin } from "antd";
 import {
   DollarOutlined,
   ShoppingCartOutlined,
   RiseOutlined,
   CarOutlined,
 } from "@ant-design/icons";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
+import { getStatsAPI } from "../../api/financeFlux";
 
 const StatisticCard: FC<any> = ({ title, value, prefix, color }) => (
   <Card>
@@ -29,6 +30,24 @@ const options = [
 
 //TODO: use real data / finish other stats
 const StatisticsDashboard = () => {
+  const [stats, setStats] = useState<any>({});
+
+  const fetchStats = async () => {
+    try {
+      const statsInfo = await getStatsAPI();
+      setStats(statsInfo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  if (!stats) {
+    <Spin />;
+  }
   return (
     <div>
       <Select
@@ -44,7 +63,7 @@ const StatisticsDashboard = () => {
         <Col xs={24} sm={12} md={8}>
           <StatisticCard
             title="INGRESOS"
-            value={35906.45}
+            value={stats!.income || 0}
             prefix={<DollarOutlined />}
             color="#20c997"
           />
@@ -52,7 +71,7 @@ const StatisticsDashboard = () => {
         <Col xs={24} sm={12} md={8}>
           <StatisticCard
             title="GASTOS"
-            value={33572.52}
+            value={stats!.expenses || 0}
             prefix={<ShoppingCartOutlined />}
             color="#dc3545"
           />
@@ -60,7 +79,7 @@ const StatisticsDashboard = () => {
         <Col xs={24} sm={12} md={8}>
           <StatisticCard
             title="UTILIDAD"
-            value={2333.93}
+            value={stats!.utility || 0}
             prefix={<RiseOutlined />}
             color="#28a745"
           />

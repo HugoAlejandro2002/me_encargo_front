@@ -94,14 +94,13 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
                 onClose();
             })
             .catch(info => {
-                console.log('Validate Failed:', info);
+                console.error('Validate Failed:', info);
             });
     };
     const handleEstadoChange = (e:any) => {
         setEstadoPedido(e.target.value);
     };
-    // console.log("El costo es "+ costoRealizarDelivery)
-    // console.log(montoCobradoDelivery)
+
     return (
         <Modal
             title={`Estado del pedido ${shipping ? shipping.id_pedido : ''}`}

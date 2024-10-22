@@ -49,7 +49,6 @@ const ProductSearcher = ( {applySearcher} ) => {
             sucursal: values.sucursal,
             features: filteredAttributes
         }
-        console.log(criteria)
         applySearcher(criteria)
     }
 

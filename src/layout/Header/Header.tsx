@@ -31,7 +31,7 @@ const Header = () => {
 
       <Search
         placeholder="Buscar"
-        onSearch={(value) => console.log(value)}
+        // onSearch={(value) => }
         className="flex-grow max-w-xl mx-5"
         style={{ width: 400 }}
       />

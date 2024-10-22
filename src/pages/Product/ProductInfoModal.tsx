@@ -1,11 +1,9 @@
-import React from 'react';
 import { Modal, Button, Descriptions } from 'antd';
 import RestockTable from './RestockTable';
 
 
 const ProductInfoModal = ({ visible, onClose, product }) => {
 
-  console.log(product)
   const { nombre_producto, precio, fecha_de_ingreso, imagen, categoria, group, features } = product;
 
   const products = [product]

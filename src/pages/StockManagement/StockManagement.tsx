@@ -78,7 +78,6 @@ const StockManagement = () => {
         const newList = products.filter(product => 
             filter(product, selectedSeller)
         )
-        console.log(selectedSeller)
         setFilteredProducts(newList)  
     }
 

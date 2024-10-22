@@ -35,10 +35,9 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             setSucursales(response);
             setSucursalesLoaded(true);
         } catch (error) {
-            console.log('Error fetching sucursales:', error)
+            console.error('Error fetching sucursales:', error)
         }
     }
-    // console.log(paymentProofs)
     const fetchPaymentProofs = async (sellerId: number) => {
         try {
             const response = await getPaymentProofsBySellerIdAPI(sellerId);
@@ -58,7 +57,6 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
 
             const pedidos = response.map((product: any) => product.id_pedido);
             const uniquePedidos = Array.from(new Set<number>(pedidos));
-            console.log(productos)
             const shippingsResponse = await getShipingByIdsAPI(uniquePedidos);
             if (shippingsResponse.success) {
                 const totalAdelanto = shippingsResponse.data.reduce((total: number, pedido: any) => {
@@ -124,7 +122,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             setEntryProductsAmount(productsWithKey)
             setOriginalEntryProducts(productsWithKey)
         } catch (error) {
-            console.log('Error fetching products with entry amount:', error)
+            console.error('Error fetching products with entry amount:', error)
         }
     };
     const calcularDeuda = () => {
@@ -154,9 +152,6 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             calcularDeuda();
         }
     }, [sucursalesLoaded]);
-    // console.log(originalEntryProducts + "ES el original")
-    // console.log(entryProductsAmount)
-    console.log(products)
     const handleFinish = async (sellerInfo: any) => {
         setLoading(true)
         const resSeller = await updateSellerAPI(parseInt(seller.key), sellerInfo)
@@ -165,9 +160,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             setLoading(false);
             return;
         }
-        // console.log('Seller Info:', sellerInfo);
-        // console.log('Products:', products);
-        // console.log('Entry Products Amount:', entryProductsAmount);
+
         await updateSale(products)
         await updateEntry(entryProductsAmount)
         // Elimina productos

@@ -16,7 +16,6 @@ export const getFeaturesAPI = async () => {
 
 export const registerFeatureAPI = async (featureData: any) => {
     try {
-        console.log(featureData, 'api')
         const res = await apiClient.post(`/feature/register`, featureData)
         return res.data
     } catch (error) {

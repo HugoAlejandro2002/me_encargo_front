@@ -72,7 +72,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
       }
       const formattedData = await Promise.all(
         sellersData.map(async (seller: any) => {
-          console.log("Esto es la deuda ",seller.deuda)
           const finish_date = new Date(seller.fecha_vigencia);
           const advances = await getSellerAdvancesById(seller.id_vendedor);
           const date = new Date(seller.fecha);
@@ -101,7 +100,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
           };
         })
       );
-      console.log(sellersData)
 
       // Separar los datos según algún criterio (en este caso, si el pago es pendiente o al día)
       const pendingPayments: any = formattedData.filter(
@@ -141,8 +139,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
   useEffect(() => {
     fetchSellers();
-    console.log(pendingPaymentData, "ts");
-    console.log(onTimePaymentData, "tsa");
   }, [refreshKey]);
 
   return (

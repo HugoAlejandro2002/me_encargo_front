@@ -52,9 +52,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
             "id_sucursal": productData.sucursal
         }
         const res = await registerProductAPI(formattedProductData)
-        console.log(res)
         res.products = res.products.map((product) => product.newProduct)
-        console.log({products: res.products, res})
         if (res.products) {
             message.success('Producto registrado con variantes')
 
@@ -79,7 +77,6 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
 
             const products = await createProductStock(res.products, productVariants, productData.sucursal)
             await createProductFeatures(res.products, productFeaturesMap)
-            console.log("New Producst", products)
             onSuccess()
         } else {
             message.error('Error al crear los productos, inténtelo de nuevo')

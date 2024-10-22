@@ -37,7 +37,6 @@ const ShippingTable = (refreshKey: any) => {
                 ...pedido,
                 key: pedido.id_pedido
             }));
-            console.log(dataWithKey, 'fetched>')
             setShippingData(dataWithKey)
         } catch (error) {
             console.error("Error fetching shipping data:", error);
@@ -120,7 +119,6 @@ const ShippingTable = (refreshKey: any) => {
     };
     const fetchSucursal = async () => {
         try {
-            console.log("Fetch Sucursal")
             const response = await getSucursalsAPI()
             setSucursal(response)
         } catch (error) {
@@ -133,7 +131,6 @@ const ShippingTable = (refreshKey: any) => {
         }
         const newData = fetchData()
         fetchSucursal();
-        console.log(newData, 'ship')
     }, [refreshKey])
 
     useEffect(() => {

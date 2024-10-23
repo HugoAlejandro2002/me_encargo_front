@@ -14,6 +14,7 @@ import CustomTable from "./SalesTable";
 import { getShipingByIdsAPI } from "../../../api/shipping";
 
 const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
+    const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [products, setProducts, handleValueChange] = useEditableTable([]);
     const [entryProductsAmount, setEntryProductsAmount, handleValueChangeEntry] = useEditableTable([]);
@@ -27,7 +28,6 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
     const [deudaCalculada, setDeudaCalculada] = useState(0);
     const [totalNoPagadas, setTotalNoPagadas] = useState(0);
     const [totalHistorial, setTotalHistorial] = useState(0);
-
 
     const { user } = useContext(UserContext);
     const isSeller = user?.role === "seller";
@@ -148,10 +148,11 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
         }
     }, [sucursalesLoaded]);
 
-    const handleFinish = async (sellerInfo) => {
+    const handleFinish = async (sellerData: any) => {
         setLoading(true);
         try {
-            const resSeller = await updateSellerAPI(parseInt(seller.key), sellerInfo);
+            console.log("Submitting form with sellerData", sellerData);
+            const resSeller = await updateSellerAPI(parseInt(seller.key), sellerData);
             if (!resSeller?.success) {
                 message.error('Error al editar el vendedor');
                 return;
@@ -171,7 +172,7 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
             }
 
             message.success('Vendedor editado con éxito');
-            onSuccess(); // Llama a onSuccess al finalizar
+            onSuccess();
         } catch (error) {
             console.error('Error updating seller:', error);
             message.error('Error al actualizar el vendedor');
@@ -200,86 +201,106 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                     <h2>{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
                 </div>
             </div>
-            <Form onFinish={handleFinish} layout="vertical">
-                <Form.Item name="telefono" label='Teléfono' initialValue={seller.telefono}>
-                    <InputNumber style={{ width: '25%' }} readOnly={isSeller} />
+
+            <Form
+                form={form}
+                onFinish={handleFinish}
+                layout="vertical"
+                initialValues={{
+                    telefono: seller.telefono,
+                    fecha_vigencia: dayjs(seller.fecha_vigencia, "D/M/YYYY"),
+                    alquiler: seller.alquiler,
+                    exhibicion: seller.exhibicion,
+                    delivery: seller.delivery,
+                    adelanto_servicio: seller.adelanto_servicio,
+                    fecha: dayjs(seller.fecha, "D/M/YYYY"),
+                }}
+            >
+                <Form.Item name="telefono" label='Teléfono'>
+                    <InputNumber style={{ width: '25%' }} />
                 </Form.Item>
                 <Form.Item name="fecha_vigencia" label='Fecha final/máxima del servicio'>
-                    <DatePicker defaultValue={dayjs(seller.fecha_vigencia, "D/M/YYYY")} format="DD/MM/YYYY" disabled={isSeller}/>
+                    <DatePicker format="DD/MM/YYYY" disabled={isSeller} />
                 </Form.Item>
                 <Row gutter={16}>
                     <Col span={8}>
-                        <Form.Item name="alquiler" label="Alquiler" initialValue={seller.alquiler}>
+                        <Form.Item name="alquiler" label="Alquiler">
                             <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item name="exhibicion" label="Exhibición" initialValue={seller.exhibicion}>
+                        <Form.Item name="exhibicion" label="Exhibición">
                             <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                         </Form.Item>
                     </Col>
                     <Col span={8}>
-                        <Form.Item name="delivery" label="Delivery" initialValue={seller.delivery}>
+                        <Form.Item name="delivery" label="Delivery">
                             <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                         </Form.Item>
                     </Col>
                 </Row>
-                <Form.Item name="adelanto_servicio" label="Adelanto" initialValue={seller.adelanto_servicio}>
+                <Form.Item name="adelanto_servicio" label="Adelanto">
                     <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                 </Form.Item>
                 <Form.Item name="fecha" label='Fecha de Inicio'>
-                    <DatePicker defaultValue={dayjs(seller.fecha, "D/M/YYYY")} format="DD/MM/YYYY" /*>allowClear={!isSeller} open={!isSeller}*/  />
+                    <DatePicker format="DD/MM/YYYY" disabled={isSeller} />
                 </Form.Item>
 
-            </Form>
+                <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Ventas no pagadas</h4>
+                    <CustomTable
+                        data={ventasNoPagadasProductos}
+                        onUpdateTotalAmount={setTotalNoPagadas}
+                        onDeleteProduct={handleDeleteProduct}
+                        handleValueChange={handleValueChange}
+                        showClient={true}
+                        isAdmin={!isSeller}
+                    />
+                </div>
+                <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ventas</h4>
+                    <CustomTable
+                        data={products}
+                        onUpdateTotalAmount={setTotalHistorial}
+                        onDeleteProduct={handleDeleteProduct}
+                        handleValueChange={handleValueChange}
+                        showClient={false}
+                        isAdmin={!isSeller}
+                    />
+                </div>
+                <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ingreso</h4>
+                    <EntryProductSellerTable
+                        data={entryProductsAmount}
+                        handleValueChange={handleValueChangeEntry}
+                        onDeleteProduct={handleDeleteProduct}
+                        isAdmin={!isSeller}
+                    />
+                </div>
+                <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Comprobante de pago</h4>
+                    <PaymentProofTable
+                        data={paymentProofs}
+                    />
+                </div>
 
-            <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Ventas no pagadas</h4>
-                <CustomTable
-                    data={ventasNoPagadasProductos}
-                    onUpdateTotalAmount={setTotalNoPagadas}
-                    onDeleteProduct={handleDeleteProduct}
-                    handleValueChange={handleValueChange}
-                    showClient={true}
-                    isAdmin={!isSeller}
-                />
-            </div>
-            <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ventas</h4>
-                <CustomTable
-                    data={products}
-                    onUpdateTotalAmount={setTotalHistorial}
-                    onDeleteProduct={handleDeleteProduct}
-                    handleValueChange={handleValueChange}
-                    showClient={false}
-                    isAdmin={!isSeller}
-                />
-            </div>
-            <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ingreso</h4>
-                <EntryProductSellerTable
-                    data={entryProductsAmount}
-                    handleValueChange={handleValueChangeEntry}
-                    onDeleteProduct={handleDeleteProduct}
-                    isAdmin={!isSeller}
-                />
-            </div>
-            <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Comprobante de pago</h4>
-                <PaymentProofTable
-                    data={paymentProofs}
-                />
-            </div>
-            {!isSeller && (
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading}>
-                        {loading ? 'Guardando...' : 'Guardar'}
-                    </Button>
-                    <Button onClick={onCancel} style={{ marginLeft: '8px' }}>
-                        Cancelar
-                    </Button>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Form.Item style={{ margin: 0 }}>
+                            <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: '8px' }}>
+                                {loading ? 'Guardando...' : 'Guardar'}
+                            </Button>
+                        </Form.Item>
+                        {!isSeller && (
+                            <Form.Item style={{ margin: 0 }}>
+                                <Button onClick={onCancel}>
+                                    Cancelar
+                                </Button>
+                            </Form.Item>
+                        )}
+                    </div>
                 </Form.Item>
-            )}
+            </Form>
         </div>
     );
 };

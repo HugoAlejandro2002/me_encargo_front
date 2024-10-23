@@ -1,9 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import  { useContext, useEffect, useState } from 'react';
 import { Button, Input, Table } from 'antd';
-import { getSellersAPI } from '../../api/seller';
-import { getCategoriesAPI } from '../../api/category';
-import { getGroupsAPI } from '../../api/group';
-import { getProductsAPI, updateProductStockAPI } from '../../api/product';
+import {updateProductStockAPI } from '../../api/product';
 import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import ProductSearcher from './ProductSearcher';
 import { UserContext } from '../../context/userContext';

@@ -1,9 +1,14 @@
 import { Button, InputNumber, Table } from "antd";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { updateProductStockAPI } from "../../api/product";
+import { UserContext } from "../../context/userContext";
+import { EditableCellInputNumber } from "../components/editableCell";
 
 
 const RestockTable = ({ products, onSave }) => {
+    const { user }: any = useContext(UserContext);
+    const isAdmin = user?.role === 'admin';
+
     const [restockData, setRestockData] = useState(products.map(product => ({
         ...product,
         stock: product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0) || 0,
@@ -43,9 +48,10 @@ const RestockTable = ({ products, onSave }) => {
             dataIndex: 'precio',
             key: 'precio',
             render: (text, record, index) => (
-                <InputNumber
-                    min={0}
+                <EditableCellInputNumber
+                    isAdmin={isAdmin}
                     value={text}
+                    min={0} 
                     onChange={(value) => handleDataChange(index, 'precio', value)}
                 />
             ),
@@ -60,8 +66,10 @@ const RestockTable = ({ products, onSave }) => {
             dataIndex: 'incomingQuantity',
             key: 'incomingQuantity',
             render: (text, record, index) => (
-                <InputNumber
+                <EditableCellInputNumber
+                    isAdmin={isAdmin}
                     value={text}
+                    min={0} 
                     onChange={(value) => handleDataChange(index, 'incomingQuantity', value)}
                 />
             ),
@@ -76,9 +84,11 @@ const RestockTable = ({ products, onSave }) => {
                 pagination={false}
                 rowKey="id_producto"
             />
-            <Button type="primary" onClick={handleSave} style={{ marginTop: '20px' }}>
-                Guardar y Enviar
-            </Button>
+            {isAdmin&& (
+                <Button type="primary" onClick={handleSave} style={{ marginTop: '20px' }}>
+                    Guardar y Enviar
+                </Button>
+            )}
         </div>
     );
 }

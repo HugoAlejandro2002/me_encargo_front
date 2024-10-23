@@ -57,6 +57,7 @@ const SellerInfoPageWrapper = () => {
         <SellerInfoPage 
             isModal={false} 
             seller={seller} 
+            onSuccess={() => {}} 
         />
     );
 };

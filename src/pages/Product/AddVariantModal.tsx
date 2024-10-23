@@ -28,7 +28,6 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            console.log({values, onAdd, group})
             const featuresFilter = features.filter(feat => feat.feature!== "")
 
             const variant = {

@@ -34,7 +34,6 @@ const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
       ...debtInfo,
       deuda: newDebt,
     };
-    console.log(updatedSellerData)
 
     const resSeller = await updateSellerAPI(parseInt(seller.key), updatedSellerData);
     if (!resSeller?.success) {

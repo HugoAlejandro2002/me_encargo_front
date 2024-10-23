@@ -22,7 +22,6 @@ const RestockTable = ({ products, onSave }) => {
     };
     const handleSave = async () => {
         try {
-            console.log("Saving", restockData)
             const bodyData = restockData.map(({incomingQuantity, precio, stock, id_producto}) => ({
                 precio, 
                 stock: incomingQuantity,

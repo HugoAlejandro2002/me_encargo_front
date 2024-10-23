@@ -41,7 +41,6 @@ export const Sales = () => {
     };
 
     const onFinish = (values: any) => {
-        console.log('Form values:', values);
         // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
         setSelectedProducts([]);
@@ -77,7 +76,6 @@ export const Sales = () => {
 
     const fetchSucursal = async () => {
         try {
-            console.log("Fetch Sucursal")
             const response = await getSucursalsAPI()
             setSucursal(response)
         } catch (error) {
@@ -95,14 +93,9 @@ export const Sales = () => {
     }
 
     useEffect(() => {
-        console.log("Use Effect")
         fetchSellers();
         fetchSucursal();
     }, []);
-
-    useEffect(() => {
-        console.log(sellers, 'sellers')
-    }, [sellers])
 
     const filteredProducts = selectedSellerId
         ? data.filter(product => product.id_vendedor === selectedSellerId)
@@ -158,8 +151,6 @@ export const Sales = () => {
         const totalDeudaProductos = ventasNoPagadasProductos.reduce((acc: number, producto: any) => {
             return acc + (producto.cantidad * producto.precio_unitario);
         }, 0);
-        // console.log("Productos sin depósito del vendedor:", ventasNoPagadasProductos);
-        // console.log("Total de la deuda de productos no pagados:", totalDeudaProductos);
 
         return totalDeudaProductos;
     }
@@ -193,9 +184,7 @@ export const Sales = () => {
                 const sellerCurrentDoubt = sellerInfo.deuda;
                 const deudaTotalProducts = product_seller.productos.reduce((acc: number, producto: any) =>
                     acc + (producto.cantidad * producto.precio_unitario), 0);
-                console.log("deuda total", deudaTotalProducts, " la deuda vendedor", sellerCurrentDoubt, " pago previo ", prepayment)
                 const deudaTotal = sellerCurrentDoubt + deudaTotalProducts - prepayment;
-                console.log("la deuda essss ", deudaTotal)
                 return {
                     id_vendedor,
                     deuda: deudaTotal
@@ -208,7 +197,6 @@ export const Sales = () => {
                 if (!debtRes.success) message.error('Error al registrar una deuda')
             })
             message.success('Deudas registradas con éxito')
-            console.log(debtsRes, 'sales res')
         } catch (error) {
             console.error("Error actualizando la deuda del vendedor:", error);
             message.error('Error al actualizar las deudas');

@@ -9,7 +9,7 @@ const useProducts = () => {
             const res = await getProductCategoryAPI(productId);
             return res;
         } catch (error) {
-            console.log(error, `Error al obtener la categoría con idProducto ${productId}`);
+            console.error(error, `Error al obtener la categoría con idProducto ${productId}`);
             return { categoria: '-' };
         }
     };

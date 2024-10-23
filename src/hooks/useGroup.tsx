@@ -13,7 +13,7 @@ const useGroup = () => {
             const res = await getGroupsAPI();
             setData(res.flat())
         } catch (error) {
-            console.log(error, `Error al obtener los groups`);
+            console.error(error, `Error al obtener los groups`);
             setData([])
         }
     }

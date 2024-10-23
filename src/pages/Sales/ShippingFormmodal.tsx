@@ -42,7 +42,6 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             "id_trabajador": 1,
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
         }
-        console.log({ apiShippingData })
         const response = await registerShippingAPI(apiShippingData);
         if (!response.status) {
             message.error('Error al registrar el pedido');

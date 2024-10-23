@@ -16,7 +16,6 @@ export const Seller = () => {
   };
 
   const onFinish = (values: any) => {
-    console.log("Form values:", values);
     setIsModalVisible(false);
   };
 

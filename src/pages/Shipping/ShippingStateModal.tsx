@@ -59,7 +59,6 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
         }
 
         if (intEstadoPedido == 3) {
-            console.log(parseInt(shippingStateData.cargo_delivery))
             updateShippingInfo = {
                 cargo_delivery: parseFloat(shippingStateData.cargo_delivery),
                 costo_delivery: parseFloat(shippingStateData.costo_delivery),
@@ -95,14 +94,13 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
                 onClose();
             })
             .catch(info => {
-                console.log('Validate Failed:', info);
+                console.error('Validate Failed:', info);
             });
     };
     const handleEstadoChange = (e:any) => {
         setEstadoPedido(e.target.value);
     };
-    // console.log("El costo es "+ costoRealizarDelivery)
-    // console.log(montoCobradoDelivery)
+
     return (
         <Modal
             title={`Estado del pedido ${shipping ? shipping.id_pedido : ''}`}

@@ -144,7 +144,6 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
         // setTableGroup(filteredGroupList);
         newGroupList.sort((groupA, groupB) => (groupA.products.length > groupB.products.length) ? -1 : 1)
         setTableGroup([...newGroupList])
-        // console.log({productsList, newGroupList})
     }
 
     useEffect(() => {

@@ -28,9 +28,8 @@ const options = [
   { label: "Prueba 5", value: 5 },
 ];
 
-//TODO: use real data / finish other stats
 const StatisticsDashboard = () => {
-  const [stats, setStats] = useState<any>({});
+  const [stats, setStats] = useState<any>();
 
   const fetchStats = async () => {
     try {
@@ -46,19 +45,20 @@ const StatisticsDashboard = () => {
   }, []);
 
   if (!stats) {
-    <Spin />;
+    return <Spin />;
   }
+
   return (
     <div>
-      <Select
+      {/* <Select
         className="w-96 m-2"
         placeholder={"Seleciona el filtro"}
         title={"xd"}
         options={options}
       >
         dsfjk
-      </Select>
-      <h2 className="font-semibold">DATOS</h2>
+      </Select> */}
+      <h2 className="font-semibold">ESTADISTICAS</h2>
       <Row className="p-6 md:p-4" gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <StatisticCard
@@ -91,7 +91,7 @@ const StatisticsDashboard = () => {
         <Col xs={24} sm={12} md={12}>
           <StatisticCard
             title="INGRESOS DELIVERY SUELTOS"
-            value={176}
+            value={stats.deliveryIncome}
             prefix={<DollarOutlined />}
             color="#007bff"
           />
@@ -99,7 +99,7 @@ const StatisticsDashboard = () => {
         <Col xs={24} sm={12} md={12}>
           <StatisticCard
             title="COSTOS DELIVERY"
-            value={94.8}
+            value={stats.deliveryExpense}
             prefix={<CarOutlined />}
             color="#6f42c1"
           />

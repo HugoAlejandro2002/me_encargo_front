@@ -39,7 +39,7 @@ export const updateGroupAndProductNamesAPI = async (updateGroupData: any, groupI
 
 export const getGroupByIdAPI = async (idGroup: number) => {
     try {
-        const res = await apiClient.get(`/${idGroup}`)
+        const res = await apiClient.get(`/group/${idGroup}`)
         return {sucess: true, ...res.data}
     } catch (error) {
         return parseError(error as AxiosError)

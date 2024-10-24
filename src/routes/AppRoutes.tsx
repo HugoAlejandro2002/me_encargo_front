@@ -7,8 +7,7 @@ import FinanceFlux from "../pages/FinanceFlux/FinanceFlux";
 import StockManagement from "../pages/StockManagement/StockManagement";
 import LoginPage from "../pages/Login/LoginPage";
 import RoleGuard from "./RoleGuard";
-import MyDocument from '../pages/GeneratePDF/GeneratePDF';
-import ShowPDF from '../pages/GeneratePDF/ShowPDF';
+import ShowPDF from '../pages/GeneratePDF/PaymentProofPDF';
 
 const AppRoutes = () => {
   return (

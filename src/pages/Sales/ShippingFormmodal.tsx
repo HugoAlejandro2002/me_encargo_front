@@ -3,6 +3,7 @@ import { UserOutlined, PhoneOutlined, CommentOutlined, HomeOutlined, PlusOutline
 import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
+import ProductsPDF from '../GeneratePDF/ProductsPDF';
 
 function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt }: any) {
     const [loading, setLoading] = useState(false);
@@ -381,6 +382,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                         </Col>
                     </Row>
                 </Card>
+
                 <Form.Item style={{ marginTop: 16 }}>
                     <Button type="primary" htmlType="submit" loading={loading}>
                         Guardar

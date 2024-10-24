@@ -11,6 +11,7 @@ import { Option } from 'antd/es/mentions';
 import { getGroupByIdAPI, getGroupsAPI } from '../../api/group';
 import { getSellersAPI } from '../../api/seller';
 import { getCategoriesAPI } from '../../api/category';
+import ConfirmProductsModal from './ConfirmProductsModal';
 
 const StockManagement = () => {
     const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
@@ -27,6 +28,11 @@ const StockManagement = () => {
 
     const [options, setOptions] = useState<any[]>([{option: "Vendedor",group: [], groupFunction: () => {}}])
 
+    const [productsToUpdate, setProductsToUpdate] = useState<{ [key: number]: number }>({})
+    const [stock, setStock] = useState([])
+    const [newProducts, setNewProducts] = useState<any[]>([])
+    const [newVariants, setNewVariants] = useState<any[]>([])
+    const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false)
 
     const showVariantModal = async (product: any) => {
         const group = await getGroupByIdAPI(product.groupId)
@@ -35,12 +41,31 @@ const StockManagement = () => {
         setIsVariantModalVisible(true)
     }
 
-    const succesAddVariant = async () => {
+    const closeConfirmProduct = async () => {
+
         
         const productsResponse = await getProductsAPI()
         
         setProducts(productsResponse)
         setFilteredProducts(productsResponse)
+
+        setNewVariants([])
+        setProductsToUpdate({})
+        setNewProducts([])
+        setStock([])
+        setIsConfirmModalVisible(false)
+    }
+
+    const cancelConfirmProduct = async () => {
+        setIsConfirmModalVisible(false)
+    }
+
+    const succesAddVariant = async (newVariant) => {
+
+        setProducts([...products, newVariant.product])
+        setFilteredProducts([...filteredProducts, newVariant.product])
+
+        setNewVariants([...newVariants, newVariant])
 
         closeModal()
     }
@@ -151,6 +176,17 @@ const StockManagement = () => {
         setCriteriaGroup(index)
     }
 
+    const saveNewProducts = (productData, combinations, selectedFeatures, features) => {
+        setProductFormVisible(false)
+        setNewProducts([...newProducts, {
+            productData,
+            combinations,
+            selectedFeatures,
+            features
+        }])
+        setPrevKey(key => key+1)
+    }
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', gap: '16px' }}>
@@ -187,6 +223,33 @@ const StockManagement = () => {
                         </Select>
                         
                         <Button onClick={() => setProductFormVisible(true)} type='primary'>Agregar Producto</Button>
+                            
+                        <Button 
+                            style={{ marginLeft: '20px' }}
+                            onClick={() => {
+                                const newStock = []
+                                for(const productId in productsToUpdate){
+                                    const product = products.find((product) => product.id_producto == productId)
+                                    
+                                    if(product.producto_sucursal[0]){
+                                        product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
+                                        product.entrance = productsToUpdate[productId]
+                                    }
+
+                                    newStock.push({
+                                        product,
+                                        newStock: {
+                                            productId,
+                                            sucursalId: 3,
+                                            stock: productsToUpdate[productId]
+                                        }
+                                    })
+                                }
+                                setStock(newStock)
+                                setIsConfirmModalVisible(true)}
+                            }>
+                            Actualizar Stock
+                        </Button>
                     </div>
                     
                     <ProductTable
@@ -195,10 +258,9 @@ const StockManagement = () => {
                         showModal = {showModal}
                         showVariantModal = {showVariantModal}
                         productsList = {filteredProducts}
-                        handleUpdate = { async () => {
-                            const productsResponse = await getProductsAPI()
-                            setProducts(productsResponse)
-                        }}
+                        handleUpdate = { (ingresoData: { [key: number]: number }) =>{
+                            setProductsToUpdate(ingresoData)
+                        } }
                     />
                     
                 </div>
@@ -216,10 +278,7 @@ const StockManagement = () => {
                 <ProductFormModal
                     visible={isProductFormVisible}
                     onCancel={() => setProductFormVisible(false)}
-                    onSuccess={() => {
-                        setProductFormVisible(false)
-                        setPrevKey(key => key+1)
-                    }}
+                    onSuccess={saveNewProducts}
                 />
             }
 
@@ -229,6 +288,17 @@ const StockManagement = () => {
                     onAdd={succesAddVariant}
                     onCancel={closeModal}
                     visible={isVariantModalVisible}
+                />
+            }
+            {
+                isConfirmModalVisible && 
+                <ConfirmProductsModal
+                    visible={isConfirmModalVisible}
+                    onClose={cancelConfirmProduct}
+                    onSuccess={() => closeConfirmProduct()}
+                    newVariants = {newVariants}
+                    newProducts = {newProducts}
+                    newStock = {stock}
                 />
             }
         </div>

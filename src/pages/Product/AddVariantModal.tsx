@@ -1,8 +1,5 @@
-import { Modal, Button, Form, Input, InputNumber, Select } from 'antd';
+import { Modal, Form, Input, InputNumber} from 'antd';
 import { useState } from 'react';
-import { addProductFeaturesAPI, registerVariantAPI } from '../../api/product';
-
-const { Option } = Select;
 
 const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     const [form] = Form.useForm();
@@ -12,17 +9,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     const [features, setFeatures] = useState(example.features)
 
     const handleVariantAdd = async (newVariant) => {
-
-        const {product,  featuresFilter:features} = newVariant
-        const stock = {
-            cantidad_por_sucursal: product.stock,
-            //TODO Add Sucursal Field in the form
-            id_sucursal: 3
-        }
-        const {newProduct} = await registerVariantAPI({product,stock})
-        await addProductFeaturesAPI({productId: newProduct.id_producto, features})
-            
-        onAdd()
+        onAdd(newVariant)
     };
 
     const handleOk = async () => {
@@ -36,12 +23,14 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     ...values,
                     groupId: group.id,
                     id_categoria: example.id_categoria,
-                    id_vendedor: example.id_vendedor
+                    id_vendedor: example.id_vendedor,
+                    categoria: example.categoria,
+                    producto_sucursal: [{cantidad_por_sucursal: values.stock}]
                 },
                 featuresFilter
             }
 
-            await handleVariantAdd(variant);
+            handleVariantAdd(variant);
             
             form.resetFields();
         } catch (error) {

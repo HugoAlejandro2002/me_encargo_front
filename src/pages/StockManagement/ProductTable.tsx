@@ -31,6 +31,9 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
     const handleIngresoChange = (productId: number, value: number) => {
         setIngresoData((prev) => ({ ...prev, [productId]: value }));
     };
+    useEffect(() => {
+        handleUpdate(ingresoData)
+    }, [ingresoData])
     
     const handleStockUpdate = async () => {
 
@@ -50,7 +53,6 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
             }
         }
 
-        
         await updateProductStockAPI(newStock)
 
         handleUpdate()
@@ -89,7 +91,7 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
             dataIndex: 'ingreso',
             key: 'ingreso',
             render: (_: any, record: any) => (
-                <Input
+                !record.stock && <Input
                     type="number"
                     value={ingresoData[record.id_producto] || ''}
                     onChange={(e) =>
@@ -162,18 +164,12 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
                                     const ingreso = ingresoData[record.id_producto] || 0;
                                     return ingreso !== 0 ? 'highlight-row' : '';
                                 }}
-                                
-                                
                             />
                         </div>
                     </div>
                 ))
             }
-            <Button 
-                style={{ marginTop: '20px' }}
-                onClick={handleStockUpdate}>
-                Actualizar Stock
-            </Button>
+
         </>
         
     )

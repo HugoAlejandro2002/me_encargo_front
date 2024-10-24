@@ -64,6 +64,8 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
     try {
       const response = await getSellersAPI();
 
+      console.log(response)
+
       const sellersData = response.data || response;
 
       if (!Array.isArray(sellersData)) {

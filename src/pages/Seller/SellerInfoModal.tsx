@@ -11,7 +11,8 @@ import PaymentProofTable from "./components/PaymentProofTable";
 import { getPaymentProofsBySellerIdAPI } from "../../api/paymentProof";
 import { deleteEntryProductsAPI, getProductsEntryAmount, updateEntry } from "../../api/entry";
 import EntryProductSellerTable from "./components/EntryProductSellerTable";
-
+import PaymentProofPDF from "../GeneratePDF/PaymentProofPDF";
+import ProductsPDF from "../GeneratePDF/ProductsPDF";
 const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
 
     const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
             console.log('Error fetching sucursales:', error)
         }
     }
-    // console.log(paymentProofs)
+    console.log(seller)
     const fetchPaymentProofs = async (sellerId: number) => {
         try {
             const response = await getPaymentProofsBySellerIdAPI(sellerId);
@@ -54,6 +55,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
     const fetchProducts = async () => {
         try {
             const response = await getProductsBySellerIdAPI(seller.key);
+            console.log(response)
             const productos = Array.isArray(response) ? response : [];
 
             const pedidos = response.map((product: any) => product.id_pedido);
@@ -230,6 +232,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                     <h2>{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
                 </div>
             </div>
+            
             <Form onFinish={handleFinish} layout="vertical">
                 <Form.Item
                     name="telefono"
@@ -297,6 +300,8 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                 >
                     <InputNumber style={{ width: '25%' }} />
                 </Form.Item>
+                
+
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
                     <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Ventas no pagadas</h4>
                     <CustomTable
@@ -308,6 +313,13 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                         showClient={true}
                     />
                 </div>
+
+                <PaymentProofPDF
+                    sellerId={seller.key}
+                />
+                
+                {/* <ProductsPDF
+                /> */}
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
                     <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ventas</h4>
                     <CustomTable

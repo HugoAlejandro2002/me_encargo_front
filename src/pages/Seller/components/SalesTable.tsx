@@ -1,21 +1,20 @@
-import { InputNumber, Table } from "antd";
+import { Button, InputNumber, Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 
 interface CustomTableProps {
   data: any[];
-//   onDeleteProduct: (key: string) => void;
-//   onUpdateTotalAmount: (total: number) => void;
-//   handleValueChange: (key: string, field: string, value: any) => void;
+  onDeleteProduct: (key: string, isEntryProduct: boolean) => void;
+  handleValueChange: (key: any, field: any, value: any) => void;
   showClient: boolean; // Propiedad para alternar entre cliente y tipo
   onUpdateTotalAmount: (total: number) => void;
 }
 
 const CustomTable = ({
   data,
-//   onDeleteProduct,
+  onDeleteProduct,
   onUpdateTotalAmount,
-//   handleValueChange,
+  handleValueChange,
   showClient,
 }: CustomTableProps) => {
   const totalAmount = data.reduce((acc, product) => {
@@ -42,16 +41,23 @@ const CustomTable = ({
       title: "Precio Unitario",
       dataIndex: "precio_unitario",
       key: "precio_unitario",
+      render: (_: any, record: any) => (
+        <InputNumber
+          min={1}
+          value={record.precio_unitario}
+          onChange={(value) => handleValueChange(record.key, "precio_unitario", value)}
+        />
+      ),
     },
     {
       title: "Cantidad",
       dataIndex: "cantidad",
       key: "cantidad",
-      render: (_: any, record: any) => (
+      render: (_: any, record: any) => (  
         <InputNumber
           min={1}
           value={record.cantidad}
-        //   onChange={(value) => handleValueChange(record.key, "cantidad", value)}
+          onChange={(value) => handleValueChange(record.key, "cantidad", value)}
         />
       ),
     },
@@ -69,15 +75,15 @@ const CustomTable = ({
       dataIndex: showClient ? "cliente" : "tipo",
       key: showClient ? "cliente" : "tipo",
     },
-    // {
-    //   title: "Acción",
-    //   key: "action",
-    //   render: (_: any, record: any) => (
-    //     <Button type="link" onClick={() => onDeleteProduct(record.key)}>
-    //       Eliminar
-    //     </Button>
-    //   ),
-    // },
+    {
+      title: "Acción",
+      key: "action",
+      render: (_: any, record: any) => (
+        <Button type="link" onClick={() => onDeleteProduct(record.key, false)}>
+          Eliminar
+        </Button>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -89,7 +95,7 @@ const CustomTable = ({
       <div style={{ textAlign: "right" }}>
         <strong>Monto Total:</strong> Bs.{totalAmount.toFixed(2)}
       </div>
-      <Table columns={columns} dataSource={data} pagination={false} />
+      <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
     </div>
   );
 };

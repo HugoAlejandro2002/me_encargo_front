@@ -54,7 +54,7 @@ export const getProductCategoryAPI = async (productId: any) => {
     }
 }
 
-export const getProductAndStockBySellerId = async (sellerId: any) => {
+export const getAllProductsEntryAmountBySellerId = async (sellerId: any) => {
     try {
         const res = await apiClient.get(`/product/seller/${sellerId}`)
         return res.data

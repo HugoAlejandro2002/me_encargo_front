@@ -52,3 +52,16 @@ export const getWorkerByShippingAPI = async (workerId: any) => {
 
     }
 }
+export const getSellerInfoAPI = async (sellerId: any) => {
+    try {
+        const res = await apiClient.get(`/financeFlux/sellerInf/${sellerId}`)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+
+    }
+}

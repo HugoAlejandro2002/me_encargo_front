@@ -1,4 +1,4 @@
-import { Card, Row, Col, Statistic, Select, Spin } from "antd";
+import { Card, Row, Col, Statistic, Spin, Tag, DatePicker, Modal } from "antd";
 import {
   DollarOutlined,
   ShoppingCartOutlined,
@@ -6,7 +6,8 @@ import {
   CarOutlined,
 } from "@ant-design/icons";
 import { FC, useEffect, useState } from "react";
-import { getStatsAPI } from "../../api/financeFlux";
+import { DATE_TAGS } from "../../constants/fluxes";
+import { getFilteredStats } from "../../helpers/financeFluxesHelpers";
 
 const StatisticCard: FC<any> = ({ title, value, prefix, color }) => (
   <Card>
@@ -20,23 +21,32 @@ const StatisticCard: FC<any> = ({ title, value, prefix, color }) => (
   </Card>
 );
 
-const options = [
-  { label: "Prueba 1", value: 1 },
-  { label: "Prueba 2", value: 2 },
-  { label: "Prueba 3", value: 3 },
-  { label: "Prueba 4", value: 4 },
-  { label: "Prueba 5", value: 5 },
-];
-
 const StatisticsDashboard = () => {
+  const [customDateModal, setCustomDateModal] = useState(false);
   const [stats, setStats] = useState<any>();
+  const [selectedTag, setSelectedTag] = useState<string | null>(
+    DATE_TAGS.LAST_30_DAYS
+  );
+  const [customDateRange, setCustomDateRange] = useState<any>([]);
 
-  const fetchStats = async () => {
+  const fetchStats = async (filter: string = DATE_TAGS.ALL_TIME) => {
     try {
-      const statsInfo = await getStatsAPI();
+      // const statsInfo = await getStatsAPI();
+      const statsInfo = await getFilteredStats(filter, customDateRange);
+      console.log(statsInfo, "xd");
       setStats(statsInfo);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const onTagClick = (tag: string) => {
+    setSelectedTag(tag);
+    if (!DATE_TAGS.CUSTOM) setCustomDateRange([]);
+    if (DATE_TAGS.CUSTOM) {
+      setCustomDateModal(true);
+    } else {
+      setCustomDateModal(false);
     }
   };
 
@@ -44,20 +54,48 @@ const StatisticsDashboard = () => {
     fetchStats();
   }, []);
 
+  useEffect(() => {
+    fetchStats(selectedTag || DATE_TAGS.ALL_TIME);
+  }, [selectedTag]);
+
   if (!stats) {
     return <Spin />;
   }
 
   return (
-    <div>
-      {/* <Select
-        className="w-96 m-2"
-        placeholder={"Seleciona el filtro"}
-        title={"xd"}
-        options={options}
-      >
-        dsfjk
-      </Select> */}
+    <>
+      <div className="my-4">
+        {Object.entries(DATE_TAGS).map(([key, value]) => (
+          <Tag.CheckableTag
+            key={key}
+            checked={selectedTag === value}
+            onChange={() => onTagClick(value)}
+          >
+            {value}
+          </Tag.CheckableTag>
+        ))}
+        {selectedTag === DATE_TAGS.CUSTOM && (
+          <Modal
+            open={customDateModal}
+            onCancel={() => {
+              setSelectedTag(DATE_TAGS.ALL_TIME);
+              setCustomDateModal(false);
+            }}
+            onClose={() => setCustomDateModal(false)}
+            onOk={() => {
+              fetchStats(DATE_TAGS.CUSTOM);
+              setCustomDateModal(false);
+            }}
+          >
+            <DatePicker.RangePicker
+              className="mb-4"
+              onChange={(dates) => setCustomDateRange(dates)}
+              value={customDateRange}
+              format="DD-MM-YYYY"
+            />
+          </Modal>
+        )}
+      </div>
       <h2 className="font-semibold">ESTADISTICAS</h2>
       <Row className="p-6 md:p-4" gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
@@ -99,41 +137,13 @@ const StatisticsDashboard = () => {
         <Col xs={24} sm={12} md={12}>
           <StatisticCard
             title="COSTOS DELIVERY"
-            value={stats.deliveryExpense}
+            value={stats.deliveryExpenses}
             prefix={<CarOutlined />}
             color="#6f42c1"
           />
         </Col>
       </Row>
-
-      <h2 className="mt-6">Cierre de Caja</h2>
-      <Row className="p-6 md:p-4" gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={8}>
-          <StatisticCard
-            title="CAJA CHICA"
-            value={1000}
-            prefix={<DollarOutlined />}
-            color="#20c997"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={8}>
-          <StatisticCard
-            title="VENTAS EFECTIVO"
-            value={0}
-            prefix={<DollarOutlined />}
-            color="#dc3545"
-          />
-        </Col>
-        <Col xs={24} sm={12} md={8}>
-          <StatisticCard
-            title="VENTAS QR"
-            value={0}
-            prefix={<DollarOutlined />}
-            color="#28a745"
-          />
-        </Col>
-      </Row>
-    </div>
+    </>
   );
 };
 

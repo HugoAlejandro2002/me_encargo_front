@@ -2,13 +2,16 @@ import { Modal, Button, Descriptions } from 'antd';
 import RestockTable from './RestockTable';
 import EntryProductTable from './EntryProductTable';
 import SalesProductTable from './SalesProductTable';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { deleteProductSalesAPI, updateProductSalesAPI } from '../../api/sales';
 import { updateProductEntriesAPI, deleteProductEntriesAPI } from '../../api/entry';
 import { updateProductStockAPI } from '../../api/product';
+import { UserContext } from '../../context/userContext';
 
 
 const ProductInfoModal = ({ visible, onClose, product }) => {
+  const { user }: any = useContext(UserContext);
+  const isAdmin = user?.role === 'admin';
 
   const { nombre_producto, precio, fecha_de_ingreso, categoria, group, features } = product;
 
@@ -77,11 +80,13 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
       onCancel={onClose}
       footer={[
         <Button key="back" onClick={onClose}>
-          Close
+          Cerrar
         </Button>,
-        <Button key="save" type="primary" onClick={handleSave}>
-          Save
-        </Button>
+        isAdmin && (
+          <Button key="save" type="primary" onClick={handleSave}>
+            Guardar
+          </Button>
+        )
       ]}
       centered
       width={800}
@@ -101,11 +106,11 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
           <Descriptions.Item key={index} label={feature.feature}>{feature.value}</Descriptions.Item>
         ))}
       </Descriptions>
-      <RestockTable products={products} onSave={handleSave} setRestockData={setRestockData}  />
+      <RestockTable products={products} onSave={handleSave} setRestockData={setRestockData} />
       <h3 style={{ marginTop: '20px' }}>Historial de Ingresos</h3>
       <EntryProductTable product={products} onSave={handleSave} setEntryData={setEntryData} />
       <h3 style={{ marginTop: '20px' }}>Historial de Ventas</h3>
-      <SalesProductTable product={products} onSave={handleSave} setSalesData={setSalesData}/>
+      <SalesProductTable product={products} onSave={handleSave} setSalesData={setSalesData} />
     </Modal>
   );
 };

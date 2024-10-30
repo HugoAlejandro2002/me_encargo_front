@@ -1,4 +1,4 @@
-import { Button, InputNumber, Table } from "antd";
+import { Button, Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import { EditableCellInputNumber } from "../../components/editableCell";

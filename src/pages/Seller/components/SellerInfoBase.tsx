@@ -1,4 +1,4 @@
-import { Button, Col, DatePicker, Form, Input, InputNumber, message, Row } from "antd";
+import { Button, Col, DatePicker, Form, InputNumber, message, Row } from "antd";
 import { useContext, useEffect, useState } from "react";
 import dayjs from 'dayjs';
 import { getProductsEntryAmount, updateEntry, deleteEntryProductsAPI } from "../../../api/entry";
@@ -56,7 +56,6 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
             console.error('Error fetching payment proofs:', error);
         }
     };
-
     // Función para obtener los productos
     const fetchProducts = async () => {
         try {
@@ -67,7 +66,6 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
 
             const shippingsResponse = await getShipingByIdsAPI(uniquePedidos);
             if (shippingsResponse.success) {
-                const totalAdelanto = shippingsResponse.data.reduce((total, pedido) => total + (pedido.adelanto_cliente || 0), 0);
                 const productosConTipo = productos.map((product) => {
                     const lugarEntrega = shippingsResponse.data.find((pedido) => pedido.id_pedido === product.id_pedido)?.lugar_entrega;
                     const esVenta = sucursales.some((sucursal) => sucursal.nombre.toLowerCase() === lugarEntrega.toLowerCase());

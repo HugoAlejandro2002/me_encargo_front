@@ -6,8 +6,6 @@ import { Shipping } from "../models/shippingModel";
 import dayjs from "dayjs";
 
 export const getFilteredStats = async (filter: string, dateRange: any = []) => {
-  console.log(`FILTER: ${filter}`);
-  console.log(`with dates \n ${dateRange[0]} \n ${dateRange[1]}`);
   const fluxes: FinanceFlux[] = await getFinancesFluxAPI();
   const shippings: Shipping[] = await getShippingsAPI();
   let income = 0,
@@ -17,7 +15,6 @@ export const getFilteredStats = async (filter: string, dateRange: any = []) => {
 
   let startDate: Date | null = null;
   let endDate: Date | null = new Date();
-  console.log("received dates: ", dateRange);
 
   switch (filter) {
     case DATE_TAGS.LAST_7_DAYS:
@@ -40,6 +37,7 @@ export const getFilteredStats = async (filter: string, dateRange: any = []) => {
       startDate = null; // Sin restricción de fecha
       break;
   }
+
   for (const flux of fluxes) {
     if (flux.esDeuda) continue;
     const fluxDate = new Date(flux.fecha);

@@ -38,6 +38,8 @@ const StatisticsDashboard = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(
     DATE_TAGS.LAST_30_DAYS
   );
+  const [newState, setNewState] = useState(false);
+
   const [customDateRange, setCustomDateRange] = useState<any>([]);
 
   const fetchStats = async (filter: string = DATE_TAGS.ALL_TIME) => {
@@ -51,11 +53,11 @@ const StatisticsDashboard = () => {
 
   const onTagClick = (tag: string) => {
     setSelectedTag(tag);
-    if (!DATE_TAGS.CUSTOM) setCustomDateRange([]);
-    if (DATE_TAGS.CUSTOM) {
-      setCustomDateModal(true);
-    } else {
+    if (tag !== DATE_TAGS.CUSTOM) {
+      setCustomDateRange([]);
       setCustomDateModal(false);
+    } else {
+      setCustomDateModal(true);
     }
   };
 

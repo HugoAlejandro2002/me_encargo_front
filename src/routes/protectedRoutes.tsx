@@ -10,6 +10,7 @@ import StockManagement from "../pages/StockManagement/StockManagement";
 import ErrorPage from "../pages/ErrorPage";
 import StatsPage from "../pages/Stats/StatsPage";
 import SellerInfoPageWrapper from "../pages/Seller/SellerInfo";
+import CashReconciliationPage from "../pages/CashReconciliation/CashReconciliationPage";
 
 const protectedRoutes = [
   {
@@ -89,6 +90,14 @@ const protectedRoutes = [
         element: (
           <RoleGuard allowedRoles={["seller"]}>
             <Sales />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/cash",
+        element: (
+          <RoleGuard allowedRoles={["admin"]}>
+            <CashReconciliationPage />
           </RoleGuard>
         ),
       },

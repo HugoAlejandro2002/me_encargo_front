@@ -6,7 +6,6 @@ import {
   Spin,
   Tag,
   DatePicker,
-  Modal,
   Typography,
 } from "antd";
 import {
@@ -33,13 +32,10 @@ const StatisticCard: FC<any> = ({ title, value, prefix, color }) => (
 );
 
 const StatisticsDashboard = () => {
-  const [customDateModal, setCustomDateModal] = useState(false);
   const [stats, setStats] = useState<any>();
   const [selectedTag, setSelectedTag] = useState<string | null>(
     DATE_TAGS.LAST_30_DAYS
   );
-  const [newState, setNewState] = useState(false);
-
   const [customDateRange, setCustomDateRange] = useState<any>([]);
 
   const fetchStats = async (filter: string = DATE_TAGS.ALL_TIME) => {
@@ -55,9 +51,6 @@ const StatisticsDashboard = () => {
     setSelectedTag(tag);
     if (tag !== DATE_TAGS.CUSTOM) {
       setCustomDateRange([]);
-      setCustomDateModal(false);
-    } else {
-      setCustomDateModal(true);
     }
   };
 
@@ -85,42 +78,33 @@ const StatisticsDashboard = () => {
   return (
     <>
       <div className="my-4">
-        {Object.entries(DATE_TAGS).map(([key, value], index: number) => {
-          return (
-            <Tag.CheckableTag
-              key={key}
-              checked={selectedTag === value}
-              onChange={() => onTagClick(value)}
-            >
-              {espTags[index]}
-            </Tag.CheckableTag>
-          );
-        })}
-        {selectedTag === DATE_TAGS.CUSTOM && (
-          <>
-            <Modal
-              open={customDateModal}
-              onCancel={() => {
-                setSelectedTag(DATE_TAGS.ALL_TIME);
-                setCustomDateModal(false);
-              }}
-              onClose={() => setCustomDateModal(false)}
-              onOk={() => {
-                fetchStats(DATE_TAGS.CUSTOM);
-                setCustomDateModal(false);
-              }}
-            >
-              <DatePicker.RangePicker
-                className="mb-4"
-                onChange={(dates) => setCustomDateRange(dates)}
-                value={customDateRange}
-                format="DD-MM-YYYY"
-              />
-            </Modal>
-          </>
-        )}
+        {Object.entries(DATE_TAGS).map(([key, value], index: number) => (
+          <Tag.CheckableTag
+            key={key}
+            checked={selectedTag === value}
+            onChange={() => onTagClick(value)}
+          >
+            {espTags[index]}
+          </Tag.CheckableTag>
+        ))}
       </div>
+      
       {selectedTag === DATE_TAGS.CUSTOM && (
+        <div className="mb-4">
+          <DatePicker.RangePicker
+            onChange={(dates) => {
+              setCustomDateRange(dates);
+              if (dates) {
+                fetchStats(DATE_TAGS.CUSTOM);
+              }
+            }}
+            value={customDateRange}
+            format="DD-MM-YYYY"
+          />
+        </div>
+      )}
+
+      {selectedTag === DATE_TAGS.CUSTOM && customDateRange?.length === 2 && (
         <Typography.Text className="mb-4" mark>
           Rango seleccionado:{" "}
           {`${dayjs(customDateRange[0]).format("DD-MM-YYYY")} - ${dayjs(
@@ -128,6 +112,7 @@ const StatisticsDashboard = () => {
           ).format("DD-MM-YYYY")}`}
         </Typography.Text>
       )}
+
       <h2 className="font-semibold">ESTADISTICAS</h2>
       <Row className="p-6 md:p-4" gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>

@@ -8,7 +8,6 @@ const PayDebtButton = ({ seller }: any) => {
 
   const handleConfirm = async () => {
     try {
-      console.log("seller:", seller);
       message.success("Pago realizado con éxito");
     } catch (error) {
       message.error("Error al realizar el pago");

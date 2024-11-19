@@ -1,48 +1,62 @@
+import { useContext } from "react";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Form, Input, message } from "antd";
+import { checkLoginAPI, getUserByCookieAPI } from "../../api/user";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/userContext";
+import logoImg from "../../../public/logo.png";
 
 const LoginPage = () => {
-  const handleFinish = (values: any) => {
-    console.log("Received values:", values);
-    message.success("¡Inicio de sesión exitoso!");
+  const { setUser } = useContext(UserContext)!;
+  const navigate = useNavigate();
+
+  const handleFinish = async (values: any) => {
+    try {
+      const loginRes = await checkLoginAPI(values);
+      if (!loginRes?.success) {
+        message.error("Error al iniciar sesión");
+        return;
+      }
+      const userRes = await getUserByCookieAPI();
+      if (!userRes?.success) {
+        message.error("Error al recuperar el usuario");
+        return;
+      }
+      setUser(userRes.data);
+      navigate("/product");
+      message.success("¡Inicio de sesión exitoso!");
+    } catch (error) {
+      message.error("Error al iniciar sesión");
+      console.error(error);
+    }
   };
 
   return (
-    <div
-      style={{
-        padding: "24px",
-        backgroundColor: "#fff",
-        maxWidth: "400px",
-        margin: "0 auto",
-      }}
-    >
-      <div style={{ textAlign: "center", marginBottom: "24px" }}>
-        <img
-          alt="logo"
-          src="/src/assets/logo.png"
-          style={{ height: "48px", marginBottom: "16px" }}
-        />
-        <h2 className="font-bold">Me encargo</h2>
-      </div>
-      <Form
-        name="login"
-        initialValues={{ autoLogin: true }}
-        onFinish={handleFinish}
-      >
-        <>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="text-center">
+          <img alt="logo" src={logoImg} className="mx-auto h-12 w-auto" />
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">Me encargo</h2>
+        </div>
+        <Form
+          name="login"
+          initialValues={{ autoLogin: true }}
+          onFinish={handleFinish}
+          className="mt-8 space-y-6"
+        >
           <Form.Item
-            name="username"
+            name="email"
             rules={[
               {
                 required: true,
-                message: "¡Por favor ingrese su nombre de usuario!",
+                message: "¡Por favor ingrese su email!",
               },
             ]}
           >
             <Input
               size="large"
-              prefix={<UserOutlined />}
-              placeholder="Nombre de usuario: admin o user"
+              prefix={<UserOutlined className="site-form-item-icon" />}
+              placeholder="Correo electrónico"
             />
           </Form.Item>
           <Form.Item
@@ -56,17 +70,17 @@ const LoginPage = () => {
           >
             <Input.Password
               size="large"
-              prefix={<LockOutlined />}
-              placeholder="Contraseña: ant.design"
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              placeholder="Contraseña"
             />
           </Form.Item>
-        </>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" size="large" block>
-            Iniciar sesión
-          </Button>
-        </Form.Item>
-      </Form>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" size="large" block>
+              Iniciar sesión
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
     </div>
   );
 };

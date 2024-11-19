@@ -4,8 +4,8 @@ import { getSellersAPI } from "../../api/seller";
 import DebtModal from "./DebtModal";
 import { EditOutlined } from "@ant-design/icons";
 import PayDebtButton from "./components/PayDebtButton";
-import SellerInfoModal from "./SellerInfoModal";
 import { getSellerAdvancesById } from "../../helpers/sellerHelpers";
+import SellerInfoModalTry from "./SellerInfoModal";
 const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
   const columns = [
     {
@@ -80,7 +80,8 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
           return {
             key: seller.id_vendedor.toString(),
             nombre: `${seller.nombre} ${seller.apellido}`,
-            deuda: `Bs. ${seller.deuda - advances}`,
+            deuda: `Bs. ${seller.deuda}`,
+            // deuda: `Bs. ${seller.deuda - advances}`,
             deudaInt: seller.deuda,
             pagoTotalInt: seller.deuda - parseInt(advances),
             fecha_vigencia: finish_date.toLocaleDateString("es-ES"),
@@ -97,10 +98,10 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             mail: seller.mail,
             carnet: seller.carnet,
             adelanto_servicio: seller.adelanto_servicio,
+            marca:seller.marca,
           };
         })
       );
-      console.log(sellersData)
 
       // Separar los datos según algún criterio (en este caso, si el pago es pendiente o al día)
       const pendingPayments: any = formattedData.filter(
@@ -140,8 +141,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
 
   useEffect(() => {
     fetchSellers();
-    console.log(pendingPaymentData, "ts");
-    console.log(onTimePaymentData, "tsa");
   }, [refreshKey]);
 
   return (
@@ -181,7 +180,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
         />
       )}
       {selectedSeller && (
-        <SellerInfoModal
+        <SellerInfoModalTry
           visible={isSellerModalVisible && !isModalVisible}
           onCancel={handleCancel}
           onSuccess={handleSuccess}

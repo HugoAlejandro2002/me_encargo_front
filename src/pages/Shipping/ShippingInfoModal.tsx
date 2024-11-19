@@ -62,7 +62,7 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
             });
         }
     }, [totalAmount, adelantoClienteInput, cargoDeliveryInput])
-    //console.log(products)
+
     const handleSave = (shippingInfoData: any) => {
         setLoading(true)
         form.validateFields()
@@ -93,15 +93,8 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                         console.error("Error updating products:", error);
                     });
                 }
-                //console.log(formattedNewProducts)
                 // Insertar nuevos productos
                 if (newProducts.length > 0) {
-                    // registerSalesToShippingAPI({
-                    //     shippingId: shipping.id_pedido,
-                    //     sales: formattedNewProducts
-                    // }).catch((error:any) => {
-                    //     console.error("Error adding new products:", error);
-                    // });
 
                     registerSalesAPI(formattedNewProducts).catch((error: any) => {
                         console.error("Error adding new products:", error);
@@ -129,14 +122,13 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                 } if (shippingInfoData.pagado_al_vendedor === '1') {
                     updateShippingInfo.pagado_al_vendedor = true;
                 } else { updateShippingInfo.pagado_al_vendedor = false }
-                console.log(updateShippingInfo)
                 updateShippingAPI(updateShippingInfo, shipping.id_pedido)
                 onSave({ ...shipping, ...values });
                 onClose();
                 setLoading(false)
             })
             .catch(info => {
-                console.log('Validate Failed:', info);
+                console.error('Validate Failed:', info);
             });
     };
     const handleProductSelect = (value: any) => {
@@ -172,14 +164,12 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                 }
                 ]);
             }
-            //console.log(deletedProducts)
             return updatedProducts;
         });
     };
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
     };
-    //console.log(deletedProducts)
 
     return (
         <Modal

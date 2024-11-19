@@ -7,7 +7,9 @@ import Sales from "../pages/Sales/Sales";
 import Seller from "../pages/Seller/Seller";
 import Shipping from "../pages/Shipping/Shipping";
 import StockManagement from "../pages/StockManagement/StockManagement";
-import LoginPage from "../pages/Login/LoginPage";
+import ErrorPage from "../pages/ErrorPage";
+import StatsPage from "../pages/Stats/StatsPage";
+import SellerInfoPageWrapper from "../pages/Seller/SellerInfo";
 
 const protectedRoutes = [
   {
@@ -21,7 +23,7 @@ const protectedRoutes = [
       {
         path: "/product",
         element: (
-          <RoleGuard allowedRoles={["admin"]}>
+          <RoleGuard allowedRoles={["admin", "seller"]}>
             <Product />
           </RoleGuard>
         ),
@@ -61,14 +63,30 @@ const protectedRoutes = [
       {
         path: "/stock",
         element: (
-          <RoleGuard allowedRoles={["admin"]}>
+          <RoleGuard allowedRoles={["admin", "seller"]}>
             <StockManagement />
           </RoleGuard>
         ),
       },
       {
-        path: "/login",
-        element: <LoginPage />,
+        path: "/stats",
+        element: (
+          <RoleGuard allowedRoles={["admin"]}>
+            <StatsPage />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/seller-info",
+        element: (
+          <RoleGuard allowedRoles={["seller"]}>
+            <SellerInfoPageWrapper />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "*",
+        element: <ErrorPage />,
       },
     ],
   },

@@ -69,17 +69,18 @@ export const deleteProductsByShippingAPI = async (shippingId: number, deletedEmt
         parseError(error as AxiosError)
     }
 }
-export const deleteSalesBySaleIdsAPI = async (saleIds: number[]) => {
+export const deleteSalesAPI = async (sales: number[]) => {
     try {
-        const res = await apiClient.delete(`/sale/delete`, { data: { ids: saleIds } });
+        const res = await apiClient.delete(`/sale`, { data: { sales } });
         return { success: true, ...res.data };
     } catch (error) {
         parseError(error as AxiosError);
+        return { success: false, error };
     }
 }
-export const updateSale = async (updateSaleData: any, saleId: number) => {
+export const updateSale = async (salesData: any[]) => {
     try {
-        const res = await apiClient.put(`/sale/${saleId}`, { newData: updateSaleData })
+        const res = await apiClient.put(`/sale`,{ sales: salesData })
         return { success: true, ...res.data }
     } catch (error) {
         parseError(error as AxiosError)

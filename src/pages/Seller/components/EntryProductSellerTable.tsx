@@ -1,45 +1,50 @@
 import { Button, InputNumber, Table } from "antd";
 import dayjs from "dayjs";
 import { useEffect } from "react";
+import { EditableCellInputNumber } from "../../components/editableCell";
 
 interface EntryProductSellerTableProps {
   data: any[];
   handleValueChange: (key: any, field: any, value: any) => void;
   onDeleteProduct: (key: string, isEntryProduct: boolean) => void;
-
+  isAdmin: boolean;
 }
-
 const EntryProductSellerTable = ({
   data,
   handleValueChange,
-  onDeleteProduct
-}:EntryProductSellerTableProps)=> {
-    const columns = [
-        {
-            title: "Fecha",
-            dataIndex: "fecha_ingreso",
-            key: "fecha_ingreso",
-            render: (text: string) => {
-              return dayjs(text).format('DD/MM/YYYY'); 
-            },
-        },
-        {
-            title: "Producto",
-            dataIndex: ["producto", "nombre_producto"],
-            key: "nombre_producto",
-        },
-        {
-            title: "Cantidad",
-            dataIndex: "cantidad_ingreso",
-            key: "cantidad_ingreso",
-            render: (_: any, record: any) => (
-              <InputNumber
-                min={0}
-                value={record.cantidad_ingreso || 0}
-                onChange={(value) => handleValueChange(record.key, "cantidad_ingreso", value)}
-              />
-            ),
-        },
+  onDeleteProduct,
+  isAdmin
+}: EntryProductSellerTableProps) => {
+  const columns = [
+    {
+      title: "Fecha",
+      dataIndex: "fecha_ingreso",
+      key: "fecha_ingreso",
+      render: (text: string) => {
+        return dayjs(text).format('DD/MM/YYYY');
+      },
+    },
+    {
+      title: "Producto",
+      dataIndex: ["producto", "nombre_producto"],
+      key: "nombre_producto",
+    },
+    {
+      title: "Cantidad",
+      dataIndex: "cantidad_ingreso",
+      key: "cantidad_ingreso",
+      width: '120px',
+      render: (_: any, record: any) => (
+        <EditableCellInputNumber
+          isAdmin={isAdmin}
+          value={record.cantidad_ingreso || 0}
+          min={0}
+          onChange={(value) => handleValueChange(record.key, "cantidad_ingreso", value)}
+        />
+      ),
+    },
+    ...(isAdmin
+      ? [
         {
           title: "Acción",
           key: "action",
@@ -49,15 +54,17 @@ const EntryProductSellerTable = ({
             </Button>
           ),
         },
-    ];
-    useEffect(() => {
+      ]
+      : []),
+  ];
+  useEffect(() => {
 
-      }, [data]);
-    return (
-        <div>
-          <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
-        </div>
-      );
+  }, [data]);
+  return (
+    <div>
+      <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
+    </div>
+  );
 
 }
 export default EntryProductSellerTable

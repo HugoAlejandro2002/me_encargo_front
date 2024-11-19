@@ -49,11 +49,9 @@ const Product = () => {
             //TODO Add Sucursal Field in the form
             id_sucursal: 3
         }
-        console.log({product, stock})
         const {newProduct} = await registerVariantAPI({product,stock})
         await addProductFeaturesAPI({productId: newProduct.id_producto, features})
 
-        console.log("New Variant:", newVariant);
         
         // Update the refresh key for the specific group
         setRefreshKeys((prevKeys) => ({

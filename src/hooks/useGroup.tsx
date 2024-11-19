@@ -11,10 +11,9 @@ const useGroup = () => {
     const fetchGroups = async () => {
         try {
             const res = await getGroupsAPI();
-            console.log(res)
             setData(res.flat())
         } catch (error) {
-            console.log(error, `Error al obtener los groups`);
+            console.error(error, `Error al obtener los groups`);
             setData([])
         }
     }

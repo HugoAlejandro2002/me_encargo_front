@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Modal, Button, Descriptions } from 'antd';
 import RestockTable from './RestockTable';
+import { UserContext } from '../../context/userContext';
 
 
 const ProductInfoModal = ({ visible, onClose, product }) => {
 
-  console.log(product)
   const { nombre_producto, precio, fecha_de_ingreso, imagen, categoria, group, features } = product;
 
   const products = [product]
@@ -13,7 +13,6 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
   const handleSave = () => {
     onClose()
   }
-
   return (
     <Modal
       title={product.nombre_producto}

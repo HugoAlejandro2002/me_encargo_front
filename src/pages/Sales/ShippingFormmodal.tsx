@@ -5,7 +5,7 @@ import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
 import ProductsPDF from '../GeneratePDF/ProductsPDF';
 
-function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -13,6 +13,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     const [efectivoInput, setEfectivoInput] = useState<number>(0);
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
     const [adelantoVisible, setAdelantoVisible] = useState(false);
+    const [mismoVendedor, setMismoVendedor] = useState(false);
     const [form] = Form.useForm();
 
     const handleFinish = async (shippingData: any) => {
@@ -42,7 +43,6 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             "id_trabajador": 1,
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
         }
-        console.log({ apiShippingData })
         const response = await registerShippingAPI(apiShippingData);
         if (!response.status) {
             message.error('Error al registrar el pedido');
@@ -54,8 +54,19 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
         }))
         await handleDebt(parsedSelectedProducts, response.newShipping.adelanto_cliente)
         await handleSales(response.newShipping, parsedSelectedProducts)
+        clearSelectedProducts();
+        resetForm();
         onSuccess();
         setLoading(false);
+    };
+    const resetForm = () => {
+        form.resetFields();
+        setMontoCobradoDelivery(0);
+        setCostoRealizarDelivery(0);
+        setQrInput(0);
+        setEfectivoInput(0);
+        setAdelantoClienteInput(0);
+        setAdelantoVisible(false);
     };
 
     const handleIncrement = (setter: React.Dispatch<React.SetStateAction<number>>, value: number) => {
@@ -77,6 +88,16 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             });
         }
     }, [totalAmount, qrInput, efectivoInput, adelantoClienteInput, montoCobradoDelivery]);
+
+    useEffect(() => {
+        if (selectedProducts.length > 0) {
+            const vendedorIds = selectedProducts.map((product: any) => product.id_vendedor);
+            const sonMismoVendedor = vendedorIds.every((vendedorId: any, _: any, arr: any) => vendedorId === arr[0]);
+            setMismoVendedor(sonMismoVendedor);
+        } else {
+            setMismoVendedor(false);
+        }
+    }, [selectedProducts]);
 
 
     return (
@@ -110,6 +131,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                             <Form.Item
                                 name="telefono_cliente"
                                 label="Celular"
+                                rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                             >
                                 <Input
                                     onKeyDown={(e) => {
@@ -309,12 +331,14 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                 >
                                     <Radio.Button value='1'>Si</Radio.Button>
                                     <Radio.Button value='2'>No</Radio.Button>
-                                    <Radio.Button value='3'>Pago Adelanto</Radio.Button>
+                                    {mismoVendedor && (
+                                        <Radio.Button value='3'>Pago Adelanto</Radio.Button>
+                                    )}
                                 </Radio.Group>
                             </Form.Item>
                         </Col>
                     </Row>
-                    {adelantoVisible && (
+                    {mismoVendedor && adelantoVisible && (
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Form.Item
@@ -323,6 +347,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                 >
                                     <InputNumber
                                         prefix='Bs.'
+                                        defaultValue={0}
                                         onChange={((e: any) => setAdelantoClienteInput(e))}
                                         style={{ width: '100%' }}
                                     />

@@ -1,25 +1,31 @@
-import './App.css';
-import AppLayout from './layout/AppLayout';
-import { ConfigProvider } from 'antd';
-import { HashRouter } from 'react-router-dom';
+import { ConfigProvider } from "antd";
+import { App as AntdApp } from "antd";
+import { createHashRouter, RouterProvider } from "react-router-dom";
+import { UserContextProvider } from "./context/userContext";
+import "./App.css";
+import publicRoutes from "./routes/publicRoutes";
+import protectedRoutes from "./routes/protectedRoutes";
 
 export const App = () => {
+  const router = createHashRouter([...publicRoutes, ...protectedRoutes]);
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Button: {
-            colorPrimary: '#8c30f5',
-            algorithm: true,
-          },
-        },
-      }}
-    >
-      <HashRouter>
-        <AppLayout />
-      </HashRouter>
-    </ConfigProvider>
+    <AntdApp>
+      <UserContextProvider>
+        <ConfigProvider
+          theme={{
+            components: {
+              Button: {
+                colorPrimary: "#8c30f5",
+                algorithm: true,
+              },
+            },
+          }}
+        >
+          <RouterProvider router={router} />
+        </ConfigProvider>
+      </UserContextProvider>
+    </AntdApp>
   );
-}
+};
 
 export default App;

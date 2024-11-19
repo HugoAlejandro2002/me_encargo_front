@@ -21,24 +21,33 @@ const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
 
   const handleFinish = async (debtInfo: any) => {
     setLoading(true);
-    const resSeller = await updateSellerAPI(parseInt(seller.key), debtInfo);
+
+    const montoFinanceFlux =
+      parseInt(debtInfo.alquiler) +
+      parseInt(debtInfo.exhibicion) +
+      parseInt(debtInfo.delivery);
+    let newDebt = parseFloat(seller.deudaInt || 0);
+    if (debtInfo.isDebt) {
+      newDebt -= montoFinanceFlux;
+    }
+    const updatedSellerData = {
+      ...debtInfo,
+      deuda: newDebt,
+    };
+
+    const resSeller = await updateSellerAPI(parseInt(seller.key), updatedSellerData);
     if (!resSeller?.success) {
       message.error("Error al renovar el vendedor");
       setLoading(false);
       return;
     }
     message.success("Vendedor renovado con éxito");
-    const sellerInfo = resSeller.data.updatedSeller;
-    const montoFinanceFlux =
-      parseInt(sellerInfo.alquiler) +
-      parseInt(sellerInfo.exhibicion) +
-      parseInt(sellerInfo.delivery);
 
     const financeFluxData = {
       id_vendedor: parseInt(seller.key),
       categoria: "RENOVACION",
       tipo: "INGRESO",
-      concepto: `Vendedor ${sellerInfo.nombre} ${sellerInfo.apellido} - ${sellerInfo.marca} renovado`,
+      concepto: `Vendedor ${seller.nombre} - ${seller.marca} renovado`,
       monto: montoFinanceFlux,
       esDeuda: debtInfo.isDebt,
     };
@@ -51,6 +60,7 @@ const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
         `Error al registrar el ingreso con monto Bs. ${montoFinanceFlux}`
       );
     }
+    
     if (payDebts) {
       // TODO: Logica de pago de deudas anteriores
       message.success("Deuda(s) pagada(s) con éxito");

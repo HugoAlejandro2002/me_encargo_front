@@ -1,26 +1,32 @@
 import { useState, useEffect } from "react";
 import { Form, Input, InputNumber, Table, Button, Tag } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 
 const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureValues, combinations, setCombinations }: any) => {
     const [inputValues, setInputValues] = useState<any>({});
-    const [inputValue, setInputValue] = useState<string>('');
+    const [currentInputValues, setCurrentInputValues] = useState<any>({});
 
     useEffect(() => {
         generateCombinations();
     }, [inputValues]);
 
     const handleInputChange = (featureId: any, value: any) => {
-        setInputValue(value);
+        setCurrentInputValues((prev: any) => ({
+            ...prev,
+            [featureId]: value,
+        }));
     };
 
     const handleInputConfirm = (featureId: any) => {
-        if (inputValue && !inputValues[featureId]?.includes(inputValue)) {
+        const inputValue = currentInputValues[featureId];
+        if (inputValue && (!inputValues[featureId] || !inputValues[featureId].includes(inputValue))) {
             setInputValues((prev: any) => ({
                 ...prev,
-                [featureId]: [...(prev[featureId] || []), inputValue],
+                [featureId]: [...(prev[featureId] || []), inputValue], 
             }));
-            setInputValue('');
+            setCurrentInputValues((prev: any) => ({
+                ...prev,
+                [featureId]: '', 
+            }));
         }
     };
 
@@ -49,12 +55,16 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
             selectedFeatures.forEach((featureId: any, idx: number) => {
                 combination[featureId] = combo[idx];
             });
-            combination.stock = 0;
-            combination.price = 0;
+            const existingCombination = combinations.find((comb: any) =>
+                selectedFeatures.every((featureId: any) => comb[featureId] === combination[featureId])
+            );
+            combination.stock = existingCombination?.stock || 0;
+            combination.price = existingCombination?.price || 0;
+
             return combination;
         });
 
-        setCombinations(newCombinations);
+        setCombinations([...newCombinations]);
     };
 
     const handleCombinationChange = (key: any, field: any, value: any) => {
@@ -116,7 +126,7 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
                                 </Tag>
                             ))}
                             <Input
-                                value={inputValue}
+                                value={currentInputValues[featureId] || ''}
                                 onChange={(e) => handleInputChange(featureId, e.target.value)}
                                 onPressEnter={() => handleInputConfirm(featureId)}
                                 placeholder={`Agregar valor para ${features.find((f: any) => f.id_caracteristicas === featureId)?.feature}`}

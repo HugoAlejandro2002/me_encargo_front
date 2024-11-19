@@ -110,7 +110,11 @@ const StockManagement = () => {
         )
         setFilteredProducts(newList)  
     }
-
+    // TODO: This updates the inforamtion of the product, but it restores the filters to the default
+    // so, try to improve this to mantain the filters
+    // const handleSaveSuccess = () => {
+    //     fetchData(); 
+    //   };
     useEffect(() => {
         filter()
 
@@ -280,6 +284,7 @@ const StockManagement = () => {
                     visible={infoModalVisible}
                     onClose={closeModal}
                     product={selectedProduct}
+                    // onSaveSuccess={handleSaveSuccess}
                 />
             )}
 

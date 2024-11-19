@@ -1,39 +1,25 @@
-import { Button, InputNumber, Table } from "antd";
+import { Table } from "antd";
 import { useContext, useState } from "react";
-import { updateProductStockAPI } from "../../api/product";
 import { UserContext } from "../../context/userContext";
 import { EditableCellInputNumber } from "../components/editableCell";
 
 
-const RestockTable = ({ products, onSave }) => {
+const RestockTable = ({ products, onSave, setRestockData }) => {
     const { user }: any = useContext(UserContext);
     const isAdmin = user?.role === 'admin';
 
-    const [restockData, setRestockData] = useState(products.map(product => ({
+    const [restockData, setRestockDataState] = useState(products.map(product => ({
         ...product,
         stock: product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0) || 0,
         incomingQuantity: 0,
         precio: product.precio || 0  // Initialize precio if it's not present
     })));
+
     const handleDataChange = (index, key, value) => {
         const newRestockData = [...restockData];
         newRestockData[index][key] = value;
+        setRestockDataState(newRestockData);
         setRestockData(newRestockData);
-    };
-    const handleSave = async () => {
-        try {
-            const bodyData = restockData.map(({incomingQuantity, precio, stock, id_producto}) => ({
-                precio, 
-                stock: incomingQuantity,
-                productId: id_producto,
-                // TODO AGREGAR SECCION DE SUCURSAL
-                sucursalId: 3
-            }))
-            await updateProductStockAPI(bodyData)
-            if (onSave) onSave();
-        } catch (error) {
-            console.error('Error saving restock data:', error);
-        }
     };
 
     const columns = [
@@ -83,11 +69,6 @@ const RestockTable = ({ products, onSave }) => {
                 pagination={false}
                 rowKey="id_producto"
             />
-            {isAdmin&& (
-                <Button type="primary" onClick={handleSave} style={{ marginTop: '20px' }}>
-                    Guardar y Enviar
-                </Button>
-            )}
         </div>
     );
 }

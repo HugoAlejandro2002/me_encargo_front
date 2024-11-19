@@ -47,7 +47,7 @@ export const getSellerInfoAPI = async (sellerId: any) => {
     }
 }
 
-export const getStatsAPI= async () => {
+export const getStatsAPI = async () => {
     try {
         const res = await apiClient.get(`/financeFlux/stats`)
         return res.data

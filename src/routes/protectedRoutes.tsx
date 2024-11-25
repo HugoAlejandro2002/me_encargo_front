@@ -23,7 +23,7 @@ const protectedRoutes = [
       {
         path: "/product",
         element: (
-          <RoleGuard allowedRoles={["admin", "seller"]}>
+          <RoleGuard allowedRoles={["admin"]}>
             <Product />
           </RoleGuard>
         ),
@@ -81,6 +81,14 @@ const protectedRoutes = [
         element: (
           <RoleGuard allowedRoles={["seller"]}>
             <SellerInfoPageWrapper />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/shop",
+        element: (
+          <RoleGuard allowedRoles={["seller"]}>
+            <Sales />
           </RoleGuard>
         ),
       },

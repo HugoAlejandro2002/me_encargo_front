@@ -1,10 +1,13 @@
 import { Menu, Table } from 'antd';
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import useProducts from '../../hooks/useProducts';
 import useSellers from '../../hooks/useSellers';
+import { UserContext } from '../../context/userContext';
 const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
-
+    const { user }: any = useContext(UserContext);
+    const isSeller = user?.role === 'seller';
+    
     const columns = [
         {
             title: 'Producto',
@@ -48,19 +51,20 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
             label: `${seller.nombre} ${seller.apellido}`,
         })) || [],
     ];
-
     const filteredData = selectedSeller.key == 'all'
         ? data
         : data.filter((product: any) => product.id_vendedor == selectedSeller.key);
 
     return (
         <div className='flex'>
-            <Menu
-                onClick={(key) => setSelectedSeller(key)}
-                selectedKeys={[selectedSeller]}
-                mode="vertical"
-                items={menuItems}
-            />
+            {!isSeller && (
+                <Menu
+                    onClick={(key) => setSelectedSeller(key)}
+                    selectedKeys={[selectedSeller]}
+                    mode="vertical"
+                    items={menuItems}
+                />
+            )}
             <Table
                 className='flex-1 '
                 columns={columns}

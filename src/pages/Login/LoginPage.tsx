@@ -23,7 +23,11 @@ const LoginPage = () => {
         return;
       }
       setUser(userRes.data);
-      navigate("/product");
+      if (userRes.data.role === "seller") {
+        navigate("/seller-info")
+      } else {
+        navigate("/product");
+      }
       message.success("¡Inicio de sesión exitoso!");
     } catch (error) {
       message.error("Error al iniciar sesión");

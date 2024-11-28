@@ -11,6 +11,7 @@ import ErrorPage from "../pages/ErrorPage";
 import StatsPage from "../pages/Stats/StatsPage";
 import SellerInfoPageWrapper from "../pages/Seller/SellerInfo";
 import CashReconciliationPage from "../pages/CashReconciliation/CashReconciliationPage";
+import CierreCajaPage from "../pages/CashReconciliation/CierreCaja";
 
 const protectedRoutes = [
   {
@@ -98,6 +99,14 @@ const protectedRoutes = [
         element: (
           <RoleGuard allowedRoles={["admin"]}>
             <CashReconciliationPage />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/cierreCaja",
+        element: (
+          <RoleGuard allowedRoles={["admin"]}>
+            <CierreCajaPage />
           </RoleGuard>
         ),
       },

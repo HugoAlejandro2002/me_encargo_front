@@ -52,4 +52,10 @@ export const menu = [
     icon: boxIcon,
     roles: ["admin"],
   },
+  {
+    path: "/cierreCaja",
+    label: "Reconciliación de Caja",
+    icon: boxIcon,
+    roles: ["admin"],
+  },
 ];

@@ -12,6 +12,7 @@ import EntryProductSellerTable from "./EntryProductSellerTable";
 import PaymentProofTable from "./PaymentProofTable";
 import CustomTable from "./SalesTable";
 import { getShipingByIdsAPI } from "../../../api/shipping";
+import PaymentProofPDF from "../../GeneratePDF/PaymentProofPDF";
 
 const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
     const [form] = Form.useForm();
@@ -255,6 +256,11 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                         isAdmin={!isSeller}
                     />
                 </div>
+
+                <PaymentProofPDF
+                    sellerId={seller.key}
+                />
+
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
                     <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ventas</h4>
                     <CustomTable

@@ -30,9 +30,15 @@ export const registerProductAPI = async (productData: any) => {
 
 export const registerVariantAPI = async (productData: any) => {
     try{
-        const res = await apiClient.post('/product/registerVariant', productData)
+        const {addVariant, infoButton, producto_sucursal, ...product} = productData.product
+        
+        const res = await apiClient.post('/product/registerVariant', {
+            product, 
+            stock: productData.stock
+        })
         return res.data
     } catch (error) {
+        console.log(error)
         const err = error as AxiosError
         if (err && err.response && err.response.data) {
             return { success: false, ...err.response.data }

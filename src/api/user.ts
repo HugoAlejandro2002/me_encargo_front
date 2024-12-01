@@ -7,6 +7,7 @@ export const checkLoginAPI = async (userData: any) => {
     const res = await apiClient.post("/user/login", userData);
     return { success: true, data: res.data };
   } catch (error) {
+    console.log(error)
     parseError(error as AxiosError);
   }
 };

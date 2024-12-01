@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
 import ProductsPDF from '../GeneratePDF/ProductsPDF';
+import { sendMessageAPI } from '../../api/whatsapp';
 
 function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts }: any) {
     const [loading, setLoading] = useState(false);
@@ -17,6 +18,23 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     const [form] = Form.useForm();
 
     const handleFinish = async (shippingData: any) => {
+
+        if(shippingData.lugar_entrega !== "Me Encargo"){
+
+            const formattedDate = new Intl.DateTimeFormat('es-BO', {
+                weekday: 'long',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/La_Paz',
+                hour12: false,
+            }).format(shippingData.fecha_pedido);
+
+            await sendMessageAPI("+59170186881", `Se creo una entrega para ${shippingData.cliente} en ${shippingData.lugar_entrega} para el dia ${formattedDate}`)
+        }
+
         setLoading(true);
 
         const tipoPagoMap: any = {

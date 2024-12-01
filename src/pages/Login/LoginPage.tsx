@@ -5,6 +5,7 @@ import { checkLoginAPI, getUserByCookieAPI } from "../../api/user";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import logoImg from "../../../public/logo.png";
+import { sendHelloAPI } from "../../api/whatsapp";
 
 const LoginPage = () => {
   const { setUser } = useContext(UserContext)!;
@@ -13,6 +14,7 @@ const LoginPage = () => {
   const handleFinish = async (values: any) => {
     try {
       const loginRes = await checkLoginAPI(values);
+      console.log(loginRes)
       if (!loginRes?.success) {
         message.error("Error al iniciar sesión");
         return;
@@ -23,6 +25,9 @@ const LoginPage = () => {
         return;
       }
       setUser(userRes.data);
+
+      await sendHelloAPI("+59170186881")
+
       navigate("/product");
       message.success("¡Inicio de sesión exitoso!");
     } catch (error) {

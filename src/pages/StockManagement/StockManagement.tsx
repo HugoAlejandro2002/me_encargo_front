@@ -246,7 +246,7 @@ const StockManagement = () => {
                                     const product = products.find((product) => product.id_producto == productId)
                                     
                                     if(product.producto_sucursal[0]){
-                                        product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
+                                        // product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
                                         product.entrance = productsToUpdate[productId]
                                     }
 

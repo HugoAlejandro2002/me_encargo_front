@@ -11,7 +11,7 @@ export const menu = [
     path: "/product",
     label: "Inventario",
     icon: boxIcon,
-    roles: ["admin", "seller"],
+    roles: ["admin"],
   },
   { path: "/seller", label: "Vendedores", icon: sellerIcon, roles: ["admin"] },
   { path: "/sales", label: "Ventas", icon: cartIcon, roles: ["admin"] },
@@ -27,6 +27,12 @@ export const menu = [
     label: "Stock",
     icon: stockManagementIcon,
     roles: ["admin", "seller"],
+  },
+  {
+    path: "/shop",
+    label: "Comprar",
+    icon: cartIcon,
+    roles: ["seller"],
   },
   {
     path: "/seller-info",

@@ -1,5 +1,5 @@
 import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import SalesFormModal from "./SalesFormmodal";
 import ProductTable from "../Product/ProductTable";
 import { getSellerAPI, getSellersAPI, registerSellerAPI, updateSellerAPI } from "../../api/seller";
@@ -11,9 +11,13 @@ import ShippingFormModal from "./ShippingFormmodal";
 import { getSucursalsAPI } from "../../api/sucursal";
 import { getSellerInfoAPI } from "../../api/financeFlux";
 import { getSellerProductsById } from "../../helpers/salesHelpers";
+import { UserContext } from "../../context/userContext";
 
 
 export const Sales = () => {
+    const { user }: any = useContext(UserContext);
+    const isAdmin = user?.role === 'admin';
+
     const [modalType, setModalType] = useState<'sales' | 'shipping' | null>(null);
     const [refreshKey, setRefreshKey] = useState(0)
     const [sellers, setSellers] = useState([])
@@ -97,10 +101,11 @@ export const Sales = () => {
         fetchSucursal();
     }, []);
 
-    const filteredProducts = selectedSellerId
-        ? data.filter(product => product.id_vendedor === selectedSellerId)
-        : data;
-
+    const filteredProducts = !isAdmin
+        ? data.filter(product => product.id_vendedor === user.id)
+        : selectedSellerId
+            ? data.filter(product => product.id_vendedor === selectedSellerId)
+            : data;
     const handleProductSelect = (product: any) => {
         // setEditableProducts((prevProducts: any) => {
         setSelectedProducts((prevProducts: any) => {
@@ -209,7 +214,9 @@ export const Sales = () => {
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">Carrito</h1>
                 <div className="flex space-x-2">
+                    {isAdmin && (
                     <Button onClick={showSalesModal} type="primary">Realizar Venta</Button>
+                    )}
                     <Button onClick={showShippingModal} type="primary">Realizar Entrega</Button>
                 </div>
             </div>
@@ -219,46 +226,48 @@ export const Sales = () => {
                         title={
                             <div className="flex justify-between items-center">
                                 <span>Inventario</span>
-                                <Form.Item
-                                    name="id_vendedor"
-                                    label="Vendedor"
-                                    rules={[{ required: true, message: 'Por favor seleccione un vendedor' }]}
-                                >
-                                    <Select
-                                        placeholder="Selecciona un vendedor"
-                                        dropdownRender={menu => (
-                                            <>
-                                                {menu}
-                                                <div style={{ display: 'flex', padding: 8 }}>
-                                                    <Input
-                                                        style={{ flex: 1, minWidth: 200, marginRight: 8 }}
-                                                        value={newSeller}
-                                                        onChange={e => setNewSeller(e.target.value)}
-                                                    />
-                                                    <Button
-                                                        type="link"
-                                                        onClick={createSeller}
-                                                        loading={loading}
-                                                    >
-                                                        Añadir vendedor
-                                                    </Button>
-                                                </div>
-                                            </>
-                                        )}
-                                        options={sellers.map((vendedor: any) => ({
-                                            value: vendedor.id_vendedor,
-                                            label: vendedor.nombre,
-                                        }))}
-                                        showSearch
-                                        filterOption={(input, option: any) =>
-                                            option.label.toLowerCase().includes(input.toLowerCase())
-                                        }
-                                        style={{ width: '100%' }}
-                                        dropdownStyle={{ minWidth: 400 }}
-                                        onChange={(value) => setSelectedSellerId(value)}
+                                {isAdmin && (
+                                    <Form.Item
+                                        name="id_vendedor"
+                                        label="Vendedor"
+                                        rules={[{ required: true, message: 'Por favor seleccione un vendedor' }]}
+                                    >
+                                        <Select
+                                            placeholder="Selecciona un vendedor"
+                                            dropdownRender={menu => (
+                                                <>
+                                                    {menu}
+                                                    <div style={{ display: 'flex', padding: 8 }}>
+                                                        <Input
+                                                            style={{ flex: 1, minWidth: 200, marginRight: 8 }}
+                                                            value={newSeller}
+                                                            onChange={e => setNewSeller(e.target.value)}
+                                                        />
+                                                        <Button
+                                                            type="link"
+                                                            onClick={createSeller}
+                                                            loading={loading}
+                                                        >
+                                                            Añadir vendedor
+                                                        </Button>
+                                                    </div>
+                                                </>
+                                            )}
+                                            options={sellers.map((vendedor: any) => ({
+                                                value: vendedor.id_vendedor,
+                                                label: vendedor.nombre,
+                                            }))}
+                                            showSearch
+                                            filterOption={(input, option: any) =>
+                                                option.label.toLowerCase().includes(input.toLowerCase())
+                                            }
+                                            style={{ width: '100%' }}
+                                            dropdownStyle={{ minWidth: 400 }}
+                                            onChange={(value) => setSelectedSellerId(value)}
 
-                                    />
-                                </Form.Item>
+                                        />
+                                    </Form.Item>
+                                )}
                             </div>
                         }
                         bordered={false}
@@ -300,6 +309,7 @@ export const Sales = () => {
                 sucursals={sucursal}
                 handleDebt={updateSellerDebt}
                 clearSelectedProducts={() => setSelectedProducts([])}
+                isAdmin={isAdmin}
             />
         </div>
     );

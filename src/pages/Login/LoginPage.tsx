@@ -25,10 +25,14 @@ const LoginPage = () => {
         return;
       }
       setUser(userRes.data);
-
+      if (userRes.data.role === "seller") {
+        navigate("/seller-info")
+      } else {
+  
       await sendHelloAPI("+59170186881")
 
       navigate("/product");
+      }
       message.success("¡Inicio de sesión exitoso!");
     } catch (error) {
       message.error("Error al iniciar sesión");

@@ -6,7 +6,7 @@ import { Option } from 'antd/es/mentions';
 import ProductsPDF from '../GeneratePDF/ProductsPDF';
 import { sendMessageAPI } from '../../api/whatsapp';
 
-function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts }: any) {
+function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts, isAdmin }: any) {
     const [loading, setLoading] = useState(false);
     const [montoCobradoDelivery, setMontoCobradoDelivery] = useState<number>(0);
     const [costoRealizarDelivery, setCostoRealizarDelivery] = useState<number>(0);
@@ -54,12 +54,13 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
 
         const apiShippingData = {
             ...shippingData,
-            "tipo_de_pago": tipoPagoMap[intTipoPago],
+            "tipo_de_pago": tipoPagoMap[intTipoPago] || "Efectivo",
             "costo_delivery": parseInt(shippingData.costo_delivery) || 0,
             "cargo_delivery": parseInt(shippingData.cargo_delivery) || 0,
-            "estado_pedido": estadoPedidoMap[intEstadoPedido],
+            "estado_pedido": estadoPedidoMap[intEstadoPedido] || "En espera",
             "id_trabajador": 1,
-            "id_sucursal": parseInt(form.getFieldValue('sucursal')),
+            //TODO: Change the 3 when the new database is used for 1 or the one that is needed and check the shippingFormModal too
+            "id_sucursal": parseInt(form.getFieldValue('sucursal')) || 3,
         }
         const response = await registerShippingAPI(apiShippingData);
         if (!response.status) {
@@ -116,7 +117,6 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             setMismoVendedor(false);
         }
     }, [selectedProducts]);
-
 
     return (
         <Modal
@@ -208,135 +208,139 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                     </Row>
                 </Card>
                 <Card title="Detalles del Pago" bordered={false} style={{ marginTop: 16 }}>
-                    <Row gutter={16}>
-                        <Col span={18}>
-                            <Form.Item
-                                name='tipo_de_pago'
-                                label='Tipo de pago'
-                                rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                            >
-                                <Radio.Group>
-                                    <Radio.Button value='1'>Transferencia o QR</Radio.Button>
-                                    <Radio.Button value='2'>Efectivo</Radio.Button>
-                                    <Radio.Button value='3'>Pagado al dueño</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                name='subtotal_qr'
-                                label='Subtotal QR'
-                            >
-                                <InputNumber
-                                    prefix='Bs.'
-                                    onChange={((e: any) => setQrInput(e))}
-                                    style={{ width: '100%' }}
-                                    defaultValue={0}
-                                />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                name='subtotal_efectivo'
-                                label='Subtotal Efectivo'
-                            >
-                                <InputNumber
-                                    prefix='Bs'
-                                    onChange={((e: any) => setEfectivoInput(e))}
-                                    style={{ width: '100%' }}
-                                    defaultValue={0}
-                                />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={18}>
-                            <Form.Item
-                                name='estado_pedido'
-                                label='Estado Pedido'
-                                rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                            >
-                                <Radio.Group>
-                                    <Radio.Button value='1'>En espera</Radio.Button>
-                                    <Radio.Button value='2'>Por entregar</Radio.Button>
-                                    <Radio.Button value='3'>Entregado</Radio.Button>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={20}>
-                            <Form.Item
-                                name="costo_delivery"
-                                label="Costo de realizar el Delivery"
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <InputNumber
-                                        className="no-spin-buttons"
-                                        prefix='Bs.'
-                                        value={costoRealizarDelivery}
-                                        onKeyDown={(e) => {
-                                            if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
-                                                e.preventDefault();
-                                            }
-                                        }}
-                                        min={0}
-                                        precision={2}
-                                        onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
-                                        style={{ flex: 1, marginRight: '8px', width: '80%' }}
+                    {isAdmin && (
+                        <>
+                            <Row gutter={16}>
+                                <Col span={18}>
+                                    <Form.Item
+                                        name='tipo_de_pago'
+                                        label='Tipo de pago'
+                                        rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                                    >
+                                        <Radio.Group>
+                                            <Radio.Button value='1'>Transferencia o QR</Radio.Button>
+                                            <Radio.Button value='2'>Efectivo</Radio.Button>
+                                            <Radio.Button value='3'>Pagado al dueño</Radio.Button>
+                                        </Radio.Group>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name='subtotal_qr'
+                                        label='Subtotal QR'
+                                    >
+                                        <InputNumber
+                                            prefix='Bs.'
+                                            onChange={((e: any) => setQrInput(e))}
+                                            style={{ width: '100%' }}
+                                            defaultValue={0}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={12}>
+                                    <Form.Item
+                                        name='subtotal_efectivo'
+                                        label='Subtotal Efectivo'
+                                    >
+                                        <InputNumber
+                                            prefix='Bs'
+                                            onChange={((e: any) => setEfectivoInput(e))}
+                                            style={{ width: '100%' }}
+                                            defaultValue={0}
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col span={18}>
+                                    <Form.Item
+                                        name='estado_pedido'
+                                        label='Estado Pedido'
+                                        rules={[{ required: true, message: 'Este campo es obligatorio' }]}
+                                    >
+                                        <Radio.Group>
+                                            <Radio.Button value='1'>En espera</Radio.Button>
+                                            <Radio.Button value='2'>Por entregar</Radio.Button>
+                                            <Radio.Button value='3'>Entregado</Radio.Button>
+                                        </Radio.Group>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col span={20}>
+                                    <Form.Item
+                                        name="costo_delivery"
+                                        label="Costo de realizar el Delivery"
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <InputNumber
+                                                className="no-spin-buttons"
+                                                prefix='Bs.'
+                                                value={costoRealizarDelivery}
+                                                onKeyDown={(e) => {
+                                                    if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Delete' && e.key !== 'Enter') {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                                min={0}
+                                                precision={2}
+                                                onChange={(value) => setCostoRealizarDelivery(value ?? 0)}
+                                                style={{ flex: 1, marginRight: '8px', width: '80%' }}
 
-                                        defaultValue={0}
-                                    />
-                                    <Button
-                                        type="primary"
-                                        icon={<PlusOutlined />}
-                                        onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
-                                        style={{ marginLeft: '8px' }}
-                                    />
-                                    <Button
-                                        type="primary"
-                                        icon={<MinusOutlined />}
-                                        onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
-                                        style={{ marginLeft: '8px' }}
-                                    />
-                                </div>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={16}>
-                        <Col span={20}>
-                            <Form.Item
-                                name="cargo_delivery"
-                                label="Monto cobrado por el Delivery"
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    <InputNumber
-                                        className="no-spin-buttons"
-                                        prefix='Bs.'
-                                        value={montoCobradoDelivery}
-                                        min={0}
-                                        precision={2}
-                                        onChange={(value) => setMontoCobradoDelivery(value ?? 0)}
-                                        style={{ flex: 1, marginRight: '8px', width: '80%' }}
-                                    />
-                                    <Button
-                                        type="primary"
-                                        icon={<PlusOutlined />}
-                                        onClick={() => handleIncrement(setMontoCobradoDelivery, 0.01)}
-                                        style={{ marginLeft: '8px' }}
-                                    />
-                                    <Button
-                                        type="primary"
-                                        icon={<MinusOutlined />}
-                                        onClick={() => handleDecrement(setMontoCobradoDelivery, 0.01)}
-                                        style={{ marginLeft: '8px' }}
-                                    />
-                                </div>
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                                                defaultValue={0}
+                                            />
+                                            <Button
+                                                type="primary"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
+                                                style={{ marginLeft: '8px' }}
+                                            />
+                                            <Button
+                                                type="primary"
+                                                icon={<MinusOutlined />}
+                                                onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
+                                                style={{ marginLeft: '8px' }}
+                                            />
+                                        </div>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                            <Row gutter={16}>
+                                <Col span={20}>
+                                    <Form.Item
+                                        name="cargo_delivery"
+                                        label="Monto cobrado por el Delivery"
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <InputNumber
+                                                className="no-spin-buttons"
+                                                prefix='Bs.'
+                                                value={montoCobradoDelivery}
+                                                min={0}
+                                                precision={2}
+                                                onChange={(value) => setMontoCobradoDelivery(value ?? 0)}
+                                                style={{ flex: 1, marginRight: '8px', width: '80%' }}
+                                            />
+                                            <Button
+                                                type="primary"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => handleIncrement(setMontoCobradoDelivery, 0.01)}
+                                                style={{ marginLeft: '8px' }}
+                                            />
+                                            <Button
+                                                type="primary"
+                                                icon={<MinusOutlined />}
+                                                onClick={() => handleDecrement(setMontoCobradoDelivery, 0.01)}
+                                                style={{ marginLeft: '8px' }}
+                                            />
+                                        </div>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </>
+                    )}
                     <Row gutter={16}>
                         <Col span={18}>
                             <Form.Item
@@ -403,29 +407,30 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                         </Col>
                     </Row>
                 </Card>
-                <Card title="Sucursal" bordered={false} style={{ marginTop: 16 }}>
-                    <Row gutter={16}>
-                        <Col span={18}>
-                            <Form.Item
-                                name="sucursal"
-                                label="Sucursal"
-                                rules={[{ required: true, message: 'Este campo es obligatorio' }]}
-                            >
-                                <Select
-                                    placeholder="Seleccione una sucursal"
-                                    allowClear
+                {isAdmin && (
+                    <Card title="Sucursal" bordered={false} style={{ marginTop: 16 }}>
+                        <Row gutter={16}>
+                            <Col span={18}>
+                                <Form.Item
+                                    name="sucursal"
+                                    label="Sucursal"
+                                    rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                                 >
-                                    {sucursals.map((sucursal: any) => (
-                                        <Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
-                                            {sucursal.nombre}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Card>
-
+                                    <Select
+                                        placeholder="Seleccione una sucursal"
+                                        allowClear
+                                    >
+                                        {sucursals.map((sucursal: any) => (
+                                            <Option key={sucursal.id_sucursal} value={sucursal.id_sucursal}>
+                                                {sucursal.nombre}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                    </Card>
+                )}
                 <Form.Item style={{ marginTop: 16 }}>
                     <Button type="primary" htmlType="submit" loading={loading}>
                         Guardar

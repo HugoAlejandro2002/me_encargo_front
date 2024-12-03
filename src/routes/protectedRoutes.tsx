@@ -10,8 +10,8 @@ import StockManagement from "../pages/StockManagement/StockManagement";
 import ErrorPage from "../pages/ErrorPage";
 import StatsPage from "../pages/Stats/StatsPage";
 import SellerInfoPageWrapper from "../pages/Seller/SellerInfo";
-import CashReconciliationPage from "../pages/CashReconciliation/CashReconciliationPage";
-import CierreCajaPage from "../pages/CashReconciliation/CierreCaja";
+import CashReconciliationPage from "../pages/BoxClose/BoxClosePage";
+import CierreCajaPage from "../pages/BoxClose/DailyBoxClose";
 
 const protectedRoutes = [
   {

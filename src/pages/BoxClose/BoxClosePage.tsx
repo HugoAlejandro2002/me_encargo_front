@@ -1,14 +1,28 @@
 import { useState, useEffect } from "react";
-import { Table, Card, Button, DatePicker, Space, Tag, Tooltip, Modal } from "antd";
+import {
+  Table,
+  Card,
+  Button,
+  DatePicker,
+  Space,
+  Tag,
+  Tooltip,
+  Modal,
+} from "antd";
 import dayjs from "dayjs";
-import CashReconciliationForm from './CashReconciliationForm';
+import CashReconciliationForm from "./BoxCloseForm";
 import {
   PlusOutlined,
   CheckCircleOutlined,
   WarningOutlined,
 } from "@ant-design/icons";
+import { getBoxClosesAPI } from "../../api/boxClose";
+import { IBoxClose } from "../../models/boxClose";
 
 // Updated mock data to include coins and bills
+function round(num: number) {
+  return Math.round(num * 100) / 100;
+}
 const mockData = [
   {
     id_reconciliation: 1,
@@ -41,49 +55,52 @@ const mockData = [
       "0.5": 40,
       "1": 30,
       "2": 15,
-      "5": 5
+      "5": 5,
     },
     bills: {
       "10": 20,
       "20": 15,
       "50": 10,
       "100": 8,
-      "200": 2
-    }
+      "200": 2,
+    },
   },
   // ... (other mock data entries following the same structure)
 ];
 
-const CashReconciliationPage = () => {
-  const [reconciliations, setReconciliations] = useState<any[]>([]);
+const BoxClosePage = () => {
+  const [boxClosings, setBoxClosings] = useState<IBoxClose[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [selectedReconciliation, setSelectedReconciliation] = useState<any>(null);
+  const [selectedReconciliation, setSelectedReconciliation] =
+    useState<IBoxClose | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
     [dayjs().startOf("month"), dayjs().endOf("month")]
   );
 
-  const fetchReconciliations = async () => {
+  const fetchBoxClosings = async () => {
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setReconciliations(mockData);
+      const data = await getBoxClosesAPI();
+      console.log(`onmg im dating `);
+      console.log(data);
+      setBoxClosings(data);
     } catch (error) {
-      console.error("Error fetching reconciliations:", error);
+      console.error("Error fetching boxClosings:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchReconciliations();
+    fetchBoxClosings();
   }, [dateRange]);
 
   const columns = [
     {
       title: "Fecha",
-      dataIndex: "fecha",
-      key: "fecha",
+      dataIndex: "created_at",
+      key: "created_at",
       render: (date: string) => dayjs(date).format("DD/MM/YYYY"),
       sorter: (a: any, b: any) => dayjs(a.fecha).unix() - dayjs(b.fecha).unix(),
     },
@@ -97,33 +114,35 @@ const CashReconciliationPage = () => {
       children: [
         {
           title: "Inicial",
-          dataIndex: "cash_initial",
-          key: "cash_initial",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
+          dataIndex: "efectivo_inicial",
+          key: "efectivo_inicial",
+          render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Ingresos",
-          dataIndex: "cash_income",
-          key: "cash_income",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
+          dataIndex: "ingresos_efectivo",
+          key: "ingresos_efectivo",
+          render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Final",
-          dataIndex: "cash_final",
-          key: "cash_final",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
+          dataIndex: "efectivo_esperado",
+          key: "efectivo_esperado",
+          render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Diferencia",
-          dataIndex: "cash_difference",
-          key: "cash_difference",
+          dataIndex: "diferencia_efectivo",
+          key: "diferencia_efectivo",
           render: (amount: number) => {
-            const color = amount === 0 ? "success" : amount > 0 ? "warning" : "error";
-            const icon = amount === 0 ? <CheckCircleOutlined /> : <WarningOutlined />;
+            const color =
+              amount === 0 ? "success" : amount > 0 ? "warning" : "error";
+            const icon =
+              amount === 0 ? <CheckCircleOutlined /> : <WarningOutlined />;
             return (
               <Tooltip title={amount === 0 ? "Cuadrado" : "Descuadre"}>
                 <Tag icon={icon} color={color}>
-                  Bs. {amount.toFixed(2)}
+                  Bs. {round(amount)}
                 </Tag>
               </Tooltip>
             );
@@ -131,55 +150,57 @@ const CashReconciliationPage = () => {
         },
       ],
     },
-    {
-      title: "Desglose",
-      children: [
-        {
-          title: "Monedas",
-          dataIndex: "total_coins",
-          key: "total_coins",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
-        },
-        {
-          title: "Billetes",
-          dataIndex: "total_bills",
-          key: "total_bills",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
-        },
-      ],
-    },
+    // {
+    //   title: "Desglose",
+    //   children: [
+    //     {
+    //       title: "Monedas",
+    //       dataIndex: "total_coins",
+    //       key: "total_coins",
+    //       render: (amount: number) => `Bs. ${round(amount)}`,
+    //     },
+    //     {
+    //       title: "Billetes",
+    //       dataIndex: "total_bills",
+    //       key: "total_bills",
+    //       render: (amount: number) => `Bs. ${round(amount)}`,
+    //     },
+    //   ],
+    // },
     {
       title: "Bancario",
       children: [
         {
           title: "Inicial",
-          dataIndex: "bank_initial",
-          key: "bank_initial",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
+          dataIndex: "bancario_inicial",
+          key: "bancario_inicial",
+          render: (amount: number) => `Bs. ${round(amount)}`,
         },
-        {
-          title: "Ingresos",
-          dataIndex: "bank_income",
-          key: "bank_income",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
-        },
+        // {
+        //   title: "Ingresos",
+        //   dataIndex: "bank_income",
+        //   key: "bank_income",
+        //   render: (amount: number) => `Bs. ${round(amount)}`,
+        // },
         {
           title: "Final",
-          dataIndex: "bank_final",
-          key: "bank_final",
-          render: (amount: number) => `Bs. ${amount.toFixed(2)}`,
+          dataIndex: "bancario_real",
+          key: "bancario_real",
+          render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Diferencia",
-          dataIndex: "bank_difference",
-          key: "bank_difference",
+          dataIndex: "diferencia_bancario",
+          key: "diferencia_bancario",
           render: (amount: number) => {
-            const color = amount === 0 ? "success" : amount > 0 ? "warning" : "error";
-            const icon = amount === 0 ? <CheckCircleOutlined /> : <WarningOutlined />;
+            const color =
+              amount === 0 ? "success" : amount > 0 ? "warning" : "error";
+            const icon =
+              amount === 0 ? <CheckCircleOutlined /> : <WarningOutlined />;
             return (
               <Tooltip title={amount === 0 ? "Cuadrado" : "Descuadre"}>
                 <Tag icon={icon} color={color}>
-                  Bs. {amount.toFixed(2)}
+                  Bs. {round(amount)}
                 </Tag>
               </Tooltip>
             );
@@ -189,8 +210,8 @@ const CashReconciliationPage = () => {
     },
     {
       title: "Observaciones",
-      dataIndex: "observations",
-      key: "observations",
+      dataIndex: "observaciones",
+      key: "observaciones",
       ellipsis: true,
       render: (text: string) => (
         <Tooltip title={text}>
@@ -203,7 +224,7 @@ const CashReconciliationPage = () => {
   const handleFormSuccess = () => {
     setShowForm(false);
     setSelectedReconciliation(null);
-    fetchReconciliations();
+    fetchBoxClosings();
   };
 
   const handleRowClick = (record: any) => {
@@ -257,19 +278,19 @@ const CashReconciliationPage = () => {
               setShowForm(false);
               setSelectedReconciliation(null);
             }}
-            lastClosingBalance={reconciliations[0]?.closing_balance || 0}
+            lastClosingBalance={boxClosings[0]?.closing_balance || 0}
             initialData={selectedReconciliation}
           />
         </Modal>
 
         <Table
           columns={columns}
-          dataSource={reconciliations}
+          dataSource={boxClosings}
           loading={loading}
           rowKey="id_reconciliation"
           onRow={(record) => ({
             onClick: () => handleRowClick(record),
-            style: { cursor: 'pointer' }
+            style: { cursor: "pointer" },
           })}
           pagination={{
             defaultPageSize: 10,
@@ -308,7 +329,9 @@ const CashReconciliationPage = () => {
                 </Table.Summary.Cell>
                 <Table.Summary.Cell />
                 <Table.Summary.Cell>
-                  <Tag color={totals.cash_difference === 0 ? "success" : "error"}>
+                  <Tag
+                    color={totals.cash_difference === 0 ? "success" : "error"}
+                  >
                     Bs. {totals.cash_difference.toFixed(2)}
                   </Tag>
                 </Table.Summary.Cell>
@@ -324,7 +347,9 @@ const CashReconciliationPage = () => {
                 </Table.Summary.Cell>
                 <Table.Summary.Cell />
                 <Table.Summary.Cell>
-                  <Tag color={totals.bank_difference === 0 ? "success" : "error"}>
+                  <Tag
+                    color={totals.bank_difference === 0 ? "success" : "error"}
+                  >
                     Bs. {totals.bank_difference.toFixed(2)}
                   </Tag>
                 </Table.Summary.Cell>
@@ -338,4 +363,4 @@ const CashReconciliationPage = () => {
   );
 };
 
-export default CashReconciliationPage;
+export default BoxClosePage;

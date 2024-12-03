@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Table,
   Card,
@@ -7,10 +6,9 @@ import {
   Row,
   Col,
   Typography,
-  Divider,
   InputNumber,
   Tag,
-  Tooltip
+  Tooltip,
 } from "antd";
 import { CheckCircleOutlined, WarningOutlined } from "@ant-design/icons";
 
@@ -39,7 +37,7 @@ const CierreCajaPage = () => {
       title: "Corte",
       dataIndex: "corte",
       key: "corte",
-      render: (value) => `Bs. ${value}`,
+      render: (value: any) => `Bs. ${value}`,
     },
     {
       title: "Cantidad",
@@ -50,7 +48,7 @@ const CierreCajaPage = () => {
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (value) => `Bs. ${value.toFixed(2)}`,
+      render: (value: any) => `Bs. ${value.toFixed(2)}`,
     },
   ];
 
@@ -81,19 +79,19 @@ const CierreCajaPage = () => {
               <Title level={5}>Resumen de Ventas</Title>
               <Form layout="vertical">
                 <Form.Item label="Efectivo">
-                  <InputNumber 
+                  <InputNumber
                     value={3804}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
                 <Form.Item label="QR/Bancario">
-                  <InputNumber 
+                  <InputNumber
                     value={1636}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
               </Form>
@@ -103,27 +101,27 @@ const CierreCajaPage = () => {
               <Title level={5}>Recuento de Efectivo</Title>
               <Form layout="vertical">
                 <Form.Item label="Efectivo inicial en caja">
-                  <InputNumber 
+                  <InputNumber
                     value={2625}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
                 <Form.Item label="Ingresos en efectivo">
-                  <InputNumber 
+                  <InputNumber
                     value={2498}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
                 <Form.Item label="Efectivo en caja al final del día">
-                  <InputNumber 
+                  <InputNumber
                     value={5033}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
               </Form>
@@ -135,26 +133,42 @@ const CierreCajaPage = () => {
             <Card className="mb-4">
               <Form layout="vertical">
                 <Form.Item label="Efectivo esperado">
-                  <InputNumber 
+                  <InputNumber
+                    prefix={"Bs."}
                     value={5123}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                   />
                 </Form.Item>
                 <Form.Item label="Efectivo real">
-                  <InputNumber 
+                  <InputNumber
                     value={5033}
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
                 <Form.Item label="Diferencia">
                   <Tooltip title={diferencia === 0 ? "Cuadrado" : "Descuadre"}>
-                    <Tag 
-                      icon={diferencia === 0 ? <CheckCircleOutlined /> : <WarningOutlined />}
-                      color={diferencia === 0 ? "success" : diferencia > 0 ? "warning" : "error"}
-                      style={{ width: "100%", textAlign: "center", padding: "4px 0" }}
+                    <Tag
+                      icon={
+                        diferencia === 0 ? (
+                          <CheckCircleOutlined />
+                        ) : (
+                          <WarningOutlined />
+                        )
+                      }
+                      color={
+                        diferencia === 0
+                          ? "success"
+                          : diferencia > 0
+                          ? "warning"
+                          : "error"
+                      }
+                      style={{
+                        width: "100%",
+                        textAlign: "center",
+                        padding: "4px 0",
+                      }}
                     >
                       Bs. {diferencia.toFixed(2)}
                     </Tag>
@@ -166,26 +180,42 @@ const CierreCajaPage = () => {
             <Card className="mb-4">
               <Form layout="vertical">
                 <Form.Item label="Bancario esperado">
-                  <InputNumber 
+                  <InputNumber
                     value={5123}
-                    readOnly 
+                    readOnly
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
                 <Form.Item label="Bancario real">
-                  <InputNumber 
+                  <InputNumber
                     value={5033}
                     style={{ width: "100%" }}
-                    formatter={value => `Bs. ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    prefix={"Bs."}
                   />
                 </Form.Item>
                 <Form.Item label="Diferencia">
                   <Tooltip title={diferencia === 0 ? "Cuadrado" : "Descuadre"}>
-                    <Tag 
-                      icon={diferencia === 0 ? <CheckCircleOutlined /> : <WarningOutlined />}
-                      color={diferencia === 0 ? "success" : diferencia > 0 ? "warning" : "error"}
-                      style={{ width: "100%", textAlign: "center", padding: "4px 0" }}
+                    <Tag
+                      icon={
+                        diferencia === 0 ? (
+                          <CheckCircleOutlined />
+                        ) : (
+                          <WarningOutlined />
+                        )
+                      }
+                      color={
+                        diferencia === 0
+                          ? "success"
+                          : diferencia > 0
+                          ? "warning"
+                          : "error"
+                      }
+                      style={{
+                        width: "100%",
+                        textAlign: "center",
+                        padding: "4px 0",
+                      }}
                     >
                       Bs. {diferencia.toFixed(2)}
                     </Tag>
@@ -202,7 +232,10 @@ const CierreCajaPage = () => {
                 pagination={false}
                 size="small"
                 summary={(pageData) => {
-                  const totalMonedas = pageData.reduce((sum, row) => sum + row.total, 0);
+                  const totalMonedas = pageData.reduce(
+                    (sum, row) => sum + row.total,
+                    0
+                  );
                   return (
                     <Table.Summary.Row>
                       <Table.Summary.Cell index={0} colSpan={2}>
@@ -225,7 +258,10 @@ const CierreCajaPage = () => {
                 pagination={false}
                 size="small"
                 summary={(pageData) => {
-                  const totalBilletes = pageData.reduce((sum, row) => sum + row.total, 0);
+                  const totalBilletes = pageData.reduce(
+                    (sum, row) => sum + row.total,
+                    0
+                  );
                   return (
                     <Table.Summary.Row>
                       <Table.Summary.Cell index={0} colSpan={2}>

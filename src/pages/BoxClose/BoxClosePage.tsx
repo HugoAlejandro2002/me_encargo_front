@@ -18,55 +18,15 @@ import {
 } from "@ant-design/icons";
 import { getBoxClosesAPI } from "../../api/boxClose";
 import { IBoxClose } from "../../models/boxClose";
+import { IDailyEffective } from "../../models/dailyEffective";
+import {
+  getDailyEffectiveByIdAPI,
+  getDailyEffectivesAPI,
+} from "../../api/dailyEffective";
 
-// Updated mock data to include coins and bills
 function round(num: number) {
   return Math.round(num * 100) / 100;
 }
-const mockData = [
-  {
-    id_reconciliation: 1,
-    fecha: "2024-05-20",
-    responsible: "Juan Pérez",
-    opening_balance: 1000.0,
-    closing_balance: 1500.0,
-    expected_balance: 1500.0,
-    difference: 0.0,
-    cash_sales: 800.0,
-    cash_expenses: 300.0,
-    cash_delivery: 0.0,
-    observations: "Todo cuadrado correctamente",
-    // Cash reconciliation
-    cash_initial: 1000.0,
-    cash_income: 800.0,
-    cash_final: 1500.0,
-    cash_difference: 0.0,
-    // Bank reconciliation
-    bank_initial: 0.0,
-    bank_income: 0.0,
-    bank_final: 0.0,
-    bank_difference: 0.0,
-    // Coins and bills
-    total_coins: 100.0,
-    total_bills: 1400.0,
-    coins: {
-      "0.1": 50,
-      "0.2": 25,
-      "0.5": 40,
-      "1": 30,
-      "2": 15,
-      "5": 5,
-    },
-    bills: {
-      "10": 20,
-      "20": 15,
-      "50": 10,
-      "100": 8,
-      "200": 2,
-    },
-  },
-  // ... (other mock data entries following the same structure)
-];
 
 const BoxClosePage = () => {
   const [boxClosings, setBoxClosings] = useState<IBoxClose[]>([]);
@@ -81,10 +41,27 @@ const BoxClosePage = () => {
   const fetchBoxClosings = async () => {
     setLoading(true);
     try {
-      const data = await getBoxClosesAPI();
-      console.log(`onmg im dating `);
-      console.log(data);
-      setBoxClosings(data);
+      const boxCloses = await getBoxClosesAPI();
+      const dailyEffective: IDailyEffective[] = await getDailyEffectivesAPI();
+      console.log("im daiylign");
+      console.log(dailyEffective);
+      console.log(boxCloses);
+      const formattedData = boxCloses.map((boxClose: IBoxClose) => {
+        const currDailyEffective = dailyEffective.find(
+          (daily) =>
+            boxClose.id_efectivo_diario.id_efectivo_diario ===
+            daily.id_efectivo_diario
+        );
+        return {
+          ...boxClose,
+          total_coins: currDailyEffective!.total_coins,
+          total_bills: currDailyEffective!.total_bills,
+        };
+      });
+
+      console.log("im formatting");
+      console.log(formattedData);
+      setBoxClosings(formattedData);
     } catch (error) {
       console.error("Error fetching boxClosings:", error);
     } finally {
@@ -150,23 +127,23 @@ const BoxClosePage = () => {
         },
       ],
     },
-    // {
-    //   title: "Desglose",
-    //   children: [
-    //     {
-    //       title: "Monedas",
-    //       dataIndex: "total_coins",
-    //       key: "total_coins",
-    //       render: (amount: number) => `Bs. ${round(amount)}`,
-    //     },
-    //     {
-    //       title: "Billetes",
-    //       dataIndex: "total_bills",
-    //       key: "total_bills",
-    //       render: (amount: number) => `Bs. ${round(amount)}`,
-    //     },
-    //   ],
-    // },
+    {
+      title: "Desglose",
+      children: [
+        {
+          title: "Monedas",
+          dataIndex: "total_coins",
+          key: "total_coins",
+          render: (amount: number) => `Bs. ${amount}`,
+        },
+        {
+          title: "Billetes",
+          dataIndex: "total_bills",
+          key: "total_bills",
+          render: (amount: number) => `Bs. ${amount}`,
+        },
+      ],
+    },
     {
       title: "Bancario",
       children: [
@@ -176,12 +153,12 @@ const BoxClosePage = () => {
           key: "bancario_inicial",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
-        // {
-        //   title: "Ingresos",
-        //   dataIndex: "bank_income",
-        //   key: "bank_income",
-        //   render: (amount: number) => `Bs. ${round(amount)}`,
-        // },
+        {
+          title: "Ingresos",
+          dataIndex: "ventas_qr",
+          key: "ventas_qr",
+          render: (amount: number) => `Bs. ${round(amount)}`,
+        },
         {
           title: "Final",
           dataIndex: "bancario_real",
@@ -278,7 +255,7 @@ const BoxClosePage = () => {
               setShowForm(false);
               setSelectedReconciliation(null);
             }}
-            lastClosingBalance={boxClosings[0]?.closing_balance || 0}
+            lastClosingBalance={boxClosings[0]?.efectivo_real || 0}
             initialData={selectedReconciliation}
           />
         </Modal>
@@ -300,21 +277,30 @@ const BoxClosePage = () => {
           scroll={{ x: "max-content" }}
           summary={(pageData) => {
             const totals = pageData.reduce(
-              (acc, curr) => ({
-                cash_income: acc.cash_income + curr.cash_income,
-                cash_difference: acc.cash_difference + curr.cash_difference,
-                total_coins: acc.total_coins + curr.total_coins,
-                total_bills: acc.total_bills + curr.total_bills,
-                bank_income: acc.bank_income + curr.bank_income,
-                bank_difference: acc.bank_difference + curr.bank_difference,
-              }),
+              (acc, curr) => {
+                return {
+                  ingresos_efectivo:
+                    acc.ingresos_efectivo +
+                    parseFloat(curr.ingresos_efectivo as any),
+                  diferencia_efectivo:
+                    acc.diferencia_efectivo +
+                    parseFloat(curr.diferencia_efectivo as any),
+                  total_coins: acc.total_coins + curr.total_coins,
+                  total_bills: acc.total_bills + curr.total_bills,
+                  ingresos_bancario:
+                    acc.ingresos_bancario + parseFloat(curr.ventas_qr as any),
+                  diferencia_bancario:
+                    acc.diferencia_bancario +
+                    parseFloat(curr.diferencia_bancario as any),
+                };
+              },
               {
-                cash_income: 0,
-                cash_difference: 0,
+                ingresos_efectivo: 0,
+                diferencia_efectivo: 0,
                 total_coins: 0,
                 total_bills: 0,
-                bank_income: 0,
-                bank_difference: 0,
+                ingresos_bancario: 0,
+                diferencia_bancario: 0,
               }
             );
 
@@ -323,37 +309,37 @@ const BoxClosePage = () => {
                 <Table.Summary.Cell index={0} colSpan={2}>
                   <strong>Totales</strong>
                 </Table.Summary.Cell>
-                <Table.Summary.Cell />
-                <Table.Summary.Cell>
-                  Bs. {totals.cash_income.toFixed(2)}
+
+                <Table.Summary.Cell index={1} colSpan={2}>
+                  Bs. {totals.ingresos_efectivo}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell />
-                <Table.Summary.Cell>
+                <Table.Summary.Cell index={2} colSpan={2}>
                   <Tag
-                    color={totals.cash_difference === 0 ? "success" : "error"}
+                    color={
+                      totals.diferencia_efectivo === 0 ? "success" : "error"
+                    }
                   >
-                    Bs. {totals.cash_difference.toFixed(2)}
+                    Bs. {totals.diferencia_efectivo}
                   </Tag>
                 </Table.Summary.Cell>
-                <Table.Summary.Cell>
-                  Bs. {totals.total_coins.toFixed(2)}
+                <Table.Summary.Cell index={3} colSpan={2}>
+                  Bs. {totals.total_coins}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell>
-                  Bs. {totals.total_bills.toFixed(2)}
+                <Table.Summary.Cell index={4} colSpan={2}>
+                  Bs. {totals.total_bills}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell />
-                <Table.Summary.Cell>
-                  Bs. {totals.bank_income.toFixed(2)}
+                <Table.Summary.Cell index={5} colSpan={2}>
+                  Bs. {totals.ingresos_bancario}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell />
-                <Table.Summary.Cell>
+                <Table.Summary.Cell index={6} colSpan={2}>
                   <Tag
-                    color={totals.bank_difference === 0 ? "success" : "error"}
+                    color={
+                      totals.diferencia_bancario === 0 ? "success" : "error"
+                    }
                   >
-                    Bs. {totals.bank_difference.toFixed(2)}
+                    Bs. {totals.diferencia_bancario}
                   </Tag>
                 </Table.Summary.Cell>
-                <Table.Summary.Cell />
               </Table.Summary.Row>
             );
           }}

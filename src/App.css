@@ -11,3 +11,21 @@
   background-color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+body {
+  background-color: #ffffff;
+}
+.flex {
+  background-color: #ffffff; 
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  .ant-input,
+  .ant-btn {
+    font-size: 0.9rem;
+  }
+}

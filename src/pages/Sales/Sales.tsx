@@ -12,6 +12,7 @@ import { getSucursalsAPI } from "../../api/sucursal";
 import { getSellerInfoAPI } from "../../api/financeFlux";
 import { getSellerProductsById } from "../../helpers/salesHelpers";
 import { UserContext } from "../../context/userContext";
+import ProductSellerViewModal from "../Seller/ProductSellerViewModal";
 
 
 export const Sales = () => {
@@ -19,13 +20,14 @@ export const Sales = () => {
     const isAdmin = user?.role === 'admin';
 
     const [modalType, setModalType] = useState<'sales' | 'shipping' | null>(null);
+    const [productAddModal, setProductAddModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0)
     const [sellers, setSellers] = useState([])
     const [newSeller, setNewSeller] = useState('');
     const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
     const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
-    const { data } = useProducts();
+    const { data, fetchProducts } = useProducts();
     const [totalAmount, setTotalAmount] = useState<number>(0);
     const [sucursal, setSucursal] = useState([] as any[]);
 
@@ -44,6 +46,15 @@ export const Sales = () => {
         setModalType(null);
     };
 
+    const handleProductModalCancel = () => {
+        setProductAddModal(false);
+    };
+
+    const handleSuccessProductModal = async () => {
+        setProductAddModal(false);
+        await fetchProducts();
+    };
+    
     const onFinish = (values: any) => {
         // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
@@ -215,7 +226,7 @@ export const Sales = () => {
                 <h1 className="text-2xl font-bold">Carrito</h1>
                 <div className="flex space-x-2">
                     {isAdmin && (
-                    <Button onClick={showSalesModal} type="primary">Realizar Venta</Button>
+                        <Button onClick={showSalesModal} type="primary">Realizar Venta</Button>
                     )}
                     <Button onClick={showShippingModal} type="primary">Realizar Entrega</Button>
                 </div>
@@ -226,6 +237,14 @@ export const Sales = () => {
                         title={
                             <div className="flex justify-between items-center">
                                 <span>Inventario</span>
+                                <Form.Item>
+                                    <Button
+                                        type="primary"
+                                        onClick={() => setProductAddModal(true)}
+                                    >
+                                        Añadir nuevo producto
+                                    </Button>
+                                </Form.Item>
                                 {isAdmin && (
                                     <Form.Item
                                         name="id_vendedor"
@@ -286,6 +305,12 @@ export const Sales = () => {
                     </Card>
                 </Col>
             </Row>
+            <ProductSellerViewModal
+                visible = {productAddModal}
+                onCancel = {handleProductModalCancel}
+                onSuccess = {handleSuccessProductModal}
+                
+            />
             <SalesFormModal
                 visible={modalType === 'sales'}
                 onCancel={handleCancel}

@@ -1,8 +1,6 @@
 import { useState } from "react";
-import ProductTable from "./ProductTable";
 import Button from "antd/es/button";
 import ProductFormModal from "./ProductFormModal";
-import useProducts from "../../hooks/useProducts";
 import useGroup from "../../hooks/useGroup";
 import GroupProductTable from "./GroupProductTable";
 import AddVariantModal from "./AddVariantModal";

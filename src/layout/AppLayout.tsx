@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar/Sidebar";
 import Header from "./Header/Header";
 import { Outlet } from "react-router-dom";
 import HeaderXS from "./Header/HeaderXS";
+import Sider from "antd/es/layout/Sider";
 
 const { Content } = Layout;
 
@@ -27,17 +28,28 @@ const AppLayout = () => {
 
   return (
     <Layout className="flex min-h-screen w-full">
-      {isMobile && isOpen && (
-        <div className="absolute z-50">
-          <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
-        </div>
+      {!isMobile ? (
+        <Sider trigger={null} collapsible collapsed={!isOpen}>
+          <Sidebar
+            isOpen={isOpen}
+            toggleSidebar={toggleSidebar}
+            isMobile={isMobile}
+          />
+        </Sider>
+      ) : (
+        isOpen && (
+          <div className="absolute z-50">
+            <Sidebar
+              isOpen={isOpen}
+              toggleSidebar={toggleSidebar}
+              isMobile={isMobile}
+            />
+          </div>
+        )
       )}
+
       <Layout>
-        {isMobile ? (
-          <HeaderXS toggleSidebar={toggleSidebar} />
-        ) : (
-          <Header />
-        )}
+        {isMobile ? <HeaderXS toggleSidebar={toggleSidebar} /> : <Header />}
         <Content className="flex flex-col bg-white p-6">
           <Outlet />
         </Content>

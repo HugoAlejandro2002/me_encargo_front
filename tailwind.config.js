@@ -18,6 +18,11 @@ module.exports = {
             },
             fontFamily: {
                 sans: ['Roboto', 'sans-serif']
+            },
+            screens: {
+                mobile: '375px',
+                tablet: '768px',
+                desktop: '1024px',
             }
         },
 

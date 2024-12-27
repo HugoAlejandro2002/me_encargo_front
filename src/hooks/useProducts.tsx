@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getProductCategoryAPI, getProductFeaturesAPI, getProductsAPI } from "../api/product";
+import { getProductCategoryAPI, getProductsAPI } from "../api/product";
 
 const useProducts = () => {
     const [data, setData] = useState<any[]>([]);
@@ -26,6 +26,7 @@ const useProducts = () => {
                 stockActual: item.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0),
                 categoria: category.categoria,
                 id_vendedor: item.id_vendedor,
+                groupId: item.groupId, //Added not to show "Sin Grupo" group products
             };
         });
         return Promise.all(productDataPromises);

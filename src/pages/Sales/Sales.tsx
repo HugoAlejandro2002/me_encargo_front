@@ -218,7 +218,9 @@ export const Sales = () => {
             message.error('Error al actualizar las deudas');
         }
     }
-
+    const handleAddProduct = (newProduct: any) => {
+        setSelectedProducts((prevProducts: any) => [...prevProducts, newProduct]);
+    };
 
     return (
         <div className="p-4">
@@ -309,6 +311,7 @@ export const Sales = () => {
                 visible = {productAddModal}
                 onCancel = {handleProductModalCancel}
                 onSuccess = {handleSuccessProductModal}
+                onAddProduct={handleAddProduct}
                 
             />
             <SalesFormModal

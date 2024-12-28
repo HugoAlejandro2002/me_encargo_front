@@ -62,3 +62,17 @@ export const updateProductEntriesAPI = async (entriesData: any[]) => {
         parseError(error as AxiosError)
     }
 }
+
+// TODO: Put this createEntryAPI into the registerVariantAPI to avoid this extra request, be careful with the other requests that use this function.
+export const createEntryAPI = async (entryData:any) => {
+    try {
+        const res = await apiClient.post(`/entry`,entryData)
+        return res.data
+    } catch (error) {
+        const err = error as AxiosError
+        if (err && err.response && err.response.data) {
+            return { success: false, ...err.response.data }
+        }
+        return { success: false }
+    }
+}

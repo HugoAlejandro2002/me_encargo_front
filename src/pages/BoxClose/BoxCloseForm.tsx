@@ -8,6 +8,7 @@ import {
   Table,
   Row,
   Col,
+  message,
 } from "antd";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -18,7 +19,6 @@ import {
   registerDailyEffectiveAPI,
   updateDailyEffectiveAPI,
 } from "../../api/dailyEffective";
-import { IDailyEffective } from "../../models/dailyEffective";
 
 const { Title } = Typography;
 
@@ -51,7 +51,6 @@ const BoxCloseForm = ({
           parseInt(lastClosingBalance.efectivo_real) + summary?.cash,
         bancario_esperado: summary?.bank,
       });
-      console.log("set up");
     } catch (error) {
       console.error("Error while fetching sales summary", error);
       setSalesSummary({ cash: 0, bank: 0, total: 0 });
@@ -109,7 +108,6 @@ const BoxCloseForm = ({
       delete boxCloseValues.coins;
       delete boxCloseValues.bills;
 
-      console.log(dailyEffectiveValues, "sending to daily this");
       try {
         const resDailyEffective = await registerDailyEffectiveAPI(
           dailyEffectiveValues
@@ -118,8 +116,6 @@ const BoxCloseForm = ({
         const dailyEffectiveID =
           resDailyEffective.newDailyEffective.id_efectivo_diario;
 
-        console.log(dailyEffectiveID, typeof dailyEffectiveID);
-
         const newBoxClose = {
           ...boxCloseValues,
           id_efectivo_diario: dailyEffectiveID,
@@ -127,11 +123,9 @@ const BoxCloseForm = ({
           ventas_efectivo: salesSummary?.cash,
         };
 
-        console.log(newBoxClose, "sending to close this");
         try {
           const boxCloseRes = await registerBoxCloseAPI(newBoxClose);
           const boxCloseID = boxCloseRes.newBoxClose.id_cierre_caja;
-          console.log(boxCloseRes, "tried creating box close");
 
           const dailyEffectiveValuesWithBoxClose = {
             ...dailyEffectiveValues,
@@ -142,14 +136,17 @@ const BoxCloseForm = ({
             dailyEffectiveID,
             dailyEffectiveValuesWithBoxClose
           );
+          message.success("Proceso completado con éxito.");
         } catch (error) {
-          console.error("Failed while creating box close");
+          message.error("Error al intentar crear el cierre de caja.");
         }
+      } catch (error) {
+        message.error(
+          "Error al registrar las monedas y billetes. Intente nuevamente."
+        );
+      }
 
-        console.log(resDailyEffective);
-      } catch (error) {}
-
-      // onSuccess();
+      onSuccess();
     } catch (error) {
       console.error("Error saving reconciliation:", error);
     }

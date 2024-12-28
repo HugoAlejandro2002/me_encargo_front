@@ -52,12 +52,6 @@ const BoxClosePage = () => {
           total_bills: currDailyEffective!.total_bills,
         };
       });
-      boxCloses.map((box: IBoxClose) => {
-        console.log(`fecha: ${dayjs(box.created_at)}`);
-      });
-      console.log(
-        `me crearon at: ${dayjs(boxCloses[boxCloses.length - 1].created_at)}`
-      );
 
       setBoxClosings(formattedData);
     } catch (error) {
@@ -253,9 +247,7 @@ const BoxClosePage = () => {
               setShowForm(false);
               setSelectedReconciliation(null);
             }}
-            lastClosingBalance={
-              boxClosings[boxClosings.length - 1] || []
-            }
+            lastClosingBalance={boxClosings[boxClosings.length - 1] || []}
             // initialData={selectedReconciliation}
           />
         </Modal>

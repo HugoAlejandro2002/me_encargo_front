@@ -26,8 +26,8 @@ const BoxCloseForm = ({
   onCancel,
   lastClosingBalance = "0",
 }: Props) => {
-  const [coinTotals, setCoinTotals] = useState<{ [key: string]: number }>({});
-  const [billTotals, setBillTotals] = useState<{ [key: string]: number }>({});
+  const [coinTotals, setCoinTotals] = useState(0);
+  const [billTotals, setBillTotals] = useState(0);
   const [salesSummary, setSalesSummary] = useState<IDailySummary>();
   const [form] = Form.useForm<IBoxClose>();
 
@@ -50,59 +50,37 @@ const BoxCloseForm = ({
       setSalesSummary({ cash: 0, bank: 0, total: 0 });
     }
   };
-  const coinDenominations = ["0.1", "0.2", "0.5", "1", "2", "5"];
-  const billDenominations = ["10", "20", "50", "100", "200"];
-
-  const calculateTotal = (amount: number, quantity: number) => {
-    return parseFloat((amount * quantity).toFixed(2));
+  const coinDenominations = {
+    "0.1": "10 ctvs.",
+    "0.2": "20 ctvs.",
+    "0.5": "50 ctvs.",
+    "1": "Bs. 1",
+    "2": "Bs 2",
+    "5": "Bs 5",
   };
-
-  const columns = [
-    {
-      title: "Corte",
-      dataIndex: "denomination",
-      key: "denomination",
-      render: (value: string) => `Bs. ${value}`,
-    },
-    {
-      title: "Cantidad",
-      dataIndex: "denomination",
-      key: "quantity",
-      render: (denomination: string, _: any, type: "coins" | "bills") => (
-        <Form.Item name={[type, denomination]} noStyle>
-          <InputNumber
-            min={0}
-            className="w-full"
-            onChange={(value) => {
-              const amount = parseFloat(denomination);
-              const total = calculateTotal(amount, value || 0);
-              if (type === "coins") {
-                setCoinTotals((prev) => ({ ...prev, [denomination]: total }));
-              } else {
-                setBillTotals((prev) => ({ ...prev, [denomination]: total }));
-              }
-            }}
-          />
-        </Form.Item>
-      ),
-    },
-    {
-      title: "Total",
-      dataIndex: "denomination",
-      key: "total",
-      render: (denomination: string, _: any, type: "coins" | "bills") => {
-        const total =
-          type === "coins"
-            ? coinTotals[denomination]
-            : billTotals[denomination];
-        return `Bs. ${total || 0}`;
-      },
-    },
-  ];
+  const billDenominations = {
+    "10": "Bs. 10",
+    "20": "Bs. 20",
+    "50": "Bs. 50",
+    "100": "Bs. 100",
+    "200": "Bs. 200",
+  };
 
   useEffect(() => {
     fetchSalesSummary();
   }, []);
+
+  useEffect(() => {
+    form.setFieldValue("efectivo_real", (coinTotals + billTotals).toFixed(2));
+    form.setFieldValue(
+      "diferencia_efectivo",
+      (
+        coinTotals +
+        billTotals -
+        form.getFieldValue("efectivo_esperado")
+      ).toFixed(2)
+    );
+  }, [coinTotals, billTotals]);
 
   const handleSubmit = async (values: any) => {
     try {
@@ -115,13 +93,13 @@ const BoxCloseForm = ({
         ingresos_efectivo: values.ventas_efectivo,
         ventas_efectivo: salesSummary?.cash,
       };
-      console.log(newReconciliation, 'sending this');
-      try {
-        const res = await registerBoxCloseAPI(newReconciliation);
-        console.log(res, "tried creating box close");
-      } catch (error) {
-        console.error("Failed while creating box close");
-      }
+      console.log(newReconciliation, "sending this");
+      // try {
+      //   const res = await registerBoxCloseAPI(newReconciliation);
+      //   console.log(res, "tried creating box close");
+      // } catch (error) {
+      //   console.error("Failed while creating box close");
+      // }
 
       onSuccess();
     } catch (error) {
@@ -147,7 +125,11 @@ const BoxCloseForm = ({
             <Input />
           </Form.Item>
           <Form.Item label="Fecha">
-            <Input value={dayjs().format("DD/MM/YYYY")} readOnly />
+            <Input
+              readOnly
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
+              value={dayjs().format("DD/MM/YYYY")}
+            />
           </Form.Item>
         </div>
       </Card>
@@ -160,7 +142,7 @@ const BoxCloseForm = ({
               prefix="Bs."
               value={lastClosingBalance.efectivo_real}
               readOnly
-              className="w-full"
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
           <Form.Item label="Efectivo">
@@ -168,7 +150,7 @@ const BoxCloseForm = ({
               prefix="Bs."
               value={salesSummary?.cash}
               readOnly
-              className="w-full"
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
           <Form.Item label="Bancario">
@@ -176,7 +158,7 @@ const BoxCloseForm = ({
               prefix="Bs."
               value={salesSummary?.bank}
               readOnly
-              className="w-full"
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
           <Form.Item label="Total">
@@ -184,7 +166,7 @@ const BoxCloseForm = ({
               prefix="Bs."
               value={salesSummary?.total}
               readOnly
-              className="w-full"
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
         </div>
@@ -198,7 +180,11 @@ const BoxCloseForm = ({
             name="efectivo_inicial"
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" readOnly />
+            <InputNumber
+              prefix="Bs."
+              readOnly
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
+            />
           </Form.Item>
           <Form.Item
             label="Ingresos en efectivo"
@@ -207,40 +193,22 @@ const BoxCloseForm = ({
           >
             <InputNumber
               prefix="Bs."
-              onChange={(value: any) => {
-                form.setFieldValue(
-                  "efectivo_esperado",
-                  value + parseFloat(lastClosingBalance.efectivo_real)
-                );
-              }}
-              className="w-full"
+              readOnly
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
           <Form.Item label="Efectivo esperado" name="efectivo_esperado">
             <InputNumber
               prefix="Bs."
-              className="w-full"
-              value={
-                Object.values(coinTotals).reduce((a, b) => a + b, 0) +
-                Object.values(billTotals).reduce((a, b) => a + b, 0)
-              }
               readOnly
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
           <Form.Item label="Efectivo real" name="efectivo_real">
             <InputNumber
               prefix="Bs."
-              className="w-full"
-              onChange={(value: any) => {
-                form.setFieldValue(
-                  "diferencia_efectivo",
-                  value - form.getFieldValue("efectivo_esperado")
-                );
-              }}
-              value={
-                Object.values(coinTotals).reduce((a, b) => a + b, 0) +
-                Object.values(billTotals).reduce((a, b) => a + b, 0)
-              }
+              readOnly
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
             />
           </Form.Item>
           <Form.Item label="Diferencia" name="diferencia_efectivo">
@@ -252,7 +220,7 @@ const BoxCloseForm = ({
                   value - form.getFieldValue("efectivo_esperado")
                 );
               }}
-              className="w-full"
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
               readOnly
             />
           </Form.Item>
@@ -291,7 +259,8 @@ const BoxCloseForm = ({
                   form.getFieldValue("bancario_inicial") + value
                 );
               }}
-              className="w-full"
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
+              readOnly
             />
           </Form.Item>
           <Form.Item
@@ -299,7 +268,11 @@ const BoxCloseForm = ({
             name="bancario_esperado"
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" readOnly />
+            <InputNumber
+              prefix="Bs."
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
+              readOnly
+            />
           </Form.Item>
           <Form.Item
             label="Bancario real"
@@ -311,14 +284,18 @@ const BoxCloseForm = ({
               onChange={(value: any) => {
                 form.setFieldValue(
                   "diferencia_bancario",
-                  value - form.getFieldValue("bancario_esperado")
+                  (value - form.getFieldValue("bancario_esperado")).toFixed(2)
                 );
               }}
               className="w-full"
             />
           </Form.Item>
           <Form.Item label="Diferencia" name="diferencia_bancario">
-            <InputNumber prefix="Bs." className="w-full" readOnly />
+            <InputNumber
+              prefix="Bs."
+              className="w-full bg-gray-300 text-gray-500 pointer-events-none"
+              readOnly
+            />
           </Form.Item>
         </div>
       </Card>
@@ -326,11 +303,51 @@ const BoxCloseForm = ({
       <Card>
         <Title level={5}>Monedas</Title>
         <Table
-          dataSource={coinDenominations.map((d) => ({ denomination: d }))}
-          columns={columns.map((col) => ({
-            ...col,
-            render: (...args) => col.render(...args, "coins"),
-          }))}
+          dataSource={Object.entries(coinDenominations).map(
+            ([value, name]) => ({
+              value,
+              name,
+            })
+          )}
+          columns={[
+            {
+              title: "Denominación",
+              dataIndex: "name",
+              key: "name",
+            },
+            {
+              title: "Cantidad",
+              key: "quantity",
+              render: (_, record) => (
+                <Form.Item
+                  name={["coins", record.value]}
+                  rules={[{ required: true, message: "Requerido" }]}
+                >
+                  <InputNumber min={0} />
+                </Form.Item>
+              ),
+            },
+            {
+              title: "Total",
+              key: "total",
+              render: (_, record) => (
+                <Form.Item shouldUpdate noStyle>
+                  {() => {
+                    const quantity = form.getFieldValue([
+                      "coins",
+                      record.value,
+                    ]);
+                    return (
+                      <strong>
+                        Bs.{" "}
+                        {(quantity * parseFloat(record.value) || 0).toFixed(2)}
+                      </strong>
+                    );
+                  }}
+                </Form.Item>
+              ),
+            },
+          ]}
           pagination={false}
           size="small"
           summary={() => (
@@ -340,12 +357,19 @@ const BoxCloseForm = ({
               </Table.Summary.Cell>
               <Table.Summary.Cell index={1} />
               <Table.Summary.Cell index={2}>
-                <strong>
-                  Bs.{" "}
-                  {Object.values(coinTotals)
-                    .reduce((a, b) => a + b, 0)
-                    .toFixed(2)}
-                </strong>
+                <Form.Item shouldUpdate noStyle>
+                  {() => {
+                    const coinSum = Object.keys(coinDenominations).reduce(
+                      (sum, key) =>
+                        sum +
+                        (form.getFieldValue(["coins", key]) || 0) *
+                          parseFloat(key),
+                      0
+                    );
+                    setCoinTotals(coinSum);
+                    return <strong>Bs. {coinTotals.toFixed(2)}</strong>;
+                  }}
+                </Form.Item>
               </Table.Summary.Cell>
             </Table.Summary.Row>
           )}
@@ -355,11 +379,51 @@ const BoxCloseForm = ({
       <Card>
         <Title level={5}>Billetes</Title>
         <Table
-          dataSource={billDenominations.map((d) => ({ denomination: d }))}
-          columns={columns.map((col) => ({
-            ...col,
-            render: (...args) => col.render(...args, "bills"),
-          }))}
+          dataSource={Object.entries(billDenominations).map(
+            ([value, name]) => ({
+              value,
+              name,
+            })
+          )}
+          columns={[
+            {
+              title: "Denominación",
+              dataIndex: "name",
+              key: "name",
+            },
+            {
+              title: "Cantidad",
+              key: "quantity",
+              render: (_, record) => (
+                <Form.Item
+                  name={["bills", record.value]}
+                  rules={[{ required: true, message: "Requerido" }]}
+                >
+                  <InputNumber min={0} />
+                </Form.Item>
+              ),
+            },
+            {
+              title: "Total",
+              key: "total",
+              render: (_, record) => (
+                <Form.Item shouldUpdate noStyle>
+                  {() => {
+                    const quantity = form.getFieldValue([
+                      "bills",
+                      record.value,
+                    ]);
+                    return (
+                      <strong>
+                        Bs.{" "}
+                        {(quantity * parseFloat(record.value) || 0).toFixed(2)}
+                      </strong>
+                    );
+                  }}
+                </Form.Item>
+              ),
+            },
+          ]}
           pagination={false}
           size="small"
           summary={() => (
@@ -369,12 +433,19 @@ const BoxCloseForm = ({
               </Table.Summary.Cell>
               <Table.Summary.Cell index={1} />
               <Table.Summary.Cell index={2}>
-                <strong>
-                  Bs.{" "}
-                  {Object.values(billTotals)
-                    .reduce((a, b) => a + b, 0)
-                    .toFixed(2)}
-                </strong>
+                <Form.Item shouldUpdate noStyle>
+                  {() => {
+                    const billSum = Object.keys(billDenominations).reduce(
+                      (sum, key) =>
+                        sum +
+                        (form.getFieldValue(["bills", key]) || 0) *
+                          parseFloat(key),
+                      0
+                    );
+                    setBillTotals(billSum);
+                    return <strong>Bs. {billSum.toFixed(2)}</strong>;
+                  }}
+                </Form.Item>
               </Table.Summary.Cell>
             </Table.Summary.Row>
           )}

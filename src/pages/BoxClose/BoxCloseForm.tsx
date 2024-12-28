@@ -6,6 +6,8 @@ import {
   Card,
   Typography,
   Table,
+  Row,
+  Col,
 } from "antd";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
@@ -227,6 +229,175 @@ const BoxCloseForm = ({
         </div>
       </Card>
 
+      {/* TABLA DE COINS Y BILLS */}
+      <Row gutter={16}>
+        <Col span={12}>
+          <Card>
+            <Title level={5}>Monedas</Title>
+            <Table
+              dataSource={Object.entries(coinDenominations).map(
+                ([value, name]) => ({
+                  value,
+                  name,
+                })
+              )}
+              columns={[
+                {
+                  title: "Denominación",
+                  dataIndex: "name",
+                  key: "name",
+                  width: "40%",
+                },
+                {
+                  title: "Cantidad",
+                  key: "quantity",
+                  width: "30%",
+                  render: (_, record) => (
+                    <Form.Item
+                      name={["coins", record.value]}
+                      rules={[{ required: true, message: "Requerido" }]}
+                    >
+                      <InputNumber min={0} />
+                    </Form.Item>
+                  ),
+                },
+                {
+                  title: "Total",
+                  key: "total",
+                  width: "30%",
+                  render: (_, record) => (
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const quantity = form.getFieldValue([
+                          "coins",
+                          record.value,
+                        ]);
+                        return (
+                          <strong>
+                            Bs.{" "}
+                            {(quantity * parseFloat(record.value) || 0).toFixed(
+                              2
+                            )}
+                          </strong>
+                        );
+                      }}
+                    </Form.Item>
+                  ),
+                },
+              ]}
+              pagination={false}
+              size="small"
+              summary={() => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0}>
+                    <strong>Total</strong>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={1} />
+                  <Table.Summary.Cell index={2}>
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const coinSum = Object.keys(coinDenominations).reduce(
+                          (sum, key) =>
+                            sum +
+                            (form.getFieldValue(["coins", key]) || 0) *
+                              parseFloat(key),
+                          0
+                        );
+                        setCoinTotals(coinSum);
+                        return <strong>Bs. {coinTotals.toFixed(2)}</strong>;
+                      }}
+                    </Form.Item>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              )}
+            />
+          </Card>
+        </Col>
+        {/* BILLETES   */}
+        <Col span={12}>
+          <Card>
+            <Title level={5}>Billetes</Title>
+            <Table
+              dataSource={Object.entries(billDenominations).map(
+                ([value, name]) => ({
+                  value,
+                  name,
+                })
+              )}
+              columns={[
+                {
+                  title: "Denominación",
+                  dataIndex: "name",
+                  key: "name",
+                  width: "40%",
+                },
+                {
+                  title: "Cantidad",
+                  key: "quantity",
+                  width: "30%",
+                  render: (_, record) => (
+                    <Form.Item
+                      name={["bills", record.value]}
+                      rules={[{ required: true, message: "Requerido" }]}
+                    >
+                      <InputNumber min={0} />
+                    </Form.Item>
+                  ),
+                },
+                {
+                  title: "Total",
+                  key: "total",
+                  width: "30%",
+                  render: (_, record) => (
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const quantity = form.getFieldValue([
+                          "bills",
+                          record.value,
+                        ]);
+                        return (
+                          <strong>
+                            Bs.{" "}
+                            {(quantity * parseFloat(record.value) || 0).toFixed(
+                              2
+                            )}
+                          </strong>
+                        );
+                      }}
+                    </Form.Item>
+                  ),
+                },
+              ]}
+              pagination={false}
+              size="small"
+              summary={() => (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0}>
+                    <strong>Total</strong>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={1} />
+                  <Table.Summary.Cell index={2}>
+                    <Form.Item shouldUpdate noStyle>
+                      {() => {
+                        const billSum = Object.keys(billDenominations).reduce(
+                          (sum, key) =>
+                            sum +
+                            (form.getFieldValue(["bills", key]) || 0) *
+                              parseFloat(key),
+                          0
+                        );
+                        setBillTotals(billSum);
+                        return <strong>Bs. {billTotals.toFixed(2)}</strong>;
+                      }}
+                    </Form.Item>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              )}
+            />
+          </Card>
+        </Col>
+      </Row>
+
       <Card>
         <Title level={5}>Recuento Bancario</Title>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -298,158 +469,6 @@ const BoxCloseForm = ({
             />
           </Form.Item>
         </div>
-      </Card>
-
-      <Card>
-        <Title level={5}>Monedas</Title>
-        <Table
-          dataSource={Object.entries(coinDenominations).map(
-            ([value, name]) => ({
-              value,
-              name,
-            })
-          )}
-          columns={[
-            {
-              title: "Denominación",
-              dataIndex: "name",
-              key: "name",
-            },
-            {
-              title: "Cantidad",
-              key: "quantity",
-              render: (_, record) => (
-                <Form.Item
-                  name={["coins", record.value]}
-                  rules={[{ required: true, message: "Requerido" }]}
-                >
-                  <InputNumber min={0} />
-                </Form.Item>
-              ),
-            },
-            {
-              title: "Total",
-              key: "total",
-              render: (_, record) => (
-                <Form.Item shouldUpdate noStyle>
-                  {() => {
-                    const quantity = form.getFieldValue([
-                      "coins",
-                      record.value,
-                    ]);
-                    return (
-                      <strong>
-                        Bs.{" "}
-                        {(quantity * parseFloat(record.value) || 0).toFixed(2)}
-                      </strong>
-                    );
-                  }}
-                </Form.Item>
-              ),
-            },
-          ]}
-          pagination={false}
-          size="small"
-          summary={() => (
-            <Table.Summary.Row>
-              <Table.Summary.Cell index={0}>
-                <strong>Total</strong>
-              </Table.Summary.Cell>
-              <Table.Summary.Cell index={1} />
-              <Table.Summary.Cell index={2}>
-                <Form.Item shouldUpdate noStyle>
-                  {() => {
-                    const coinSum = Object.keys(coinDenominations).reduce(
-                      (sum, key) =>
-                        sum +
-                        (form.getFieldValue(["coins", key]) || 0) *
-                          parseFloat(key),
-                      0
-                    );
-                    setCoinTotals(coinSum);
-                    return <strong>Bs. {coinTotals.toFixed(2)}</strong>;
-                  }}
-                </Form.Item>
-              </Table.Summary.Cell>
-            </Table.Summary.Row>
-          )}
-        />
-      </Card>
-
-      <Card>
-        <Title level={5}>Billetes</Title>
-        <Table
-          dataSource={Object.entries(billDenominations).map(
-            ([value, name]) => ({
-              value,
-              name,
-            })
-          )}
-          columns={[
-            {
-              title: "Denominación",
-              dataIndex: "name",
-              key: "name",
-            },
-            {
-              title: "Cantidad",
-              key: "quantity",
-              render: (_, record) => (
-                <Form.Item
-                  name={["bills", record.value]}
-                  rules={[{ required: true, message: "Requerido" }]}
-                >
-                  <InputNumber min={0} />
-                </Form.Item>
-              ),
-            },
-            {
-              title: "Total",
-              key: "total",
-              render: (_, record) => (
-                <Form.Item shouldUpdate noStyle>
-                  {() => {
-                    const quantity = form.getFieldValue([
-                      "bills",
-                      record.value,
-                    ]);
-                    return (
-                      <strong>
-                        Bs.{" "}
-                        {(quantity * parseFloat(record.value) || 0).toFixed(2)}
-                      </strong>
-                    );
-                  }}
-                </Form.Item>
-              ),
-            },
-          ]}
-          pagination={false}
-          size="small"
-          summary={() => (
-            <Table.Summary.Row>
-              <Table.Summary.Cell index={0}>
-                <strong>Total</strong>
-              </Table.Summary.Cell>
-              <Table.Summary.Cell index={1} />
-              <Table.Summary.Cell index={2}>
-                <Form.Item shouldUpdate noStyle>
-                  {() => {
-                    const billSum = Object.keys(billDenominations).reduce(
-                      (sum, key) =>
-                        sum +
-                        (form.getFieldValue(["bills", key]) || 0) *
-                          parseFloat(key),
-                      0
-                    );
-                    setBillTotals(billSum);
-                    return <strong>Bs. {billSum.toFixed(2)}</strong>;
-                  }}
-                </Form.Item>
-              </Table.Summary.Cell>
-            </Table.Summary.Row>
-          )}
-        />
       </Card>
 
       <Card>

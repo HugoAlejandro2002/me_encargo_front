@@ -79,40 +79,45 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
             <Input
                 value={text}
                 onChange={(e) => handleCombinationChange(record.key, featureId, e.target.value)}
+                className="text-mobile-sm xl:text-desktop-sm"
             />
-        )
+        ),
+        className: "text-mobile-sm xl:text-desktop-sm",
     })).concat([
         {
             title: 'Stock',
             dataIndex: 'stock',
             key: 'stock',
             render: (text: any, record: any) => (
-                <InputNumber min={0} value={text} onChange={(value) => handleCombinationChange(record.key, 'stock', value)} />
-            )
+                <InputNumber min={0} value={text} onChange={(value) => handleCombinationChange(record.key, 'stock', value)} className="text-mobile-sm xl:text-desktop-sm"/>
+            ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: 'Precio',
             dataIndex: 'price',
             key: 'price',
             render: (text: any, record: any) => (
-                <InputNumber min={0} value={text} onChange={(value) => handleCombinationChange(record.key, 'price', value)} />
-            )
+                <InputNumber min={0} value={text} onChange={(value) => handleCombinationChange(record.key, 'price', value)} className="text-mobile-sm xl:text-desktop-sm"/>
+            ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: 'Acción',
             key: 'action',
             render: (_: any, record: any) => (
-                <Button type="link" onClick={() => setCombinations(combinations.filter((comb: any) => comb.key !== record.key))}>
+                <Button type="link" onClick={() => setCombinations(combinations.filter((comb: any) => comb.key !== record.key))} className="text-mobile-sm xl:text-desktop-sm">
                     Eliminar
                 </Button>
-            )
+            ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         }
     ]);
 
     return (
         <>
             <div>
-                <h3>Agregar Combinación</h3>
+                <h3 className="text-mobile-sm xl:text-desktop-sm">Agregar Combinación</h3>
                 <Form layout="inline">
                     {selectedFeatures.map((featureId: any) => (
                         <Form.Item key={featureId} label={features.find((f: any) => f.id_caracteristicas === featureId)?.feature}>
@@ -121,6 +126,7 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
                                     key={value}
                                     closable
                                     onClose={() => handleClose(featureId, value)}
+                                    className="text-mobile-sm xl:text-desktop-sm"
                                 >
                                     {value}
                                 </Tag>
@@ -130,8 +136,9 @@ const FeatureInputs = ({ features, selectedFeatures, featureValues, setFeatureVa
                                 onChange={(e) => handleInputChange(featureId, e.target.value)}
                                 onPressEnter={() => handleInputConfirm(featureId)}
                                 placeholder={`Agregar valor para ${features.find((f: any) => f.id_caracteristicas === featureId)?.feature}`}
+                                className="text-mobile-sm xl:text-desktop-sm"
                             />
-                            <Button type="primary" onClick={() => handleInputConfirm(featureId)}>Agregar</Button>
+                            <Button type="primary" onClick={() => handleInputConfirm(featureId)} className="text-mobile-sm xl:text-desktop-sm">Agregar</Button>
                         </Form.Item>
                     ))}
                 </Form>

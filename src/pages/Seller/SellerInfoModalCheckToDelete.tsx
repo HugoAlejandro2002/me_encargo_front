@@ -201,16 +201,16 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div style={{ background: '#007bff', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
-                    <h3>PAGO PENDIENTE</h3>
-                    <h2>{`${seller.deuda}`}</h2>
+                    <h3 className="text-mobile-sm xl:text-desktop-sm">PAGO PENDIENTE</h3>
+                    <h2 className="text-mobile-sm xl:text-desktop-sm">{`${seller.deuda}`}</h2>
                 </div>
                 <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
-                    <h3>Deuda no pagado</h3>
-                    <h2>{`Bs. ${deudaCalculada}`}</h2>
+                    <h3 className="text-mobile-sm xl:text-desktop-sm">Deuda no pagado</h3>
+                    <h2 className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${deudaCalculada}`}</h2>
                 </div>
                 <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
-                    <h3>Saldo Pendiente</h3>
-                    <h2>{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
+                    <h3 className="text-mobile-sm xl:text-desktop-sm">Saldo Pendiente</h3>
+                    <h2 className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
                 </div>
             </div>
             <Form onFinish={handleFinish} layout="vertical">
@@ -324,7 +324,7 @@ const SellerInfoModal = ({ visible, onSuccess, onCancel, seller }: any) => {
                 </div>
                 {!isSeller && (
                     <Form.Item>
-                        <Button type='primary' htmlType='submit' loading={loading}>
+                        <Button type='primary' htmlType='submit' loading={loading} className="text-mobile-sm xl:text-desktop-sm">
                             Guardar
                         </Button>
                     </Form.Item>

@@ -177,7 +177,7 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
             open={visible}
             onCancel={onClose}
             footer={[
-                <Button key="back" onClick={onClose}>
+                <Button key="back" onClick={onClose} className='text-mobile-base xl:text-desktop-base'>
                     Cancelar
                 </Button>,
                 <Button
@@ -185,6 +185,7 @@ const ShippingInfoModal = ({ visible, onClose, shipping, onSave }: any) => {
                     type="primary"
                     loading={loading}
                     onClick={() => form.submit()}
+                    className='text-mobile-base xl:text-desktop-base'
                 >
                     Guardar
                 </Button>

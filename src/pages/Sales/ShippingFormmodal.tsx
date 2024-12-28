@@ -432,7 +432,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                     </Card>
                 )}
                 <Form.Item style={{ marginTop: 16 }}>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button type="primary" htmlType="submit" loading={loading} className='text-mobile-sm xl:text-desktop-sm'>
                         Guardar
                     </Button>
                 </Form.Item>

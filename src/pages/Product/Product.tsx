@@ -71,8 +71,8 @@ const Product = () => {
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Productos</h1>
-                <Button onClick={showModal} type='primary'>Agregar Producto</Button>
+                <h1 className="text-mobile-3xl xl:text-desktop-3xl font-bold">Productos</h1>
+                <Button onClick={showModal} type='primary' className="text-mobile-sm xl:text-desktop-sm">Agregar Producto</Button>
             </div>
             {
                groups.map(group => 

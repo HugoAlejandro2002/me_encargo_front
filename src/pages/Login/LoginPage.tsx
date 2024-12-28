@@ -14,7 +14,7 @@ const LoginPage = () => {
   const handleFinish = async (values: any) => {
     try {
       const loginRes = await checkLoginAPI(values);
-      console.log(loginRes)
+      console.log(loginRes);
       if (!loginRes?.success) {
         message.error("Error al iniciar sesión");
         return;
@@ -26,12 +26,11 @@ const LoginPage = () => {
       }
       setUser(userRes.data);
       if (userRes.data.role === "seller") {
-        navigate("/seller-info")
+        navigate("/seller-info");
       } else {
-  
-      await sendHelloAPI("+59170186881")
+        await sendHelloAPI("+59170186881");
 
-      navigate("/product");
+        navigate("/product");
       }
       message.success("¡Inicio de sesión exitoso!");
     } catch (error) {
@@ -41,11 +40,13 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <img alt="logo" src={logoImg} className="mx-auto h-12 w-auto" />
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Me encargo</h2>
+          <h2 className="mt-6 text-mobile-2xl xl:text-desktop-3xl font-bold text-gray-900 m">
+            Me encargo
+          </h2>
         </div>
         <Form
           name="login"
@@ -66,6 +67,7 @@ const LoginPage = () => {
               size="large"
               prefix={<UserOutlined className="site-form-item-icon" />}
               placeholder="Correo electrónico"
+              className="text-mobile-base xl:text-desktop-base"
             />
           </Form.Item>
           <Form.Item
@@ -81,10 +83,17 @@ const LoginPage = () => {
               size="large"
               prefix={<LockOutlined className="site-form-item-icon" />}
               placeholder="Contraseña"
+              className="text-mobile-base xl:text-desktop-base"
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" size="large" block>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              block
+              className="text-mobile-lg xl:text-desktop-lg"
+            >
               Iniciar sesión
             </Button>
           </Form.Item>

@@ -27,6 +27,7 @@ const RestockTable = ({ products, onSave, setRestockData }) => {
             title: 'Nombre del Producto',
             dataIndex: 'nombre_producto',
             key: 'nombre_producto',
+            className: 'text-mobile-sm xl:text-desktop-sm',
         },
         {
             title: 'Precio',
@@ -40,11 +41,13 @@ const RestockTable = ({ products, onSave, setRestockData }) => {
                     onChange={(value) => handleDataChange(index, 'precio', value)}
                 />
             ),
+            className: 'text-mobile-sm xl:text-desktop-sm',
         },
         {
             title: 'Cantidad',
             dataIndex: 'stock',
             key: 'stock',
+            className: 'text-mobile-sm xl:text-desktop-sm',
         },
         {
             title: 'Entrada',
@@ -56,8 +59,10 @@ const RestockTable = ({ products, onSave, setRestockData }) => {
                     value={text}
                     min={0} 
                     onChange={(value) => handleDataChange(index, 'incomingQuantity', value)}
+                    
                 />
             ),
+            className: 'text-mobile-sm xl:text-desktop-sm',
         },
     ];
 

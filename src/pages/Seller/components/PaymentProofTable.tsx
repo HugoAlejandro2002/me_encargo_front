@@ -19,6 +19,7 @@ const PaymentProofTable = ({
             render: (text: string) => {
               return dayjs(text).format('DD/MM/YYYY'); 
             },
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: "Hora",
@@ -27,16 +28,19 @@ const PaymentProofTable = ({
             render: (text: string) => {
               return dayjs(text).format('HH:mm');
             },
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: "Total Ventas",
             dataIndex: "total_ventas",
             key: "total_ventas",
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: "Total adelantos",
             dataIndex: "total_adelantos",
             key: "total_adelantos",
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
     ];
     useEffect(() => {

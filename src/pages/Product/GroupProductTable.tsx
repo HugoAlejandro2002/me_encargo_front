@@ -18,7 +18,8 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
             title: 'Producto',
             dataIndex: 'producto',
             key: 'producto',
-            width: "30%"
+            width: "30%",
+            className: 'text-mobile-sm xl:text-desktop-sm'
         },
         {
             title: 'Ingreso/Entrada',
@@ -28,31 +29,36 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
                 <Input
                     type="number"
                     value={''}
+                    className="text-mobile-sm xl:text-desktop-sm"
                     // value={ingresoData[record.id_producto] || ''}
                     // onChange={(e) =>
                     //     handleIngresoChange(record.id_producto, parseInt(e.target.value, 10) || 0)
                     // }
                 />
             ),
-            width: "10%"
+            width: "10%",
+            className: 'text-mobile-sm xl:text-desktop-sm'
         },
         {
             title: 'Stock actual',
             dataIndex: 'stockActual',
             key: 'stockActual',
-            width: "20%"
+            width: "20%",
+            className: 'text-mobile-sm xl:text-desktop-sm'
         },
         {
             title: 'Categoría',
             dataIndex: 'categoria',
             key: 'categoria',
-            width: "20%"
+            width: "20%",
+            className: 'text-mobile-sm xl:text-desktop-sm'
         },
         {
             title: 'Precio de venta',
             dataIndex: "precio",
             key: "precio",
-            width: "20%"
+            width: "20%",
+            className: 'text-mobile-sm xl:text-desktop-sm'
         }
     ];
 
@@ -138,6 +144,7 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
                                         value={newGroupName}
                                         onChange={(e) => setEditedValue(e.target.value)}
                                         style={{ width: 200 }}
+                                        className="text-mobile-sm xl:text-desktop-sm"
                                     />
                                     <Button
                                         type="primary"
@@ -152,7 +159,7 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
                                 </div>
                             ) : (
                                 <div className="flex items-center">
-                                    <h2 className="font-semibold">{groupName}</h2>
+                                    <h2 className="font-semibold text-mobile-3xl xl:text-desktop-3xl">{groupName}</h2>
                                     <Button
                                         className="mx-2"
                                         type="default"
@@ -163,7 +170,7 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
                                 </div>
                             )}
                         </div>
-                        <Button type="primary" onClick={onAddVariant}>Agregar Variante</Button>
+                        <Button type="primary" onClick={onAddVariant} className="text-mobile-sm xl:text-desktop-sm">Agregar Variante</Button>
                     </div>
                 )}
             />

@@ -58,7 +58,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     rules={[{ required: true, message: 'Por favor ingrese el nombre del producto' }]}
                     initialValue={`${example.nombre_producto}`}
                 >
-                    <Input />
+                    <Input className='text-mobile-sm xl:text-desktop-sm' />
                 </Form.Item>
                 <Form.Item
                     label="Precio"
@@ -66,14 +66,14 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     rules={[{ required: true, message: 'Por favor ingrese el precio' }]}
                     initialValue={example.precio}
                 >
-                    <InputNumber min={0} style={{ width: '100%' }} />
+                    <InputNumber min={0} style={{ width: '100%' }} className='text-mobile-sm xl:text-desktop-sm'/>
                 </Form.Item>
                 <Form.Item
                     label="Cantidad Inicial"
                     name="stock"
                     rules={[{ required: true, message: 'Por favor ingrese la cantidad inicial' }]}
                 >
-                    <InputNumber min={0} style={{ width: '100%' }} />
+                    <InputNumber min={0} style={{ width: '100%' }} className='text-mobile-sm xl:text-desktop-sm'/>
                 </Form.Item>
                 
                 <Form.Item
@@ -88,6 +88,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                                 value={feature.value}
                                 style={{ flex: 1 }}
                                 onChange={(e) => handleValueChange(index, e.target.value)}
+                                className='text-mobile-sm xl:text-desktop-sm'
                             />
                         </div>
                     ))}

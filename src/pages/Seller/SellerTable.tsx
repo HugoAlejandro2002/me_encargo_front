@@ -11,6 +11,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
     {
       key: "seller_pay_debt",
       render: (_: any, seller: any) => <PayDebtButton seller={seller} />,
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       key: "seller_new_debt",
@@ -19,38 +20,46 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
           type="default"
           onClick={() => showModal(seller)}
           icon={<EditOutlined />}
+          className= "text-mobile-sm xl:text-desktop-sm"
         />
       ),
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Nombre",
       dataIndex: "nombre",
       key: "nombre",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Pago total",
       dataIndex: "deuda",
       key: "deuda",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Fecha Vigencia",
       dataIndex: "fecha_vigencia",
       key: "fecha_vigencia",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Pago Mensual",
       dataIndex: "pago_mensual",
       key: "pago_mensual",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Comisión Porcentual",
       dataIndex: "comision_porcentual",
       key: "comision_porcentual",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Comisión Fija",
       dataIndex: "comision_fija",
       key: "comision_fija",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
   ];
 

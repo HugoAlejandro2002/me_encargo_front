@@ -9,53 +9,47 @@ import {
 } from "antd";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import { IBoxClose } from "../../models/boxClose";
+import { getDailySummary, IDailySummary } from "../../helpers/shippingHelpers";
+import { registerBoxCloseAPI } from "../../api/boxClose";
 
 const { Title } = Typography;
-
-interface ReconciliationFormData {
-  responsible: string;
-  opening_balance: number;
-  closing_balance: number;
-  cash_sales: number;
-  cash_expenses: number;
-  cash_delivery: number;
-  observations: string;
-  // Coins and bills
-  coins: { [key: string]: number };
-  bills: { [key: string]: number };
-  // Cash reconciliation
-  cash_initial: number;
-  cash_income: number;
-  cash_final: number;
-  cash_difference: number;
-  // Bank reconciliation
-  bank_initial: number;
-  bank_income: number;
-  bank_final: number;
-  bank_difference: number;
-}
 
 interface Props {
   onSuccess: () => void;
   onCancel: () => void;
-  lastClosingBalance?: number;
-  salesSummary?: {
-    cash: number;
-    bank: number;
-    total: number;
-  };
+  lastClosingBalance?: any;
 }
 
-const CashReconciliationForm = ({
+const BoxCloseForm = ({
   onSuccess,
   onCancel,
-  lastClosingBalance = 0,
-  salesSummary = { cash: 0, bank: 0, total: 0 },
+  lastClosingBalance = "0",
 }: Props) => {
-  const [form] = Form.useForm<ReconciliationFormData>();
   const [coinTotals, setCoinTotals] = useState<{ [key: string]: number }>({});
   const [billTotals, setBillTotals] = useState<{ [key: string]: number }>({});
+  const [salesSummary, setSalesSummary] = useState<IDailySummary>();
+  const [form] = Form.useForm<IBoxClose>();
 
+  const fetchSalesSummary = async () => {
+    try {
+      const summary = await getDailySummary();
+      setSalesSummary(summary || { cash: 0, bank: 0, total: 0 });
+      form.setFieldsValue({
+        efectivo_inicial: parseFloat(lastClosingBalance.efectivo_real),
+        bancario_inicial: 0,
+        ventas_efectivo: summary?.cash || 0,
+        ventas_qr: summary?.bank || 0,
+        efectivo_esperado:
+          parseInt(lastClosingBalance.efectivo_real) + summary?.cash,
+        bancario_esperado: summary?.bank,
+      });
+      console.log("set up");
+    } catch (error) {
+      console.error("Error while fetching sales summary", error);
+      setSalesSummary({ cash: 0, bank: 0, total: 0 });
+    }
+  };
   const coinDenominations = ["0.1", "0.2", "0.5", "1", "2", "5"];
   const billDenominations = ["10", "20", "50", "100", "200"];
 
@@ -96,74 +90,40 @@ const CashReconciliationForm = ({
       title: "Total",
       dataIndex: "denomination",
       key: "total",
-      render: (denomination: string, _: any, type: "coins" | "bills") =>
-        `Bs. ${
-          (type === "coins"
+      render: (denomination: string, _: any, type: "coins" | "bills") => {
+        const total =
+          type === "coins"
             ? coinTotals[denomination]
-            : billTotals[denomination]) || 0
-        }`,
+            : billTotals[denomination];
+        return `Bs. ${total || 0}`;
+      },
     },
   ];
 
   useEffect(() => {
-    form.setFieldsValue({
-      opening_balance: lastClosingBalance,
-      cash_sales: 0,
-      cash_expenses: 0,
-      cash_delivery: 0,
-      observations: "",
-      coins: coinDenominations.reduce(
-        (acc, denom) => ({ ...acc, [denom]: 0 }),
-        {}
-      ),
-      bills: billDenominations.reduce(
-        (acc, denom) => ({ ...acc, [denom]: 0 }),
-        {}
-      ),
-      cash_initial: lastClosingBalance,
-      cash_income: 0,
-      cash_final: 0,
-      cash_difference: 0,
-      bank_initial: 0,
-      bank_income: 0,
-      bank_final: 0,
-      bank_difference: 0,
-    });
-  }, [lastClosingBalance, form]);
+    fetchSalesSummary();
+  }, []);
 
-  const handleSubmit = async (values: ReconciliationFormData) => {
+  const handleSubmit = async (values: any) => {
     try {
-      const totalCoins = Object.entries(coinTotals).reduce(
-        (sum, [_, total]) => sum + total,
-        0
-      );
-      const totalBills = Object.entries(billTotals).reduce(
-        (sum, [_, total]) => sum + total,
-        0
-      );
-      const totalCash = totalCoins + totalBills;
-
-      const expected_balance =
-        values.opening_balance +
-        values.cash_sales -
-        values.cash_expenses -
-        values.cash_delivery;
-      const difference = totalCash - expected_balance;
+      // const daily = values.id_efectivo_diario;
+      // const totalCash = daily.total_coins + daily.total_bills;
+      console.log("i got this");
 
       const newReconciliation = {
-        id_reconciliation: Date.now(),
-        fecha: dayjs().format("YYYY-MM-DD"),
-        expected_balance,
-        difference,
-        total_coins: totalCoins,
-        total_bills: totalBills,
         ...values,
+        ingresos_efectivo: values.ventas_efectivo,
+        ventas_efectivo: salesSummary?.cash,
       };
-
-      console.log("New reconciliation:", newReconciliation);
+      console.log(newReconciliation, 'sending this');
+      try {
+        const res = await registerBoxCloseAPI(newReconciliation);
+        console.log(res, "tried creating box close");
+      } catch (error) {
+        console.error("Failed while creating box close");
+      }
 
       onSuccess();
-      form.resetFields();
     } catch (error) {
       console.error("Error saving reconciliation:", error);
     }
@@ -187,7 +147,7 @@ const CashReconciliationForm = ({
             <Input />
           </Form.Item>
           <Form.Item label="Fecha">
-            <Input value={dayjs().format("DD/MM/YYYY")} disabled />
+            <Input value={dayjs().format("DD/MM/YYYY")} readOnly />
           </Form.Item>
         </div>
       </Card>
@@ -195,27 +155,35 @@ const CashReconciliationForm = ({
       <Card>
         <Title level={5}>Resumen de Ventas</Title>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Form.Item label="Ultimo cierre de caja (Efectivo)">
+            <InputNumber
+              prefix="Bs."
+              value={lastClosingBalance.efectivo_real}
+              readOnly
+              className="w-full"
+            />
+          </Form.Item>
           <Form.Item label="Efectivo">
             <InputNumber
               prefix="Bs."
-              value={salesSummary.cash}
-              disabled
+              value={salesSummary?.cash}
+              readOnly
               className="w-full"
             />
           </Form.Item>
           <Form.Item label="Bancario">
             <InputNumber
               prefix="Bs."
-              value={salesSummary.bank}
-              disabled
+              value={salesSummary?.bank}
+              readOnly
               className="w-full"
             />
           </Form.Item>
           <Form.Item label="Total">
             <InputNumber
               prefix="Bs."
-              value={salesSummary.total}
-              disabled
+              value={salesSummary?.total}
+              readOnly
               className="w-full"
             />
           </Form.Item>
@@ -227,19 +195,28 @@ const CashReconciliationForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item
             label="Efectivo inicial"
-            name="cash_initial"
+            name="efectivo_inicial"
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" disabled />
+            <InputNumber prefix="Bs." className="w-full" readOnly />
           </Form.Item>
           <Form.Item
             label="Ingresos en efectivo"
-            name="cash_income"
+            name="ventas_efectivo"
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" />
+            <InputNumber
+              prefix="Bs."
+              onChange={(value: any) => {
+                form.setFieldValue(
+                  "efectivo_esperado",
+                  value + parseFloat(lastClosingBalance.efectivo_real)
+                );
+              }}
+              className="w-full"
+            />
           </Form.Item>
-          <Form.Item label="Efectivo final" name="cash_final">
+          <Form.Item label="Efectivo esperado" name="efectivo_esperado">
             <InputNumber
               prefix="Bs."
               className="w-full"
@@ -247,11 +224,37 @@ const CashReconciliationForm = ({
                 Object.values(coinTotals).reduce((a, b) => a + b, 0) +
                 Object.values(billTotals).reduce((a, b) => a + b, 0)
               }
-              disabled
+              readOnly
             />
           </Form.Item>
-          <Form.Item label="Diferencia" name="cash_difference">
-            <InputNumber prefix="Bs." className="w-full" disabled />
+          <Form.Item label="Efectivo real" name="efectivo_real">
+            <InputNumber
+              prefix="Bs."
+              className="w-full"
+              onChange={(value: any) => {
+                form.setFieldValue(
+                  "diferencia_efectivo",
+                  value - form.getFieldValue("efectivo_esperado")
+                );
+              }}
+              value={
+                Object.values(coinTotals).reduce((a, b) => a + b, 0) +
+                Object.values(billTotals).reduce((a, b) => a + b, 0)
+              }
+            />
+          </Form.Item>
+          <Form.Item label="Diferencia" name="diferencia_efectivo">
+            <InputNumber
+              prefix="Bs."
+              onChange={(value: any) => {
+                form.setFieldValue(
+                  "diferencia_efectivo",
+                  value - form.getFieldValue("efectivo_esperado")
+                );
+              }}
+              className="w-full"
+              readOnly
+            />
           </Form.Item>
         </div>
       </Card>
@@ -261,27 +264,61 @@ const CashReconciliationForm = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Form.Item
             label="Bancario inicial"
-            name="bank_initial"
+            name="bancario_inicial"
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" />
+            <InputNumber
+              prefix="Bs."
+              onChange={(value: any) => {
+                form.setFieldValue(
+                  "bancario_esperado",
+                  form.getFieldValue("ventas_qr") + value
+                );
+              }}
+              className="w-full"
+            />
           </Form.Item>
           <Form.Item
             label="Ingresos bancarios"
-            name="bank_income"
+            name={"ventas_qr"}
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" />
+            <InputNumber
+              prefix="Bs."
+              onChange={(value: any) => {
+                form.setFieldValue(
+                  "bancario_esperado",
+                  form.getFieldValue("bancario_inicial") + value
+                );
+              }}
+              className="w-full"
+            />
           </Form.Item>
           <Form.Item
-            label="Bancario final"
-            name="bank_final"
+            label="Bancario esperado"
+            name="bancario_esperado"
             rules={[{ required: true, message: "Campo requerido" }]}
           >
-            <InputNumber prefix="Bs." className="w-full" />
+            <InputNumber prefix="Bs." className="w-full" readOnly />
           </Form.Item>
-          <Form.Item label="Diferencia" name="bank_difference">
-            <InputNumber prefix="Bs." className="w-full" disabled />
+          <Form.Item
+            label="Bancario real"
+            name="bancario_real"
+            rules={[{ required: true, message: "Campo requerido" }]}
+          >
+            <InputNumber
+              prefix="Bs."
+              onChange={(value: any) => {
+                form.setFieldValue(
+                  "diferencia_bancario",
+                  value - form.getFieldValue("bancario_esperado")
+                );
+              }}
+              className="w-full"
+            />
+          </Form.Item>
+          <Form.Item label="Diferencia" name="diferencia_bancario">
+            <InputNumber prefix="Bs." className="w-full" readOnly />
           </Form.Item>
         </div>
       </Card>
@@ -304,7 +341,10 @@ const CashReconciliationForm = ({
               <Table.Summary.Cell index={1} />
               <Table.Summary.Cell index={2}>
                 <strong>
-                  Bs. {Object.values(coinTotals).reduce((a, b) => a + b, 0)}
+                  Bs.{" "}
+                  {Object.values(coinTotals)
+                    .reduce((a, b) => a + b, 0)
+                    .toFixed(2)}
                 </strong>
               </Table.Summary.Cell>
             </Table.Summary.Row>
@@ -330,7 +370,10 @@ const CashReconciliationForm = ({
               <Table.Summary.Cell index={1} />
               <Table.Summary.Cell index={2}>
                 <strong>
-                  Bs. {Object.values(billTotals).reduce((a, b) => a + b, 0)}
+                  Bs.{" "}
+                  {Object.values(billTotals)
+                    .reduce((a, b) => a + b, 0)
+                    .toFixed(2)}
                 </strong>
               </Table.Summary.Cell>
             </Table.Summary.Row>
@@ -340,7 +383,7 @@ const CashReconciliationForm = ({
 
       <Card>
         <Title level={5}>Observaciones</Title>
-        <Form.Item name="observations">
+        <Form.Item name="observaciones">
           <Input.TextArea rows={4} />
         </Form.Item>
       </Card>
@@ -355,4 +398,4 @@ const CashReconciliationForm = ({
   );
 };
 
-export default CashReconciliationForm;
+export default BoxCloseForm;

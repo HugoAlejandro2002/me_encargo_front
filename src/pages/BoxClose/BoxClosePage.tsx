@@ -10,7 +10,6 @@ import {
   Modal,
 } from "antd";
 import dayjs from "dayjs";
-import CashReconciliationForm from "./BoxCloseForm";
 import {
   PlusOutlined,
   CheckCircleOutlined,
@@ -19,10 +18,8 @@ import {
 import { getBoxClosesAPI } from "../../api/boxClose";
 import { IBoxClose } from "../../models/boxClose";
 import { IDailyEffective } from "../../models/dailyEffective";
-import {
-  getDailyEffectiveByIdAPI,
-  getDailyEffectivesAPI,
-} from "../../api/dailyEffective";
+import { getDailyEffectivesAPI } from "../../api/dailyEffective";
+import BoxCloseForm from "./BoxCloseForm";
 
 function round(num: number) {
   return Math.round(num * 100) / 100;
@@ -43,9 +40,6 @@ const BoxClosePage = () => {
     try {
       const boxCloses = await getBoxClosesAPI();
       const dailyEffective: IDailyEffective[] = await getDailyEffectivesAPI();
-      console.log("im daiylign");
-      console.log(dailyEffective);
-      console.log(boxCloses);
       const formattedData = boxCloses.map((boxClose: IBoxClose) => {
         const currDailyEffective = dailyEffective.find(
           (daily) =>
@@ -58,9 +52,13 @@ const BoxClosePage = () => {
           total_bills: currDailyEffective!.total_bills,
         };
       });
+      boxCloses.map((box: IBoxClose) => {
+        console.log(`fecha: ${dayjs(box.created_at)}`);
+      });
+      console.log(
+        `me crearon at: ${dayjs(boxCloses[boxCloses.length - 1].created_at)}`
+      );
 
-      console.log("im formatting");
-      console.log(formattedData);
       setBoxClosings(formattedData);
     } catch (error) {
       console.error("Error fetching boxClosings:", error);
@@ -97,8 +95,8 @@ const BoxClosePage = () => {
         },
         {
           title: "Ingresos",
-          dataIndex: "ingresos_efectivo",
-          key: "ingresos_efectivo",
+          dataIndex: "ventas_efectivo",
+          key: "ventas_efectivo",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
@@ -249,14 +247,16 @@ const BoxClosePage = () => {
           footer={null}
           width={1000}
         >
-          <CashReconciliationForm
+          <BoxCloseForm
             onSuccess={handleFormSuccess}
             onCancel={() => {
               setShowForm(false);
               setSelectedReconciliation(null);
             }}
-            lastClosingBalance={boxClosings[0]?.efectivo_real || 0}
-            initialData={selectedReconciliation}
+            lastClosingBalance={
+              boxClosings[boxClosings.length - 1] || []
+            }
+            // initialData={selectedReconciliation}
           />
         </Modal>
 
@@ -281,7 +281,7 @@ const BoxClosePage = () => {
                 return {
                   ingresos_efectivo:
                     acc.ingresos_efectivo +
-                    parseFloat(curr.ingresos_efectivo as any),
+                    parseFloat(curr.ventas_efectivo as any),
                   diferencia_efectivo:
                     acc.diferencia_efectivo +
                     parseFloat(curr.diferencia_efectivo as any),

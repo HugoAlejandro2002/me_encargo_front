@@ -1,4 +1,3 @@
-import { message } from "antd";
 import { getProductsBySellerIdAPI } from "../api/sales";
 
 export const getSellerProductsById = async (sellerId: number) => {

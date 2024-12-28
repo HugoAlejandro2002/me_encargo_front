@@ -14,6 +14,11 @@ import dayjs from "dayjs";
 import { IBoxClose } from "../../models/boxClose";
 import { getDailySummary, IDailySummary } from "../../helpers/shippingHelpers";
 import { registerBoxCloseAPI } from "../../api/boxClose";
+import {
+  registerDailyEffectiveAPI,
+  updateDailyEffectiveAPI,
+} from "../../api/dailyEffective";
+import { IDailyEffective } from "../../models/dailyEffective";
 
 const { Title } = Typography;
 
@@ -86,24 +91,65 @@ const BoxCloseForm = ({
 
   const handleSubmit = async (values: any) => {
     try {
-      // const daily = values.id_efectivo_diario;
-      // const totalCash = daily.total_coins + daily.total_bills;
-      console.log("i got this");
+      let dailyEffectiveValues: Record<string, number> = {};
 
-      const newReconciliation = {
-        ...values,
-        ingresos_efectivo: values.ventas_efectivo,
-        ventas_efectivo: salesSummary?.cash,
-      };
-      console.log(newReconciliation, "sending this");
-      // try {
-      //   const res = await registerBoxCloseAPI(newReconciliation);
-      //   console.log(res, "tried creating box close");
-      // } catch (error) {
-      //   console.error("Failed while creating box close");
-      // }
+      Object.keys(coinDenominations).forEach((denomination) => {
+        dailyEffectiveValues[`corte_${denomination.replace(".", "_")}`] =
+          values.coins[denomination] || 0;
+      });
 
-      onSuccess();
+      Object.keys(billDenominations).forEach((denomination) => {
+        dailyEffectiveValues[`corte_${denomination.replace(".", "_")}`] =
+          values.bills[denomination] || 0;
+      });
+
+      dailyEffectiveValues["total_coins"] = coinTotals;
+      dailyEffectiveValues["total_bills"] = billTotals;
+      const boxCloseValues = values;
+      delete boxCloseValues.coins;
+      delete boxCloseValues.bills;
+
+      console.log(dailyEffectiveValues, "sending to daily this");
+      try {
+        const resDailyEffective = await registerDailyEffectiveAPI(
+          dailyEffectiveValues
+        );
+
+        const dailyEffectiveID =
+          resDailyEffective.newDailyEffective.id_efectivo_diario;
+
+        console.log(dailyEffectiveID, typeof dailyEffectiveID);
+
+        const newBoxClose = {
+          ...boxCloseValues,
+          id_efectivo_diario: dailyEffectiveID,
+          ingresos_efectivo: values.ventas_efectivo,
+          ventas_efectivo: salesSummary?.cash,
+        };
+
+        console.log(newBoxClose, "sending to close this");
+        try {
+          const boxCloseRes = await registerBoxCloseAPI(newBoxClose);
+          const boxCloseID = boxCloseRes.newBoxClose.id_cierre_caja;
+          console.log(boxCloseRes, "tried creating box close");
+
+          const dailyEffectiveValuesWithBoxClose = {
+            ...dailyEffectiveValues,
+            id_cierre_caja: boxCloseID,
+          };
+
+          await updateDailyEffectiveAPI(
+            dailyEffectiveID,
+            dailyEffectiveValuesWithBoxClose
+          );
+        } catch (error) {
+          console.error("Failed while creating box close");
+        }
+
+        console.log(resDailyEffective);
+      } catch (error) {}
+
+      // onSuccess();
     } catch (error) {
       console.error("Error saving reconciliation:", error);
     }

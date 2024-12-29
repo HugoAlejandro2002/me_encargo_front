@@ -23,7 +23,7 @@ import dayjs from "dayjs";
 const StatisticCard: FC<any> = ({ title, value, prefix, color }) => (
   <Card>
     <Statistic
-      title={title}
+      title={<span className="text-mobile-base xl:text-desktop-base">{title}</span>}
       value={value}
       precision={2}
       valueStyle={{ color }}
@@ -89,6 +89,7 @@ const StatisticsDashboard = () => {
               key={key}
               checked={selectedTag === value}
               onChange={() => onTagClick(value)}
+              className="text-mobile-sm xl  :text-desktop-sm"
             >
               {espTags[index]}
             </Tag.CheckableTag>
@@ -119,14 +120,14 @@ const StatisticsDashboard = () => {
         )}
       </div>
       {selectedTag === DATE_TAGS.CUSTOM && (
-        <Typography.Text className="mb-4" mark>
+        <Typography.Text className="text-mobile-base xl:text-desktop-base mb-4" mark>
           Rango seleccionado:{" "}
           {`${dayjs(customDateRange[0]).format("DD-MM-YYYY")} - ${dayjs(
             customDateRange[1]
           ).format("DD-MM-YYYY")}`}
         </Typography.Text>
       )}
-      <h2 className="font-semibold">ESTADISTICAS</h2>
+      <h2 className="font-semibold text-mobile-lg xl:text-desktop-lg">ESTADISTICAS</h2>
       <Row className="p-6 md:p-4" gutter={[16, 16]}>
         <Col xs={24} sm={12} md={8}>
           <StatisticCard
@@ -154,7 +155,7 @@ const StatisticsDashboard = () => {
         </Col>
       </Row>
 
-      <h2 className="mt-6">DELIVERY</h2>
+      <h2 className="mt-6 text-mobile-lg xl:text-desktop-lg">DELIVERY</h2>
       <Row className="p-6 md:p-4" gutter={[16, 16]}>
         <Col xs={24} sm={12} md={12}>
           <StatisticCard

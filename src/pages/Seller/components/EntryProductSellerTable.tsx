@@ -23,11 +23,13 @@ const EntryProductSellerTable = ({
       render: (text: string) => {
         return dayjs(text).format('DD/MM/YYYY');
       },
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Producto",
       dataIndex: ["producto", "nombre_producto"],
       key: "nombre_producto",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     {
       title: "Cantidad",
@@ -42,6 +44,7 @@ const EntryProductSellerTable = ({
           onChange={(value) => handleValueChange(record.key, "cantidad_ingreso", value)}
         />
       ),
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     ...(isAdmin
       ? [
@@ -53,6 +56,7 @@ const EntryProductSellerTable = ({
               Eliminar
             </Button>
           ),
+          className: "text-mobile-sm xl:text-desktop-sm"
         },
       ]
       : []),

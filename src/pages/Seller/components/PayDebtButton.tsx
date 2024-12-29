@@ -25,14 +25,14 @@ const PayDebtButton = ({ seller }: any) => {
 
   const content = (
     <div>
-      <Checkbox style={{ color: "#ff4d4f" }}>
+      <Checkbox style={{ color: "#ff4d4f" }} className="text-mobile-sm xl:text-desktop-sm">
         ¿Desea pagar las deudas existentes?
       </Checkbox>
       <div style={{ marginTop: 8, textAlign: "right" }}>
-        <Button onClick={handleCancel} style={{ marginRight: 8 }}>
+        <Button onClick={handleCancel} style={{ marginRight: 8 }} className="text-mobile-sm xl:text-desktop-sm">
           Cancelar
         </Button>
-        <Button type="primary" danger onClick={handleConfirm}>
+        <Button type="primary" danger onClick={handleConfirm} className="text-mobile-sm xl:text-desktop-sm">
           Pagar
         </Button>
       </div>

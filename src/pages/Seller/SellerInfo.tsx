@@ -46,11 +46,11 @@ const SellerInfoPageWrapper = () => {
     }, [user.id]);
 
     if (loading) {
-        return <div>Cargando...</div>; 
+        return <div className="text-mobile-sm xl:text-desktop-sm">Cargando...</div>; 
     }
 
     if (!seller) {
-        return <div>No se encontró información del vendedor.</div>; 
+        return <div className="text-mobile-sm xl:text-desktop-sm">No se encontró información del vendedor.</div>; 
     }
 
     return (

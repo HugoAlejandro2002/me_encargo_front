@@ -66,47 +66,69 @@ const FinanceFluxTable = (refreshKey: any) => {
         {
             title: "Tipo",
             dataIndex: "tipo",
-            key: "finance_flux_type"
+            key: "finance_flux_type",
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{text}</span>
+            ),
         },
         {
             title: "Fecha",
             dataIndex: "fecha",
             key: "finance_flux_date",
-            render: (text: string) => new Date(text).toLocaleDateString('es-ES')
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{new Date(text).toLocaleDateString('es-ES')}</span>
+            ),
         },
         {
             title: "Categoría",
             dataIndex: "categoria",
-            key: "finance_flux_category"
+            key: "finance_flux_category",
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{text}</span>
+            ),
         },
         {
             title: "Monto",
             dataIndex: "monto",
             key: "finance_flux_amount",
-            render: (text: any) => `Bs. ${text}`
+            render: (text: any) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${text}`}</span>
+            ),
         },
         {
             title: "Concepto",
             dataIndex: "concepto",
-            key: "finance_flux_concept"
+            key: "finance_flux_concept",
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{text}</span>
+            ),
         },
         {
             title: "Vendedor",
             dataIndex: "vendedor",
-            key: "finance_flux_seller"
+            key: "finance_flux_seller",
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{text}</span>
+            ),
         },
         {
             title: "¿Es deuda?",
             dataIndex: "esDeuda",
-            key: "finance_flux_isDebt"
+            key: "finance_flux_isDebt",
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{text}</span>
+            ),
         },
         {
             title: "Encargado",
             dataIndex: "encargado",
-            key: "finance_flux_worker"
-        }
-
-    ]
+            key: "finance_flux_worker",
+            render: (text: string) => (
+                <span className="text-mobile-sm xl:text-desktop-sm">{text}</span>
+            ),
+        },
+    ];
+    
 
     return (
         <div>

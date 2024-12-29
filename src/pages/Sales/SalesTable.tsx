@@ -46,26 +46,31 @@ const SalesTable = (refreshKey: any) => {
             title: 'Producto',
             dataIndex: 'producto',
             key: 'producto',
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: 'Cantidad',
             dataIndex: 'cantidad',
             key: 'cantidad',
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: 'Precio Unitario',
             dataIndex: 'precio_unitario',
             key: 'precio_unitario',
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: 'Utilidad',
             dataIndex: 'utilidad',
             key: 'utilidad',
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
         {
             title: 'Utilidad Extra',
             dataIndex: 'utilidad_extra',
             key: 'utilidad_extra',
+            className: "text-mobile-sm xl:text-desktop-sm"
         },
     ];
 

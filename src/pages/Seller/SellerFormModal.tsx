@@ -216,7 +216,7 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
         </Row>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
+          <Button type="primary" htmlType="submit" loading={loading} className="text-mobile-sm xl:text-desktop-sm">
             Guardar
           </Button>
         </Form.Item>

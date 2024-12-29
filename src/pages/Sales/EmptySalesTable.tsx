@@ -13,6 +13,7 @@ const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handl
             title: 'Producto',
             dataIndex: 'producto',
             key: 'producto',
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: 'Cantidad',
@@ -23,8 +24,10 @@ const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handl
                     min={1}
                     value={record.cantidad}
                     onChange={value => handleValueChange(record.key, 'cantidad', value)}
+                    className="text-mobile-sm xl:text-desktop-sm"
                 />
             ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: 'Precio Unitario',
@@ -35,8 +38,10 @@ const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handl
                     min={0}
                     value={record.precio_unitario}
                     onChange={value => handleValueChange(record.key, 'precio_unitario', value)}
+                    className="text-mobile-sm xl:text-desktop-sm"
                 />
-            )
+            ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: 'Utilidad',
@@ -48,17 +53,20 @@ const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handl
                     value={record.utilidad}
                     onChange={value => handleValueChange(record.key, 'utilidad', value)}
                     defaultValue={0}
+                    className="text-mobile-sm xl:text-desktop-sm"
                 />
-            )
+            ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: 'Acción',
             key: 'action',
             render: (_: any, record: any) => (
-                <Button type="link" onClick={() => onDeleteProduct(record.key)}>
+                <Button type="link" onClick={() => onDeleteProduct(record.key)} className="text-mobile-sm xl:text-desktop-sm">
                     Eliminar
                 </Button>
             ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
     ];
     useEffect(() => {

@@ -40,6 +40,7 @@ const EntryProductTable = ({product, onSave, setEntryData}) => {
             render: (text: string) => {
                 return dayjs(text).format('DD/MM/YYYY');
             },
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: "Cantidad",
@@ -53,6 +54,7 @@ const EntryProductTable = ({product, onSave, setEntryData}) => {
                     onChange={(value) => handleValueChange(record.key, "cantidad_ingreso", value)}
                 />
             ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         ...(isAdmin
             ? [
@@ -64,6 +66,7 @@ const EntryProductTable = ({product, onSave, setEntryData}) => {
                         const { nombre, apellido, marca } = record.vendedor;
                         return `${nombre} ${apellido} - ${marca}`;
                     },
+                    className: "text-mobile-sm xl:text-desktop-sm",
                 },
                 {
                     title: "Acción",
@@ -73,6 +76,7 @@ const EntryProductTable = ({product, onSave, setEntryData}) => {
                             Eliminar
                         </Button>
                     ),
+                    className: "text-mobile-sm xl:text-desktop-sm",
                 },
             ]
             : []),

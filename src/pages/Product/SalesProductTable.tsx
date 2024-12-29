@@ -50,6 +50,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
             render: (text: string) => {
                 return dayjs(text).format('DD/MM/YYYY');
             },
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: "Precio Unitario",
@@ -63,6 +64,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
                     onChange={(value) => handleValueChange(record.key, "precio_unitario", value)}
                 />
             ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: "Cantidad",
@@ -76,6 +78,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
                     onChange={(value) => handleValueChange(record.key, "cantidad", value)}
                 />
             ),
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         {
             title: "Subtotal",
@@ -85,6 +88,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
                 const subtotal = (record.cantidad || 0) * (record.precio_unitario || 0);
                 return `Bs. ${subtotal.toFixed(2)}`;
             },
+            className: "text-mobile-sm xl:text-desktop-sm",
         },
         ...(isAdmin
             ? [
@@ -92,6 +96,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
                     title: "Vendedor",
                     dataIndex: "nombre_vendedor",
                     key: "nombre_vendedor",
+                    className: "text-mobile-sm xl:text-desktop-sm",
                 },
                 {
                     title: "Acción",
@@ -101,6 +106,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
                             Eliminar
                         </Button>
                     ),
+                    className: "text-mobile-sm xl:text-desktop-sm",
                 },
             ]
             : []),

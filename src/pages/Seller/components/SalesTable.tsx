@@ -33,11 +33,13 @@ const CustomTable = ({
       render: (text: string) => {
         return dayjs(text).format('DD/MM/YYYY');
       },
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Producto",
       dataIndex: "producto",
       key: "producto",
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Precio Unitario",
@@ -51,6 +53,7 @@ const CustomTable = ({
           onChange={(value) => handleValueChange(record.key, "precio_unitario", value)}
         />
       ),
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Cantidad",
@@ -64,6 +67,7 @@ const CustomTable = ({
           onChange={(value) => handleValueChange(record.key, "cantidad", value)}
         />
       ),
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Subtotal",
@@ -73,11 +77,13 @@ const CustomTable = ({
         const subtotal = (record.cantidad || 0) * (record.precio_unitario || 0);
         return `Bs. ${subtotal.toFixed(2)}`;
       },
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: showClient ? "Cliente" : "Tipo",
       dataIndex: showClient ? "cliente" : "tipo",
       key: showClient ? "cliente" : "tipo",
+      className: "text-mobile-sm xl:text-desktop-sm"
     },
     ...(isAdmin
       ? [
@@ -89,6 +95,7 @@ const CustomTable = ({
               Eliminar
             </Button>
           ),
+          className: "text-mobile-sm xl:text-desktop-sm",
         },
       ]
       : []),
@@ -101,7 +108,7 @@ const CustomTable = ({
   return (
     <div>
       <div style={{ textAlign: "right" }}>
-        <strong>Monto Total:</strong> Bs.{totalAmount.toFixed(2)}
+        <strong className="text-mobile-sm xl:text-desktop-sm">Monto Total:</strong> Bs.{totalAmount.toFixed(2)}
       </div>
       <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
     </div>

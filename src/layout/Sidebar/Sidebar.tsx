@@ -40,26 +40,26 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar,isMobile }) => 
       >
         &#9776;
       </button>
-      <div className="flex flex-col">
+      <div className="flex flex-col bg-blue">
         {filteredMenuItems.map((item) => (
           <Link
             to={item.path}
-            className="flex items-center p-4 hover:bg-light-blue/10"
+            className="flex items-center p-4 bg-blue hover:bg-light-blue/10 transition-colors duration-200"
             key={item.path}
           >
             <img src={item.icon} alt={item.label} className="w-6 h-6 mx-3" />
-            {isOpen && <span className="ml-2">{item.label}</span>}
+            {isOpen && <span className="ml-2 text-mobile-sm xl:text-desktop-sm">{item.label}</span>}
           </Link>
         ))}
       </div>
       {isMobile && (
-          <Button
-            onClick={handleLogout}
-            type="text"
-            className="bg-light-blue text-dark-blue"
-          >
-            Cerrar sesión
-          </Button>
+        <Button
+          onClick={handleLogout}
+          type="text"
+          className="bg-light-blue text-dark-blue text-mobile-sm"
+        >
+          Cerrar sesión
+        </Button>
       )}
     </div>
   );

@@ -184,20 +184,20 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
 
     return (
         <div>
-            <h2>Información del Vendedor: {seller.nombre}</h2>
+            <h2 className="text-mobile-sm xl:text-desktop-sm">Información del Vendedor: {seller.nombre}</h2>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div style={{ background: '#007bff', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
-                    <h3>PAGO PENDIENTE</h3>
-                    <h2>{`${seller.deuda}`}</h2>
+                    <h3 className="text-mobile-sm xl:text-desktop-sm">PAGO PENDIENTE</h3>
+                    <h2 className="text-mobile-sm xl:text-desktop-sm">{`${seller.deuda}`}</h2>
                 </div>
                 <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
-                    <h3>Deuda no pagado</h3>
-                    <h2>{`Bs. ${deudaCalculada}`}</h2>
+                    <h3 className="text-mobile-sm xl:text-desktop-sm">Deuda no pagado</h3>
+                    <h2 className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${deudaCalculada}`}</h2>
                 </div>
                 <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
-                    <h3>Saldo Pendiente</h3>
-                    <h2>{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
+                    <h3 className="text-mobile-sm xl:text-desktop-sm">Saldo Pendiente</h3>
+                    <h2 className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
                 </div>
             </div>
 
@@ -246,7 +246,7 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                 </Form.Item>
 
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Ventas no pagadas</h4>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }} className="text-mobile-sm xl:text-desktop-sm">Ventas no pagadas</h4>
                     <CustomTable
                         data={ventasNoPagadasProductos}
                         onUpdateTotalAmount={setTotalNoPagadas}
@@ -262,7 +262,7 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                 />
 
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ventas</h4>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }} className="text-mobile-sm xl:text-desktop-sm">Historial de ventas</h4>
                     <CustomTable
                         data={products}
                         onUpdateTotalAmount={setTotalHistorial}
@@ -273,7 +273,7 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                     />
                 </div>
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Historial de ingreso</h4>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }} className="text-mobile-sm xl:text-desktop-sm">Historial de ingreso</h4>
                     <EntryProductSellerTable
                         data={entryProductsAmount}
                         handleValueChange={handleValueChangeEntry}
@@ -282,7 +282,7 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                     />
                 </div>
                 <div style={{ overflowX: 'auto', marginBottom: '16px' }}>
-                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }}>Comprobante de pago</h4>
+                    <h4 style={{ fontWeight: 'bold', fontSize: 20 }} className="text-mobile-sm xl:text-desktop-sm">Comprobante de pago</h4>
                     <PaymentProofTable
                         data={paymentProofs}
                     />
@@ -291,13 +291,13 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                 <Form.Item>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                         <Form.Item style={{ margin: 0 }}>
-                            <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: '8px' }}>
+                            <Button type="primary" htmlType="submit" loading={loading} style={{ marginRight: '8px' }} className="text-mobile-sm xl:text-desktop-sm">
                                 {loading ? 'Guardando...' : 'Guardar'}
                             </Button>
                         </Form.Item>
                         {!isSeller && (
                             <Form.Item style={{ margin: 0 }}>
-                                <Button onClick={onCancel}>
+                                <Button onClick={onCancel} className="text-mobile-sm xl:text-desktop-sm">
                                     Cancelar
                                 </Button>
                             </Form.Item>

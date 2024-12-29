@@ -10,26 +10,26 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
     
     const columns = [
         {
-            title: 'Producto',
+            title: <span className="text-mobile-sm xl:text-desktop-sm">Producto</span>,
             dataIndex: 'producto',
             key: 'producto',
         },
         {
-            title: 'Stock actual',
+            title: <span className="text-mobile-sm xl:text-desktop-sm">Stock actual</span>,
             dataIndex: 'stockActual',
             key: 'stockActual',
         },
         {
-            title: 'Precio',
+            title: <span className="text-mobile-sm xl:text-desktop-sm">Precio</span>,
             dataIndex: 'precio',
             key: 'precio',
         },
         {
-            title: 'Categoría',
+            title: <span className="text-mobile-sm xl:text-desktop-sm">Categoría</span>,
             dataIndex: 'categoria',
             key: 'categoria',
         },
-    ]
+    ];
 
     const { fetchProducts } = useProducts()
     const [localData, setLocalData] = useState<any>([])
@@ -66,11 +66,12 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
                 />
             )}
             <Table
-                className='flex-1 '
+                className='flex-1'
                 columns={columns}
                 dataSource={filteredData}
                 pagination={false}
                 onRow={(record) => ({
+                    className: 'text-mobile-sm xl:text-desktop-sm',
                     onClick: () => onSelectProduct(record),
                 })}
             />

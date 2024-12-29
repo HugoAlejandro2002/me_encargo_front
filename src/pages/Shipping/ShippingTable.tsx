@@ -188,7 +188,7 @@ const ShippingTable = (refreshKey: any) => {
                     style={{ marginRight: 8 }}
                 />
             </div>
-            <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('espera')}>En espera</h2>
+            <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('espera')}  className='text-mobile-sm xl:text-desktop-3xl'>En espera</h2>
             {visibility.espera && (
                 <Table
                     columns={columns}
@@ -199,7 +199,7 @@ const ShippingTable = (refreshKey: any) => {
                     })}
                 />
             )}
-            <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('porEntregar')}>Por Entregar</h2>
+            <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('porEntregar')}  className='text-mobile-sm xl:text-desktop-3xl'>Por Entregar</h2>
             {visibility.porEntregar && (
                 <Table
                     columns={columns}
@@ -211,7 +211,7 @@ const ShippingTable = (refreshKey: any) => {
                 />
             )}
 
-            <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('entregado')}>Entregado</h2>
+            <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('entregado')}  className='text-mobile-sm xl:text-desktop-3xl'>Entregado</h2>
             {visibility.entregado && (
                 <Table
                     columns={columns}

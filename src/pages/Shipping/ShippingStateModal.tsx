@@ -214,12 +214,14 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
                                             icon={<PlusOutlined />}
                                             onClick={() => handleIncrement(setCostoRealizarDelivery, 0.01)}
                                             style={{ marginLeft: '8px' }}
+                                             className='text-mobile-sm xl:text-desktop-sm'
                                         />
                                         <Button
                                             type="primary"
                                             icon={<MinusOutlined />}
                                             onClick={() => handleDecrement(setCostoRealizarDelivery, 0.01)}
                                             style={{ marginLeft: '8px' }}
+                                             className='text-mobile-sm xl:text-desktop-sm'
                                         />
                                     </div>
                                 </Form.Item>

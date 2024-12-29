@@ -151,13 +151,14 @@ const DebtModal = ({ visible, onSuccess, onCancel, seller }: any) => {
           <Checkbox
             checked={payDebts}
             onChange={(e) => setPayDebts(e.target.checked)}
+            className="text-mobile-sm xl:text-desktop-sm"
           >
             ¿Desea pagar las deudas existentes?
           </Checkbox>
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading}>
+          <Button type="primary" htmlType="submit" loading={loading} className="text-mobile-sm xl:text-desktop-sm">
             Guardar
           </Button>
         </Form.Item>

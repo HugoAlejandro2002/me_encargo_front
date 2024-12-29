@@ -27,8 +27,8 @@ export const Seller = () => {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">Vendedores</h1>
-        <Button onClick={showModal} type="primary">
+        <h1 className="text-mobile-2xl xl:text-desktop-2xl font-bold">Vendedores</h1>
+        <Button onClick={showModal} type="primary" className="text-mobile-sm xl:text-desktop-sm">
           Agregar Vendedor
         </Button>
       </div>

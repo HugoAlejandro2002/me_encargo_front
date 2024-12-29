@@ -24,15 +24,15 @@ const Header = () => {
 
   return (
     <div className="flex justify-between items-center p-5 bg-blue h-16 border-light-gray">
-      <div className="flex items-center">
+      <div className="flex items-center bg-blue">
         <img src={logoImg} alt="logo" className="w-10 h-auto" />
-        <h1 className="ml-4 text-2xl text-light-blue font-bold">ME ENCARGO</h1>
+        <h1 className="ml-4 text-mobile-2xl xl:text-desktop-2xl  text-light-blue font-bold">ME ENCARGO</h1>
       </div>
 
       <Search
         placeholder="Buscar"
         // onSearch={(value) => }
-        className="flex-grow max-w-xl mx-5"
+        className="flex-grow max-w-xl mx-5 text-mobile-sm xl:text-desktop-sm"
         style={{ width: 400 }}
       />
 
@@ -40,7 +40,7 @@ const Header = () => {
       <Button
         onClick={handleLogout}
         type="text"
-        className="bg-light-blue text-dark-blue"
+        className="bg-light-blue text-desktop-sm text-dark-blue text-mobile-sm xl:text-desktop-sm"
       >
         Cerrar sesión
       </Button>

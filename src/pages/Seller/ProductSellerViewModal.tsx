@@ -185,7 +185,7 @@ const ProductSellerViewModal = ({ visible, onCancel, onSuccess }: any) => {
                 </Form.Item>
         
                 <Form.Item>
-                    <Button type="primary" htmlType="submit" loading={loading}>
+                    <Button type="primary" htmlType="submit" loading={loading} className="text-mobile-sm xl:text-desktop-sm">
                         Registrar Producto
                     </Button>
                 </Form.Item>

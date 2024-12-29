@@ -223,12 +223,12 @@ export const Sales = () => {
     return (
         <div className="p-4">
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold">Carrito</h1>
+                <h1 className="text-mobile-2xl xl:text-desktop-2xl font-bold">Carrito</h1>
                 <div className="flex space-x-2">
                     {isAdmin && (
-                        <Button onClick={showSalesModal} type="primary">Realizar Venta</Button>
+                        <Button onClick={showSalesModal} type="primary" className="text-mobile-sm xl:text-desktop-sm">Realizar Venta</Button>
                     )}
-                    <Button onClick={showShippingModal} type="primary">Realizar Entrega</Button>
+                    <Button onClick={showShippingModal} type="primary" className="text-mobile-sm xl:text-desktop-sm">Realizar Entrega</Button>
                 </div>
             </div>
             <Row gutter={16}>
@@ -236,11 +236,12 @@ export const Sales = () => {
                     <Card
                         title={
                             <div className="flex justify-between items-center">
-                                <span>Inventario</span>
+                                <span className="text-mobile-base xl:text-desktop-base">Inventario</span>
                                 <Form.Item>
                                     <Button
                                         type="primary"
                                         onClick={() => setProductAddModal(true)}
+                                        className="text-mobile-sm xl:text-desktop-sm"
                                     >
                                         Añadir nuevo producto
                                     </Button>
@@ -249,10 +250,12 @@ export const Sales = () => {
                                     <Form.Item
                                         name="id_vendedor"
                                         label="Vendedor"
+                                        className="text-mobile-sm xl:text-desktop-sm"
                                         rules={[{ required: true, message: 'Por favor seleccione un vendedor' }]}
                                     >
                                         <Select
                                             placeholder="Selecciona un vendedor"
+                                            className="text-mobile-sm xl:text-desktop-sm"
                                             dropdownRender={menu => (
                                                 <>
                                                     {menu}
@@ -261,11 +264,13 @@ export const Sales = () => {
                                                             style={{ flex: 1, minWidth: 200, marginRight: 8 }}
                                                             value={newSeller}
                                                             onChange={e => setNewSeller(e.target.value)}
+                                                            className="text-mobile-sm xl:text-desktop-sm"
                                                         />
                                                         <Button
                                                             type="link"
                                                             onClick={createSeller}
                                                             loading={loading}
+                                                            className="text-mobile-sm xl:text-desktop-sm"
                                                         >
                                                             Añadir vendedor
                                                         </Button>
@@ -295,7 +300,7 @@ export const Sales = () => {
                     </Card>
                 </Col>
                 <Col span={12}>
-                    <Card title="Ventas" bordered={false}>
+                    <Card title="Ventas" bordered={false} className="text-mobile-sm xl:text-desktop-sm">
                         <EmptySalesTable
                             products={selectedProducts}
                             onDeleteProduct={handleDeleteProduct}

@@ -1,4 +1,4 @@
-import { Button, Table } from "antd";
+import { Button, Table, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import { getSellersAPI } from "../../api/seller";
 import DebtModal from "./DebtModal";
@@ -9,57 +9,63 @@ import SellerInfoModalTry from "./SellerInfoModal";
 const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
   const columns = [
     {
-      key: "seller_pay_debt",
-      render: (_: any, seller: any) => <PayDebtButton seller={seller} />,
-      className: "text-mobile-sm xl:text-desktop-sm"
-    },
-    {
-      key: "seller_new_debt",
-      render: (_: any, seller: any) => (
-        <Button
-          type="default"
-          onClick={() => showModal(seller)}
-          icon={<EditOutlined />}
-          className= "text-mobile-sm xl:text-desktop-sm"
-        />
-      ),
-      className: "text-mobile-sm xl:text-desktop-sm"
-    },
-    {
       title: "Nombre",
       dataIndex: "nombre",
       key: "nombre",
-      className: "text-mobile-sm xl:text-desktop-sm"
+      className: "text-mobile-sm xl:text-desktop-sm",
+      fixed: "left" as const,
     },
     {
       title: "Pago total",
       dataIndex: "deuda",
       key: "deuda",
-      className: "text-mobile-sm xl:text-desktop-sm"
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Fecha Vigencia",
       dataIndex: "fecha_vigencia",
       key: "fecha_vigencia",
-      className: "text-mobile-sm xl:text-desktop-sm"
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Pago Mensual",
       dataIndex: "pago_mensual",
       key: "pago_mensual",
-      className: "text-mobile-sm xl:text-desktop-sm"
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Comisión Porcentual",
       dataIndex: "comision_porcentual",
       key: "comision_porcentual",
-      className: "text-mobile-sm xl:text-desktop-sm"
+      className: "text-mobile-sm xl:text-desktop-sm",
     },
     {
       title: "Comisión Fija",
       dataIndex: "comision_fija",
       key: "comision_fija",
-      className: "text-mobile-sm xl:text-desktop-sm"
+      className: "text-mobile-sm xl:text-desktop-sm",
+    },
+    {
+      title: "Acciones",
+      key: "actions",
+      // width: "20%",
+      className: "text-mobile-sm flex xl:text-desktop-sm",
+      render: (_: any, seller: any) => (
+        <div className="flex items-center gap-2 justify-end">
+          <PayDebtButton seller={seller} />
+          <Tooltip title="Renovar vendedor">
+            <Button
+              type="default"
+              onClick={(e) => {
+                e.stopPropagation();
+                showModal(seller);
+              }}
+              icon={<EditOutlined />}
+              className="text-mobile-sm xl:text-desktop-sm"
+            />
+          </Tooltip>
+        </div>
+      ),
     },
   ];
 
@@ -72,8 +78,6 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
   async function fetchSellers() {
     try {
       const response = await getSellersAPI();
-
-      console.log(response)
 
       const sellersData = response.data || response;
 
@@ -107,7 +111,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             mail: seller.mail,
             carnet: seller.carnet,
             adelanto_servicio: seller.adelanto_servicio,
-            marca:seller.marca,
+            marca: seller.marca,
           };
         })
       );
@@ -157,8 +161,9 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
       <Table
         columns={columns}
         dataSource={pendingPaymentData}
+        scroll={{ x: "max-content" }}
         title={() => (
-          <h2 className="text-2xl font-bold">
+          <h2 className="text-2xl font-bold justify-center">
             Pago pendiente Bs.{" "}
             {pendingPaymentData.reduce(
               (acc: number, seller: any) => acc + seller.pagoTotalInt,
@@ -166,16 +171,17 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             )}
           </h2>
         )}
-        pagination={false}
+        pagination={{ pageSize: 5 }}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
         })}
       />
       <Table
         columns={columns}
+        scroll={{ x: "max-content" }}
         dataSource={onTimePaymentData}
         title={() => <h2 className="text-2xl font-bold">Pago al día</h2>}
-        pagination={false}
+        pagination={{ pageSize: 5 }}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),
         })}

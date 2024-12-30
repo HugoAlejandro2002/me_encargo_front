@@ -1,4 +1,4 @@
-import { Button, Checkbox, Popover, message } from "antd";
+import { Button, Checkbox, Popover, Tooltip, message } from "antd";
 import { DollarOutlined } from "@ant-design/icons";
 import { useState } from "react";
 
@@ -40,18 +40,20 @@ const PayDebtButton = ({ seller }: any) => {
   );
 
   return (
-    <div onClick={(e) => e.stopPropagation()}>
-      <Popover
-        content={content}
-        title="Pagar al vendedor"
-        trigger="click"
-        open={visible}
-        onOpenChange={(newVisible) => setVisible(newVisible)}
-        placement="right"
-      >
-        <Button type="default" icon={<DollarOutlined />} />
-      </Popover>
-    </div>
+    <Tooltip title='Pagar deuda'>
+      <div onClick={(e) => e.stopPropagation()}>
+        <Popover
+          content={content}
+          title="Pagar al vendedor"
+          trigger="click"
+          open={visible}
+          onOpenChange={(newVisible) => setVisible(newVisible)}
+          placement="right"
+        >
+          <Button type="default" icon={<DollarOutlined />} />
+        </Popover>
+      </div>
+    </Tooltip>
   );
 };
 

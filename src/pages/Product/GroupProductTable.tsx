@@ -18,8 +18,9 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
             title: 'Producto',
             dataIndex: 'producto',
             key: 'producto',
-            width: "30%",
-            className: 'text-mobile-sm xl:text-desktop-sm'
+            width: "20%",
+            className: 'text-mobile-sm xl:text-desktop-sm',
+            fixed: 'left' as const,
         },
         {
             title: 'Ingreso/Entrada',
@@ -36,7 +37,7 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
                     // }
                 />
             ),
-            width: "10%",
+            width: "20%",
             className: 'text-mobile-sm xl:text-desktop-sm'
         },
         {
@@ -130,7 +131,8 @@ const GroupProductTable = ({ group, onAddVariant, refreshProducts }: any) => {
             <Table
                 columns={columns}
                 dataSource={products}
-                pagination={false}
+                scroll={{ x: "max-content" }}
+                pagination={{pageSize: 5 }}
                 title={() => (
                     <div className="flex justify-between items-center">
                         {/* <div className="flex item ">

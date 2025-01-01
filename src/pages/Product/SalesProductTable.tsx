@@ -51,6 +51,7 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
                 return dayjs(text).format('DD/MM/YYYY');
             },
             className: "text-mobile-sm xl:text-desktop-sm",
+            fixed: 'left' as const,
         },
         {
             title: "Precio Unitario",
@@ -113,12 +114,17 @@ const SalesProductTable = ({product, onSave, setSalesData}) => {
     ];
 
     return (
-        <div>
-            <div style={{ textAlign: "right" }}>
-                <strong>Monto Total:</strong> Bs.{totalAmount.toFixed(2)}
-            </div>
-            <Table columns={columns} dataSource={productSales.filter(sale => !sale.deleted)} pagination={{ pageSize: 5 }} />
+      <div>
+        <div style={{ textAlign: "right" }}>
+          <strong className="text-mobile-base xl:text-desktop-base">Monto Total:</strong> Bs.{totalAmount.toFixed(2)}
         </div>
+        <Table
+          columns={columns}
+          dataSource={productSales.filter((sale) => !sale.deleted)}
+          scroll={{ x: "max-content" }}
+          pagination={{ pageSize: 5 }}
+        />
+      </div>
     );
 };
 

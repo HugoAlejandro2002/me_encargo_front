@@ -79,19 +79,19 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
       open={visible}
       onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose}>
+        <Button key="back" onClick={onClose} className='text-mobile-sm xl:text-desktop-sm'>
           Cerrar
         </Button>,
         isAdmin && (
-          <Button key="save" type="primary" onClick={handleSave}>
+          <Button key="save" type="primary" onClick={handleSave} className='text-mobile-sm xl:text-desktop-sm'>
             Guardar
           </Button>
         )
       ]}
       centered
-      width={800}
+      width={window.innerWidth <= 1024 ? '80%' : 800}
     >
-      <Descriptions bordered layout="horizontal" column={2}>
+      <Descriptions bordered layout="horizontal" column={{ xs: 1, lg: 2 }}>
         <Descriptions.Item label="Nombre">{nombre_producto}</Descriptions.Item>
         <Descriptions.Item label="Precio">{precio} Bs</Descriptions.Item>
         <Descriptions.Item label="Fecha de Ingreso">{new Date(fecha_de_ingreso).toLocaleDateString()}</Descriptions.Item>
@@ -100,16 +100,16 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
         <Descriptions.Item label="Stock Total">{product.producto_sucursal.reduce((acc: number, prodSuc: any) => acc + prodSuc.cantidad_por_sucursal, 0)}</Descriptions.Item>
       </Descriptions>
 
-      <h3 style={{ marginTop: '20px' }}>Características</h3>
-      <Descriptions bordered layout="horizontal" column={2}>
+      <h3 style={{ marginTop: '20px' }} className='text-mobile-sm xl:text-desktop-sm'>Características</h3>
+      <Descriptions bordered layout="horizontal" column={{ xs: 1, lg: 2 }}>
         {features.map((feature, index) => (
           <Descriptions.Item key={index} label={feature.feature}>{feature.value}</Descriptions.Item>
         ))}
       </Descriptions>
       <RestockTable products={products} onSave={handleSave} setRestockData={setRestockData} />
-      <h3 style={{ marginTop: '20px' }}>Historial de Ingresos</h3>
+      <h3 style={{ marginTop: '20px' }} className='text-mobile-sm xl:text-desktop-sm'>Historial de Ingresos</h3>
       <EntryProductTable product={products} onSave={handleSave} setEntryData={setEntryData} />
-      <h3 style={{ marginTop: '20px' }}>Historial de Ventas</h3>
+      <h3 style={{ marginTop: '20px' }} className='text-mobile-sm xl:text-desktop-sm'>Historial de Ventas</h3>
       <SalesProductTable product={products} onSave={handleSave} setSalesData={setSalesData} />
     </Modal>
   );

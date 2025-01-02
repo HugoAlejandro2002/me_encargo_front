@@ -71,6 +71,7 @@ const RestockTable = ({ products, onSave, setRestockData }) => {
             <Table
                 columns={columns}
                 dataSource={restockData}
+                scroll={{ x: "max-content" }}
                 pagination={false}
                 rowKey="id_producto"
             />

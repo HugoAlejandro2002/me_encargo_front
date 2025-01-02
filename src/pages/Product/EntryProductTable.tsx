@@ -41,6 +41,7 @@ const EntryProductTable = ({product, onSave, setEntryData}) => {
                 return dayjs(text).format('DD/MM/YYYY');
             },
             className: "text-mobile-sm xl:text-desktop-sm",
+            fixed: 'left' as const,
         },
         {
             title: "Cantidad",
@@ -83,9 +84,14 @@ const EntryProductTable = ({product, onSave, setEntryData}) => {
     ];
 
     return (
-        <div>
-            <Table columns={columns} dataSource={productDetails.filter(detail => !detail.deleted)} pagination={{ pageSize: 5 }} />
-        </div>
+      <div>
+        <Table
+          columns={columns}
+          dataSource={productDetails.filter((detail) => !detail.deleted)}
+          scroll={{ x: "max-content" }}
+          pagination={{ pageSize: 5 }}
+        />
+      </div>
     );
 };
 

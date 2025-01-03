@@ -135,7 +135,7 @@ const FinanceFluxTable = (refreshKey: any) => {
             <div>
 
                 <Select
-                    className="mr-2 w-1/5"
+                    className="mr-2 w-2/3 xl:w-1/5"
                     placeholder="Filtrar por tipo"
                     onChange={(value) => setSelectedType(value || '')}
                     options={Object.entries(financeFluxTypes).map(([key, value]) => ({
@@ -145,6 +145,7 @@ const FinanceFluxTable = (refreshKey: any) => {
                     allowClear
                 />
                 <RangePicker
+                    className="w-full xl:w-1/5"
                     onChange={(dates) => {
                         if (dates && dates[0] && dates[1]) {
                             setDateRange([dates[0].toDate(), dates[1].toDate()]);
@@ -159,6 +160,7 @@ const FinanceFluxTable = (refreshKey: any) => {
                 columns={columns}
                 dataSource={filteredData}
                 pagination={false}
+                scroll={{ x: "max-content" }}
             />
         </div>
     )

@@ -151,7 +151,7 @@ const ShippingTable = (refreshKey: any) => {
         <div>
             <div style={{ marginBottom: 16 }}>
                 <Select
-                    className="mr-2 w-1/5"
+                    className="mr-2 w-2/3 xl:w-1/5"
                     placeholder="Filtrar por lugar/sucursales"
                     onChange={(value) => {
                         setSelectedLocation(value || '');
@@ -171,13 +171,14 @@ const ShippingTable = (refreshKey: any) => {
                 </Select>
                 {selectedLocation === 'other' && (
                     <Input
-                        className="mt-2 w-1/5"
+                        className="mt-2 w-2/3 xl:w-1/5"
                         placeholder="Especificar otro lugar"
                         value={otherLocation}
                         onChange={(e) => setOtherLocation(e.target.value)}
                     />
                 )}
                 <RangePicker
+                    className='mt-2 w-full xl:w-1/5'
                     onChange={(dates) => {
                         if (dates && dates[0] && dates[1]) {
                             setDateRange([dates[0].toDate(), dates[1].toDate()]);
@@ -194,9 +195,11 @@ const ShippingTable = (refreshKey: any) => {
                     columns={columns}
                     dataSource={filteredEsperaData}
                     pagination={false}
+                    scroll={{ x: "max-content" }}
                     onRow={(record) => ({
                         onClick: () => handleRowClick(record)
                     })}
+                    
                 />
             )}
             <h2 style={{ cursor: 'pointer' }} onClick={() => toggleVisibility('porEntregar')}  className='text-mobile-sm xl:text-desktop-3xl'>Por Entregar</h2>
@@ -205,6 +208,7 @@ const ShippingTable = (refreshKey: any) => {
                     columns={columns}
                     dataSource={filteredPorEntregarData}
                     pagination={false}
+                    scroll={{ x: "max-content" }}
                     onRow={(record) => ({
                         onClick: () => handleRowClick(record)
                     })}
@@ -217,6 +221,7 @@ const ShippingTable = (refreshKey: any) => {
                     columns={columns}
                     dataSource={filteredEntregadoData}
                     pagination={false}
+                    scroll={{ x: "max-content" }}
                     onRow={(record) => ({
                         onClick: () => handleRowClick(record)
                     })}

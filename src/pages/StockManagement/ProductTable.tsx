@@ -167,7 +167,8 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
                             <Table
                                 columns={columns}
                                 dataSource={group.products}
-                                pagination={false}
+                                pagination={{pageSize: 5}}
+                                scroll={{x: "max-content"}}
                                 rowClassName={(record) => {
                                     const ingreso = ingresoData[record.id_producto] || 0;
                                     return ingreso !== 0 ? 'highlight-row' : '';

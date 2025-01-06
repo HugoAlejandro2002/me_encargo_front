@@ -196,20 +196,24 @@ const StockManagement = () => {
         setPrevKey(key => key+1)
     }
 
+    const controlSpan = isSeller ? { xs: 24, sm: 12, lg: 8 } : { xs: 24, sm: 12, lg: 6 };
+
     return (
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Row gutter={16}> { }
+            <Row gutter={[16, 16]}> 
                 {!isSeller && (
-                    <Col span={8}> { }
+                    <Col xs={24} md={8} style={{ marginBottom: '16px' }}>
                         <h2>Lista de Vendedores</h2>
                         <SellerList filterSelected={criteriaFilter} onSelectSeller={handleSelectSeller} />
                     </Col>
                 )}
 
-                <Col span={isSeller ? 24 : 16}> { }
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
+                <Col xs={24} md={isSeller ? 24 : 16}>
+                    <Row gutter={[16, 16]} justify="start" align="middle" style={{ marginBottom: '16px' }}>
+                    <Col {...controlSpan}>
                         <Select
-                            style={{ width: 200, marginRight: 24 }}
+                            style={{ width: 200}}
                             placeholder="Select an option"
                             onChange={handleChangeFilter}
                             defaultValue={0}
@@ -220,9 +224,11 @@ const StockManagement = () => {
                                 </Option>
                             ))}
                         </Select>
+                    </Col >
 
+                    <Col {...controlSpan}>
                         <Select
-                            style={{ width: 200, marginLeft: 16, marginRight: 50 }}
+                            style={{ width: 200}}
                             placeholder="Select an option"
                             onChange={handleChangeGroup}
                             defaultValue={0}
@@ -233,13 +239,16 @@ const StockManagement = () => {
                                 </Option>
                             ))}
                         </Select>
+                    </Col>
 
                         {!isSeller && (
-                            <Button onClick={() => setProductFormVisible(true)} type='primary'> Agregar Producto </Button>
+                            <Col xs={24} sm={12} lg={6}>
+                                <Button onClick={() => setProductFormVisible(true)} type='primary'> Agregar Producto </Button>
+                            </Col>
                         )}
                             
+                    <Col {...controlSpan}>
                         <Button 
-                            style={{ marginLeft: '20px' }}
                             onClick={() => {
                                 const newStock = []
                                 for(const productId in productsToUpdate){
@@ -264,7 +273,8 @@ const StockManagement = () => {
                             }>
                             Actualizar Stock
                         </Button>
-                    </div>
+                        </Col>
+                    </Row>
 
                     <ProductTable
                         groupList={options[criteriaGroup].group}

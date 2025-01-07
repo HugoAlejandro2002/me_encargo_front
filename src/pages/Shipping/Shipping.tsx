@@ -1,5 +1,4 @@
 import { useState } from "react";
-import useProducts from "../../hooks/useProducts";
 import ShippingTable from "./ShippingTable";
 
 const Shipping = () => {

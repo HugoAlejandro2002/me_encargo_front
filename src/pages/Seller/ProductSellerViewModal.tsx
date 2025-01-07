@@ -5,7 +5,7 @@ import { UserContext } from "../../context/userContext";
 import { registerVariantAPI } from "../../api/product";
 import { createEntryAPI } from "../../api/entry";
 
-const ProductSellerViewModal = ({ visible, onCancel, onSuccess }: any) => {
+const ProductSellerViewModal = ({ visible, onCancel, onSuccess, onAddProduct }: any) => {
     const { user }: any = useContext(UserContext);
     const [loading, setLoading] = useState(false)
     const [categories, setCategories] = useState([])
@@ -59,6 +59,10 @@ const ProductSellerViewModal = ({ visible, onCancel, onSuccess }: any) => {
             }
             message.success('Producto registrado con éxito');
             form.resetFields();
+            onAddProduct({ ...product, key: response.newProduct.id_producto, producto:nombre_producto, 
+                cantidad: cantidad_por_sucursal, 
+                precio_unitario: precio, 
+                utilidad: 1 }); //TODO: Make that the user can't modify the "cantidad" in empty sales table 
             onSuccess(); 
         } catch (error) {
             message.error('Error al registrar el producto');

@@ -7,7 +7,7 @@ import { UserContext } from '../../context/userContext';
 const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
     const { user }: any = useContext(UserContext);
     const isSeller = user?.role === 'seller';
-    
+
     const columns = [
         {
             title: <span className="text-mobile-sm xl:text-desktop-sm">Producto</span>,
@@ -43,7 +43,7 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
         }
         getNewData()
     }, [refreshKey])
-
+    console.log(data)
     const menuItems = [
         { key: 'all', label: 'Todo' }, // Opción para mostrar todos los productos
         ...sellers?.map((seller: any) => ({
@@ -52,8 +52,8 @@ const ProductTable = ({ data, onSelectProduct, refreshKey }: any) => {
         })) || [],
     ];
     const filteredData = selectedSeller.key == 'all'
-        ? data
-        : data.filter((product: any) => product.id_vendedor == selectedSeller.key);
+        ? data.filter((product: any) => product.groupId !== 1) // TODO: Put the "Sin Grupo" id according to the database, in this case, it's 1.
+        : data.filter((product: any) => product.id_vendedor === selectedSeller.key && product.groupId !== 1);
 
     return (
         <div className='flex'>

@@ -1,3 +1,7 @@
+import { IBranch } from "./branchModel";
+import { ISale } from "./saleModel";
+import { IWorker } from "./workerModel";
+
 export interface Shipping {
   id_pedido: number;
   cliente: string;
@@ -17,9 +21,7 @@ export interface Shipping {
   subtotal_efectivo: number;
   id_trabajador: number;
   id_sucursal: number;
-
-  // TODO: implement missing interfaces
-  //   venta: IVenta[];
-  //   sucursal: ISucursal[];
-  //   trabajador: ITrabajador;
+  venta: ISale[];
+  sucursal: IBranch[];
+  trabajador: IWorker;
 }

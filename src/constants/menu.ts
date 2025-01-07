@@ -46,4 +46,16 @@ export const menu = [
     icon: statsIcon,
     roles: ["admin"],
   },
+  {
+    path: "/cash",
+    label: "Reconciliación de Caja",
+    icon: boxIcon,
+    roles: ["admin"],
+  },
+  {
+    path: "/cierreCaja",
+    label: "Reconciliación de Caja",
+    icon: boxIcon,
+    roles: ["admin"],
+  },
 ];

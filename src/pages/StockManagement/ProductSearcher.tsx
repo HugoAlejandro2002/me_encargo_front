@@ -73,10 +73,10 @@ const ProductSearcher = ( {applySearcher} ) => {
         <Collapse accordion style={{margin: 20, marginTop:30}}>
             <Panel header="Buscador" key={1}>
                 <Form layout="vertical" form={form}>
-                    <Row gutter={16}>
-                        <Col span={6}>
-                        <Form.Item name="category" label="Category">
-                            <Select showSearch placeholder="Select category"
+                    <Row gutter={[16,16]}>
+                        <Col xs={24} sm={12} lg={8}>
+                        <Form.Item name="category" label="Categoría">
+                            <Select showSearch placeholder="Selecciona una categoría"
                                     filterOption={(input, option: any) =>
                                         option.key.toLocaleLowerCase().includes(input.toLocaleLowerCase())}
                                     >
@@ -93,12 +93,12 @@ const ProductSearcher = ( {applySearcher} ) => {
                         </Form.Item>
                         </Col>
 
-                        <Col span={6}>
+                        <Col xs={24} sm={12} lg={8}>
                         <Form.Item name="sucursal" label="Sucursal">
-                            <Select showSearch placeholder="Select sucursal"
+                            <Select showSearch placeholder="Selecciona una sucursal"
                                     filterOption={(input, option: any) =>
                                         option.key.toLocaleLowerCase().includes(input.toLocaleLowerCase())}
-                                    >
+                            >
                                 {
                                     sucursals.map((sucursal) => (
                                         <Option key={sucursal.nombre} 
@@ -112,27 +112,30 @@ const ProductSearcher = ( {applySearcher} ) => {
                         </Form.Item>
                         </Col>
 
-                        <Col span={6}>
-                        <Form.Item name="name" label="Product Name">
-                            <Input placeholder="Enter product name" />
+                        <Col xs={24} sm={12} lg={8}>
+                        <Form.Item name="name" label="Nombre del Producto">
+                            <Input placeholder="Ingresa el nombre del producto" />
                         </Form.Item>
                         </Col>
                     </Row>
                     
-                    <Row >
-                        <Col span={6}>
+                    <Row className='mb-4'>
+                        <Col xs={0} sm={12} lg={8}>
                             Caracteristica
                         </Col>
-                        <Col span={6}>
+                        <Col xs={0} sm={12} lg={8}>
                             Valor
+                        </Col>
+                        <Col xs={24} sm={0} lg={0}>
+                            Caracteristicas
                         </Col>
                     </Row>
 
                     {attributes.map((attribute, index) => (
-                        <Row key={index} gutter={16}>
-                        <Col span={6}>
-                            <Form.Item >
-                                <Select showSearch placeholder="Select attribute" value={attribute.key}
+                        <Row key={index} gutter={[16,16]} align={"middle"}>
+                        <Col xs={24} sm={12} lg={8}>
+                            <Form.Item className='mb-2'>
+                                <Select showSearch placeholder="Selecciona una característica" 
                                  onChange={value => {
                                     const newAttributes = [...attributes];
                                     newAttributes[index].key = value;
@@ -153,31 +156,33 @@ const ProductSearcher = ( {applySearcher} ) => {
                                 </Select>
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
-                            <Form.Item name={attribute.key}>
-                                <Input placeholder="Enter value" value={attribute.value} onChange={e => {
+
+                        <Col xs={24} sm={12} lg={8}>
+                            <Form.Item className="mb-2" name={attribute.key}>
+                                <Input placeholder="Ingresa un valor" value={attribute.value} onChange={e => {
                                     const newAttributes = [...attributes];
                                     newAttributes[index].value = e.target.value;
                                     setAttributes(newAttributes);
                                 }} />
                             </Form.Item>
                         </Col>
-                        <Col span={6}>
-                            <Button onClick={() => handleRemoveAttribute(index)}>
+                        <Col xs={24} sm={12} lg={8}>
+                            <Button className='mb-3 desktop:flex' onClick={() => handleRemoveAttribute(index)}>
                                 <DeleteOutlined/>
                             </Button>
                         </Col>
                         </Row>
                     ))}
-                    <Row justify="space-between" align="middle">
-                        <Col>
-                        <Button onClick={handleAddAttribute}>Add Attribute</Button>
+
+                    <Row className="mt-2" justify="space-between" align="middle">
+                        <Col className="mobile:mb-4 sm:mb-0" xs={24} sm={12}>
+                            <Button onClick={handleAddAttribute}>Agregar Característica</Button>
                         </Col>
-                        <Col>
-                        <Space>
-                            <Button onClick={resetSearcher}>Reset</Button>
-                            <Button onClick={getSearcher}>Apply</Button>
-                        </Space>
+                        <Col className="mobile:text-start tablet:text-end" xs={24} sm={12} >
+                            <Space className='w-full'>
+                                <Button onClick={resetSearcher}>Reset</Button>
+                                <Button onClick={getSearcher}>Apply</Button>
+                            </Space>
                         </Col>
                     </Row>
 

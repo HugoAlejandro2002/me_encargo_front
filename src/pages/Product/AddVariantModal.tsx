@@ -4,9 +4,8 @@ import { useState } from 'react';
 const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     const [form] = Form.useForm();
     
-    const example = group.product
-    
-    const [features, setFeatures] = useState(example.features)
+    const example = group.products
+    const [features, setFeatures] = useState(group.features)
 
     const handleVariantAdd = async (newVariant) => {
         onAdd(newVariant)
@@ -56,7 +55,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     label="Nombre del Producto"
                     name="nombre_producto"
                     rules={[{ required: true, message: 'Por favor ingrese el nombre del producto' }]}
-                    initialValue={`${example.nombre_producto}`}
+                    initialValue={`${example.nombre_producto || group.name}`}
                 >
                     <Input className='text-mobile-sm xl:text-desktop-sm' />
                 </Form.Item>
@@ -82,7 +81,7 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     {features.map((feature, index) => (
                         <div key={index} style={{ display: 'flex', marginBottom: 8 }}>
                           
-                            <h3 style={{margin: 10}}>{feature.feature}</h3>
+                            <h3 style={{margin: 10}}>{feature}</h3>
                             <Input
                                 placeholder="Valor"
                                 value={feature.value}

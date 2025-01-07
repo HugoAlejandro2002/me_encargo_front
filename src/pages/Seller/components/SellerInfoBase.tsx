@@ -186,16 +186,16 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
         <div>
             <h2 className="text-mobile-sm xl:text-desktop-sm">Información del Vendedor: {seller.nombre}</h2>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div style={{ background: '#007bff', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
+            <div className="flex flex-col xl:flex-row justify-between mb-4">
+                <div style={{ background: '#007bff', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', margin: '4px' }} className="w-full xl:w-3/6">
                     <h3 className="text-mobile-sm xl:text-desktop-sm">PAGO PENDIENTE</h3>
                     <h2 className="text-mobile-sm xl:text-desktop-sm">{`${seller.deuda}`}</h2>
                 </div>
-                <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
+                <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', margin: '4px' }} className="w-full xl:w-3/6">
                     <h3 className="text-mobile-sm xl:text-desktop-sm">Deuda no pagado</h3>
                     <h2 className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${deudaCalculada}`}</h2>
                 </div>
-                <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', width: '48%', margin: '4px' }}>
+                <div style={{ background: '#1976d2', color: '#fff', padding: '16px', borderRadius: '8px', textAlign: 'center', margin: '4px' }} className="w-full xl:w-3/6">
                     <h3 className="text-mobile-sm xl:text-desktop-sm">Saldo Pendiente</h3>
                     <h2 className="text-mobile-sm xl:text-desktop-sm">{`Bs. ${seller.deudaInt - deudaCalculada}`}</h2>
                 </div>
@@ -222,17 +222,17 @@ const SellerInfoPage = ({ visible, onSuccess, onCancel, seller }: any) => {
                     <DatePicker format="DD/MM/YYYY" disabled={isSeller} />
                 </Form.Item>
                 <Row gutter={16}>
-                    <Col span={8}>
+                    <Col sm={24} xl={8}>
                         <Form.Item name="alquiler" label="Alquiler">
                             <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col sm={24} xl={8}>
                         <Form.Item name="exhibicion" label="Exhibición">
                             <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                         </Form.Item>
                     </Col>
-                    <Col span={8}>
+                    <Col sm={24} xl={8}>
                         <Form.Item name="delivery" label="Delivery">
                             <InputNumber className="w-full" prefix="Bs." min={0} readOnly={isSeller} />
                         </Form.Item>

@@ -13,6 +13,7 @@ const ShippingStateModal = ({ visible, onClose, onSave, shipping }: any) => {
     const [loading, setLoading] = useState(false)
     const [form] = Form.useForm();
 
+    // TODO: use constants
     const tipoPagoMap: any = {
         1: 'Transferencia o QR',
         2: 'Efectivo',

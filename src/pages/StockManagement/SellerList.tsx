@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { List, Button } from 'antd';
+import { List, Button, Select} from 'antd';
+import { Option } from 'antd/es/mentions';
 import { getSellersAPI } from '../../api/seller';
 import { getGroupsAPI } from '../../api/group';
 import { getCategoriesAPI } from '../../api/category';
@@ -57,20 +58,17 @@ const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
     return (
         <div style={{marginTop: 30}}>
 
-            <List
-                bordered
-                dataSource={filterList}
-                renderItem={(item: any) => (
-                    <List.Item>
-                        <Button
-                            type="link"
-                            onClick={() => onSelectSeller(item[idKey])}
-                        >
-                            {item.name}   
-                        </Button>
-                    </List.Item>
-                )}
-            />
+            <Select
+                style={{ width: '100%' }}
+                placeholder="Seleccione una opción"
+                onChange={(value) => onSelectSeller(value)}
+            >
+                {filterList.map((item) => (
+                    <Option key={item[idKey]} value={item[idKey]}>
+                        {item.name}
+                    </Option>
+                ))}
+            </Select>
         </div>
         
     );

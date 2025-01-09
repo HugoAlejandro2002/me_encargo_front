@@ -200,14 +200,8 @@ const StockManagement = () => {
 
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <Row gutter={[16, 16]} justify="center" align="middle">
-          {!isSeller && (
-            <Col xs={24} md={8} style={{ marginBottom: "16px" }}>
-              <h2 className='text-mobile-3xl xl:text-mobile-3xl'>Lista de Vendedores</h2>
-            </Col>
-          )}
-
-          <Col {...controlSpan}>
+        <div className="block xl:flex justify-center">
+            <h2 className='text-mobile-3xl xl:text-mobile-3xl mr-4'>Lista de</h2>
             <Select
               style={{ width: 200 }}
               placeholder="Select an option"
@@ -220,8 +214,7 @@ const StockManagement = () => {
                 </Option>
               ))}
             </Select>
-          </Col>
-        </Row>
+        </div>
         <Row gutter={[16, 16]} justify="center" align="middle">
             <Col xs={24} md={8} style={{ marginBottom: "16px" }}>
               <SellerList

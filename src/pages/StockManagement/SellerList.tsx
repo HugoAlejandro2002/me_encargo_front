@@ -6,7 +6,7 @@ import { getGroupsAPI } from '../../api/group';
 import { getCategoriesAPI } from '../../api/category';
 
 const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
-
+    const [placeholder, setPlaceholder] = useState("Seleccione una opción") 
     const [groups, setGroups] = useState<any[]>([])
     const [sellers, setSellers] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([])
@@ -38,14 +38,17 @@ const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
         if(filterSelected == 0){
             setIdKey("id_vendedor")
             setFilterList(sellers)
+            setPlaceholder("Lista de vendedores")
         }
         else if(filterSelected == 1){
             setIdKey("id_categoria")
             setFilterList(categories)
+            setPlaceholder("Lista de categorías")
         }
         else{
             setIdKey("id")
             setFilterList(groups)
+            setPlaceholder("Lista de grupos")
         }
     }, [filterSelected])
 
@@ -60,7 +63,7 @@ const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
 
             <Select
                 style={{ width: '100%' }}
-                placeholder="Seleccione una opción"
+                placeholder={placeholder}
                 onChange={(value) => onSelectSeller(value)}
             >
                 {filterList.map((item) => (

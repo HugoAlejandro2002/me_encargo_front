@@ -199,133 +199,149 @@ const StockManagement = () => {
     const controlSpan = isSeller ? { xs: 24, sm: 12, lg: 8 } : { xs: 24, sm: 12, lg: 6 };
 
     return (
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <Row gutter={[16, 16]}> 
-                {!isSeller && (
-                    <Col xs={24} md={8} style={{ marginBottom: '16px' }}>
-                        <h2>Lista de Vendedores</h2>
-                        <SellerList filterSelected={criteriaFilter} onSelectSeller={handleSelectSeller} />
-                    </Col>
-                )}
-
-                <Col xs={24} md={isSeller ? 24 : 16}>
-                    <Row gutter={[16, 16]} justify="start" align="middle" style={{ marginBottom: '16px' }}>
-                    <Col {...controlSpan}>
-                        <Select
-                            style={{ width: 200}}
-                            placeholder="Select an option"
-                            onChange={handleChangeFilter}
-                            defaultValue={0}
-                        >
-                            {options.map((option, index) => (
-                                <Option key={option.option} value={index}>
-                                    {option.option}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Col >
-
-                    <Col {...controlSpan}>
-                        <Select
-                            style={{ width: 200}}
-                            placeholder="Select an option"
-                            onChange={handleChangeGroup}
-                            defaultValue={0}
-                        >
-                            {options.map((option, index) => (
-                                <Option key={option.option} value={index}>
-                                    {option.option}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Col>
-
-                        {!isSeller && (
-                            <Col xs={24} sm={12} lg={6}>
-                                <Button onClick={() => setProductFormVisible(true)} type='primary'> Agregar Producto </Button>
-                            </Col>
-                        )}
-                            
-                    <Col {...controlSpan}>
-                        <Button 
-                            onClick={() => {
-                                const newStock = []
-                                for(const productId in productsToUpdate){
-                                    const product = products.find((product) => product.id_producto == productId)
-                                    
-                                    if(product.producto_sucursal[0]){
-                                        // product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
-                                        product.entrance = productsToUpdate[productId]
-                                    }
-
-                                    newStock.push({
-                                        product,
-                                        newStock: {
-                                            productId,
-                                            sucursalId: 3,
-                                            stock: productsToUpdate[productId]
-                                        }
-                                    })
-                                }
-                                setStock(newStock)
-                                setIsConfirmModalVisible(true)}
-                            }>
-                            Actualizar Stock
-                        </Button>
-                        </Col>
-                    </Row>
-
-                    <ProductTable
-                        groupList={options[criteriaGroup].group}
-                        groupCriteria={options[criteriaGroup].groupFunction}
-                        showModal={showModal}
-                        showVariantModal={showVariantModal}
-                        productsList={isSeller ? products.filter(product => product.id_vendedor === user.id) : filteredProducts}
-                        handleUpdate = { (ingresoData: { [key: number]: number }) =>{
-                            setProductsToUpdate(ingresoData)
-                        }}
-                    />
-                </Col>
-            </Row>
-
-            {infoModalVisible && (
-                <ProductInfoModal
-                    visible={infoModalVisible}
-                    onClose={closeModal}
-                    product={selectedProduct}
-                    // onSaveSuccess={handleSaveSuccess}
-                />
-            )}
-
-            {isProductFormVisible && (
-                <ProductFormModal
-                    visible={isProductFormVisible}
-                    onCancel={() => setProductFormVisible(false)}
-                    onSuccess={saveNewProducts}
-                />
-            )}
-
-            {isVariantModalVisible && (
-                <AddVariantModal
-                    group={selectedGroup}
-                    onAdd={succesAddVariant}
-                    onCancel={closeModal}
-                    visible={isVariantModalVisible}
-                />
-            )}
-            {
-                isConfirmModalVisible && 
-                <ConfirmProductsModal
-                    visible={isConfirmModalVisible}
-                    onClose={cancelConfirmProduct}
-                    onSuccess={() => closeConfirmProduct()}
-                    newVariants = {newVariants}
-                    newProducts = {newProducts}
-                    newStock = {stock}
-                />
-            }
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div className="block xl:flex justify-center">
+            <h2 className='text-mobile-3xl xl:text-mobile-3xl mr-4'>Lista de</h2>
+            <Select
+              style={{ width: 200 }}
+              placeholder="Select an option"
+              onChange={handleChangeFilter}
+              defaultValue={0}
+            >
+              {options.map((option, index) => (
+                <Option key={option.option} value={index}>
+                  {option.option}
+                </Option>
+              ))}
+            </Select>
         </div>
+        <Row gutter={[16, 16]} justify="center" align="middle">
+            <Col xs={24} md={8} style={{ marginBottom: "16px" }}>
+              <SellerList
+                filterSelected={criteriaFilter}
+                onSelectSeller={handleSelectSeller}
+              />
+            </Col>
+        </Row>
+
+        <Row
+          gutter={[16, 16]}
+          justify="center"
+          align="middle"
+          style={{ marginBottom: "16px" }}
+        >
+          <Col {...controlSpan}>
+            <Select
+              style={{ width: 200 }}
+              placeholder="Select an option"
+              onChange={handleChangeGroup}
+              defaultValue={0}
+            >
+              {options.map((option, index) => (
+                <Option key={option.option} value={index}>
+                  {option.option}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+
+          {!isSeller && (
+            <Col xs={24} sm={12} lg={6}>
+              <Button
+                onClick={() => setProductFormVisible(true)}
+                type="primary"
+                className='text-mobile-base xl:text-mobile-base'
+              >
+                {" "}
+                Agregar Producto{" "}
+              </Button>
+            </Col>
+          )}
+
+          <Col {...controlSpan}>
+            <Button
+              onClick={() => {
+                const newStock = [];
+                for (const productId in productsToUpdate) {
+                  const product = products.find(
+                    (product) => product.id_producto == productId
+                  );
+
+                  if (product.producto_sucursal[0]) {
+                    // product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
+                    product.entrance = productsToUpdate[productId];
+                  }
+
+                  newStock.push({
+                    product,
+                    newStock: {
+                      productId,
+                      sucursalId: 3,
+                      stock: productsToUpdate[productId],
+                    },
+                  });
+                }
+                setStock(newStock);
+                setIsConfirmModalVisible(true);
+              }}
+              className='text-mobile-base xl:text-mobile-base'
+            >
+              Actualizar Stock
+            </Button>
+          </Col>
+        </Row>
+
+        <ProductTable
+          groupList={options[criteriaGroup].group}
+          groupCriteria={options[criteriaGroup].groupFunction}
+          showModal={showModal}
+          showVariantModal={showVariantModal}
+          productsList={
+            isSeller
+              ? products.filter((product) => product.id_vendedor === user.id)
+              : filteredProducts
+          }
+          handleUpdate={(ingresoData: { [key: number]: number }) => {
+            setProductsToUpdate(ingresoData);
+          }}
+        />
+
+        {infoModalVisible && (
+          <ProductInfoModal
+            visible={infoModalVisible}
+            onClose={closeModal}
+            product={selectedProduct}
+            // onSaveSuccess={handleSaveSuccess}
+          />
+        )}
+
+        {isProductFormVisible && (
+          <ProductFormModal
+            visible={isProductFormVisible}
+            onCancel={() => setProductFormVisible(false)}
+            onSuccess={saveNewProducts}
+          />
+        )}
+
+        {isVariantModalVisible && (
+          <AddVariantModal
+            group={selectedGroup}
+            onAdd={succesAddVariant}
+            onCancel={closeModal}
+            visible={isVariantModalVisible}
+          />
+        )}
+        {isConfirmModalVisible && (
+          <ConfirmProductsModal
+            visible={isConfirmModalVisible}
+            onClose={cancelConfirmProduct}
+            onSuccess={() => closeConfirmProduct()}
+            newVariants={newVariants}
+            newProducts={newProducts}
+            newStock={stock}
+          />
+        )}
+      </div>
     );
 };
 

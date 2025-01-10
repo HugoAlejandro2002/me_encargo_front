@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { List, Button } from 'antd';
+import { List, Button, Select} from 'antd';
+import { Option } from 'antd/es/mentions';
 import { getSellersAPI } from '../../api/seller';
 import { getGroupsAPI } from '../../api/group';
 import { getCategoriesAPI } from '../../api/category';
 
 const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
-
+    const [placeholder, setPlaceholder] = useState("Seleccione una opción") 
     const [groups, setGroups] = useState<any[]>([])
     const [sellers, setSellers] = useState<any[]>([]);
     const [categories, setCategories] = useState<any[]>([])
@@ -37,14 +38,17 @@ const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
         if(filterSelected == 0){
             setIdKey("id_vendedor")
             setFilterList(sellers)
+            setPlaceholder("Lista de vendedores")
         }
         else if(filterSelected == 1){
             setIdKey("id_categoria")
             setFilterList(categories)
+            setPlaceholder("Lista de categorías")
         }
         else{
             setIdKey("id")
             setFilterList(groups)
+            setPlaceholder("Lista de grupos")
         }
     }, [filterSelected])
 
@@ -57,20 +61,17 @@ const SellerList = ({ filterSelected, onSelectSeller, prevKey }: any) => {
     return (
         <div style={{marginTop: 30}}>
 
-            <List
-                bordered
-                dataSource={filterList}
-                renderItem={(item: any) => (
-                    <List.Item>
-                        <Button
-                            type="link"
-                            onClick={() => onSelectSeller(item[idKey])}
-                        >
-                            {item.name}   
-                        </Button>
-                    </List.Item>
-                )}
-            />
+            <Select
+                style={{ width: '100%' }}
+                placeholder={placeholder}
+                onChange={(value) => onSelectSeller(value)}
+            >
+                {filterList.map((item) => (
+                    <Option key={item[idKey]} value={item[idKey]}>
+                        {item.name}
+                    </Option>
+                ))}
+            </Select>
         </div>
         
     );

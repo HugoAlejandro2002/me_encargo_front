@@ -8,6 +8,8 @@ import {
   Tag,
   Tooltip,
   Modal,
+  Col,
+  Row,
 } from "antd";
 import dayjs from "dayjs";
 import {
@@ -202,11 +204,11 @@ const BoxClosePage = () => {
   };
 
   return (
-    <div className="p-4">
+    <>
+      <h1 className="text-2xl font-bold mb-3">Cierre de Caja</h1>
       <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Cierre de Caja</h1>
-          <Space>
+        <Row justify="center" align="middle" gutter={[16, 16]} className="mb-4">
+          <Col xs={24} sm={12} md={8} lg={6}>
             <DatePicker.RangePicker
               value={dateRange}
               onChange={(dates) =>
@@ -214,13 +216,19 @@ const BoxClosePage = () => {
               }
               format="DD/MM/YYYY"
               allowClear={true}
+              style={{ width: "100%" }}
             />
-            <Button onClick={() => setDateRange(null)} type="default">
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Button onClick={() => setDateRange(null)} type="default" block>
               Ver Todo
             </Button>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
             <Button
               type="primary"
               icon={<PlusOutlined />}
+              block
               onClick={() => {
                 setSelectedReconciliation(null);
                 setShowForm(true);
@@ -228,9 +236,8 @@ const BoxClosePage = () => {
             >
               Nuevo Cierre
             </Button>
-          </Space>
-        </div>
-
+          </Col>
+        </Row>
         <Modal
           title={selectedReconciliation ? "Ver Cierre" : "Nuevo Cierre"}
           open={showForm}
@@ -277,8 +284,8 @@ const BoxClosePage = () => {
                   diferencia_efectivo:
                     acc.diferencia_efectivo +
                     parseFloat(curr.diferencia_efectivo as any),
-                  total_coins: acc.total_coins + curr.total_coins,
-                  total_bills: acc.total_bills + curr.total_bills,
+                  total_coins: acc.total_coins + parseFloat(curr.total_coins),
+                  total_bills: acc.total_bills + parseFloat(curr.total_bills),
                   ingresos_bancario:
                     acc.ingresos_bancario + parseFloat(curr.ventas_qr as any),
                   diferencia_bancario:
@@ -337,7 +344,7 @@ const BoxClosePage = () => {
           }}
         />
       </Card>
-    </div>
+    </>
   );
 };
 

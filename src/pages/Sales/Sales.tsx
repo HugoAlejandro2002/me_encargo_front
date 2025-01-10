@@ -1,8 +1,8 @@
-import { Button, Card, Col, Form, Input, message, Row, Select } from "antd";
+import { Button, Card, Col, message, Row, Select, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
 import SalesFormModal from "./SalesFormmodal";
 import ProductTable from "../Product/ProductTable";
-import { getSellerAPI, getSellersAPI, registerSellerAPI, updateSellerAPI } from "../../api/seller";
+import { getSellerAPI, getSellersAPI, updateSellerAPI } from "../../api/seller";
 import useProducts from "../../hooks/useProducts";
 import EmptySalesTable from "./EmptySalesTable";
 import useEditableTable from "../../hooks/useEditableTable";
@@ -13,6 +13,7 @@ import { getSellerInfoAPI } from "../../api/financeFlux";
 import { getSellerProductsById } from "../../helpers/salesHelpers";
 import { UserContext } from "../../context/userContext";
 import ProductSellerViewModal from "../Seller/ProductSellerViewModal";
+import { IBranch } from "../../models/branchModel";
 
 
 export const Sales = () => {
@@ -23,13 +24,12 @@ export const Sales = () => {
     const [productAddModal, setProductAddModal] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0)
     const [sellers, setSellers] = useState([])
-    const [newSeller, setNewSeller] = useState('');
-    const [loading, setLoading] = useState(false);
     const [selectedSellerId, setSelectedSellerId] = useState<number | undefined>(undefined);
+    const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(undefined);
     const [selectedProducts, setSelectedProducts, handleValueChange] = useEditableTable([])
     const { data, fetchProducts } = useProducts();
     const [totalAmount, setTotalAmount] = useState<number>(0);
-    const [sucursal, setSucursal] = useState([] as any[]);
+    const [branches, setBranches] = useState([] as any[]);
 
     const updateTotalAmount = (amount: number) => {
         setTotalAmount(amount);
@@ -54,7 +54,7 @@ export const Sales = () => {
         setProductAddModal(false);
         await fetchProducts();
     };
-    
+
     const onFinish = (values: any) => {
         // Aquí se pueden procesar los datos, como enviarlos al backend
         setModalType(null);
@@ -66,19 +66,7 @@ export const Sales = () => {
         setModalType(null);
         setRefreshKey(prevKey => prevKey + 1);
     };
-    const createSeller = async () => {
-        if (!newSeller) return
-        setLoading(true)
-        const response = await registerSellerAPI({ vendedor: newSeller })
-        setLoading(false)
-        if (response.status) {
-            message.success('Vendedor creado con éxito')
-            fetchSellers()
-            setNewSeller('')
-        } else {
-            message.error('Error al crear vendedor')
-        }
-    }
+
     const fetchSellers = async () => {
         try {
             const response = await getSellersAPI();
@@ -92,15 +80,16 @@ export const Sales = () => {
     const fetchSucursal = async () => {
         try {
             const response = await getSucursalsAPI()
-            setSucursal(response)
+            setBranches(response)
         } catch (error) {
             message.error('Error al obtener los vendedores');
         }
     }
+
     const fetchFinanceSellerInfo = async (sellerId: number) => {
         try {
             const response = await getSellerInfoAPI(sellerId)
-            setSucursal(response)
+            // setSucursal(response)
             return response
         } catch (error) {
             message.error('Error al obtener los vendedores');
@@ -112,11 +101,27 @@ export const Sales = () => {
         fetchSucursal();
     }, []);
 
-    const filteredProducts = !isAdmin
-        ? data.filter(product => product.id_vendedor === user.id)
-        : selectedSellerId
-            ? data.filter(product => product.id_vendedor === selectedSellerId)
-            : data;
+    const filteredProducts = () => {
+        let filteredData = data.filter((product: any) => product.groupId !== 1)
+        if (!isAdmin) {
+            return filteredData
+        }
+        if (selectedSellerId) {
+            filteredData = filteredData.filter(product => product.id_vendedor === selectedSellerId)
+        }
+
+        if (selectedBranchId) {
+            filteredData = filteredData.filter(product => {
+                for (const prodBranch of product.producto_sucursal) {
+                    if (prodBranch.id_sucursal === selectedBranchId) {
+                        return product
+                    }
+                }
+            })
+        }
+        return filteredData
+    }
+
     const handleProductSelect = (product: any) => {
         // setEditableProducts((prevProducts: any) => {
         setSelectedProducts((prevProducts: any) => {
@@ -223,128 +228,154 @@ export const Sales = () => {
     };
 
     return (
-        <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-mobile-2xl xl:text-desktop-2xl font-bold">Carrito</h1>
-                <div className="flex space-x-2">
-                    {isAdmin && (
-                        <Button onClick={showSalesModal} type="primary" className="text-mobile-sm xl:text-desktop-sm">Realizar Venta</Button>
-                    )}
-                    <Button onClick={showShippingModal} type="primary" className="text-mobile-sm xl:text-desktop-sm">Realizar Entrega</Button>
-                </div>
-            </div>
-            <Row gutter={16}>
-                <Col span={12}>
+        <>
+            <h1 className="text-mobile-2xl xl:text-desktop-2xl font-bold mb-4">
+                Carrito
+            </h1>
+            <Row gutter={[16, 16]}>
+                {/* Columna de Inventario */}
+                <Col xs={24} md={12}>
                     <Card
                         title={
-                            <div className="flex justify-between items-center">
-                                <span className="text-mobile-base xl:text-desktop-base">Inventario</span>
-                                <Form.Item>
-                                    <Button
-                                        type="primary"
-                                        onClick={() => setProductAddModal(true)}
-                                        className="text-mobile-sm xl:text-desktop-sm"
-                                    >
-                                        Añadir nuevo producto
-                                    </Button>
-                                </Form.Item>
-                                {isAdmin && (
-                                    <Form.Item
-                                        name="id_vendedor"
-                                        label="Vendedor"
-                                        className="text-mobile-sm xl:text-desktop-sm"
-                                        rules={[{ required: true, message: 'Por favor seleccione un vendedor' }]}
-                                    >
-                                        <Select
-                                            placeholder="Selecciona un vendedor"
-                                            className="text-mobile-sm xl:text-desktop-sm"
-                                            dropdownRender={menu => (
-                                                <>
-                                                    {menu}
-                                                    <div style={{ display: 'flex', padding: 8 }}>
-                                                        <Input
-                                                            style={{ flex: 1, minWidth: 200, marginRight: 8 }}
-                                                            value={newSeller}
-                                                            onChange={e => setNewSeller(e.target.value)}
-                                                            className="text-mobile-sm xl:text-desktop-sm"
-                                                        />
-                                                        <Button
-                                                            type="link"
-                                                            onClick={createSeller}
-                                                            loading={loading}
-                                                            className="text-mobile-sm xl:text-desktop-sm"
-                                                        >
-                                                            Añadir vendedor
-                                                        </Button>
-                                                    </div>
-                                                </>
-                                            )}
-                                            options={sellers.map((vendedor: any) => ({
-                                                value: vendedor.id_vendedor,
-                                                label: vendedor.nombre,
-                                            }))}
-                                            showSearch
-                                            filterOption={(input, option: any) =>
-                                                option.label.toLowerCase().includes(input.toLowerCase())
-                                            }
-                                            style={{ width: '100%' }}
-                                            dropdownStyle={{ minWidth: 400 }}
-                                            onChange={(value) => setSelectedSellerId(value)}
-
-                                        />
-                                    </Form.Item>
-                                )}
-                            </div>
+                            <Row justify="space-between" align="middle" gutter={[8, 8]}>
+                                <Col>
+                                    <Typography.Text className="text-mobile-base xl:text-desktop-sm ">
+                                        Inventario
+                                    </Typography.Text>
+                                </Col>
+                                <Col>
+                                    <Space wrap>
+                                        <Button
+                                            type="primary"
+                                            onClick={() => setProductAddModal(true)}
+                                            className="text-mobile-base xl:text-desktop-sm "
+                                        >
+                                            Añadir nuevo producto
+                                        </Button>
+                                        {isAdmin && (
+                                            <Space wrap>
+                                                <Select
+                                                    placeholder="Selecciona un vendedor"
+                                                    options={sellers.map((vendedor: any) => ({
+                                                        value: vendedor.id_vendedor,
+                                                        label: vendedor.nombre,
+                                                    }))}
+                                                    filterOption={(input, option: any) =>
+                                                        option.label
+                                                            .toLowerCase()
+                                                            .includes(input.toLowerCase())
+                                                    }
+                                                    style={{ minWidth: 200 }}
+                                                    onChange={(value) => setSelectedSellerId(value)}
+                                                    showSearch
+                                                    allowClear
+                                                />
+                                                <Select
+                                                    placeholder="Selecciona una sucursal"
+                                                    options={branches.map((branch: IBranch) => ({
+                                                        value: branch.id_sucursal,
+                                                        label: branch.nombre,
+                                                    }))}
+                                                    filterOption={(input, option: any) =>
+                                                        option.label
+                                                            .toLowerCase()
+                                                            .includes(input.toLowerCase())
+                                                    }
+                                                    style={{ minWidth: 200 }}
+                                                    onChange={(value) => setSelectedBranchId(value)}
+                                                    showSearch
+                                                    allowClear
+                                                />
+                                            </Space>
+                                        )}
+                                    </Space>
+                                </Col>
+                            </Row>
                         }
                         bordered={false}
                     >
-                        <ProductTable data={filteredProducts} onSelectProduct={handleProductSelect} key={refreshKey} />
+                        <ProductTable
+                            data={filteredProducts()}
+                            onSelectProduct={handleProductSelect}
+                            key={refreshKey}
+                        />
                     </Card>
                 </Col>
-                <Col span={12}>
-                    <Card title="Ventas" bordered={false} className="text-mobile-sm xl:text-desktop-sm">
+
+                {/* Columna de Ventas */}
+                <Col xs={24} md={12}>
+                    <Card
+                        title={
+                            <Row justify="space-between" align="middle" gutter={[8, 8]}>
+                                <Col>
+                                    <Typography.Text className="text-mobile-base xl:text-desktop-sm ">
+                                        Ventas
+                                    </Typography.Text>
+                                </Col>
+
+                                <Col>
+                                    <Space wrap>
+                                        {isAdmin && (
+                                            <Button
+                                                onClick={showSalesModal}
+                                                type="primary"
+                                                className="text-mobile-base xl:text-desktop-sm "
+                                            >
+                                                Realizar Venta
+                                            </Button>
+                                        )}
+                                        <Button onClick={showShippingModal} type="primary">
+                                            Realizar Entrega
+                                        </Button>
+                                    </Space>
+                                </Col>
+                            </Row>
+                        }
+                        bordered={false}
+                    >
                         <EmptySalesTable
                             products={selectedProducts}
                             onDeleteProduct={handleDeleteProduct}
                             handleValueChange={handleValueChange}
                             onUpdateTotalAmount={updateTotalAmount}
-                            key={refreshKey} />
+                            key={refreshKey}
+                        />
                     </Card>
                 </Col>
             </Row>
+
             <ProductSellerViewModal
-                visible = {productAddModal}
-                onCancel = {handleProductModalCancel}
-                onSuccess = {handleSuccessProductModal}
+                visible={productAddModal}
+                onCancel={handleProductModalCancel}
+                onSuccess={handleSuccessProductModal}
                 onAddProduct={handleAddProduct}
-                
             />
             <SalesFormModal
-                visible={modalType === 'sales'}
+                visible={modalType === "sales"}
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
                 selectedProducts={selectedProducts}
                 handleSales={createSales}
                 totalAmount={totalAmount}
-                sucursals={sucursal}
+                sucursals={branches}
                 handleDebt={updateSellerDebt}
                 clearSelectedProducts={() => setSelectedProducts([])}
             />
             <ShippingFormModal
-                visible={modalType === 'shipping'}
+                visible={modalType === "shipping"}
                 onCancel={handleCancel}
                 onFinish={onFinish}
                 onSuccess={handleSuccess}
                 selectedProducts={selectedProducts}
                 handleSales={createSales}
                 totalAmount={totalAmount}
-                sucursals={sucursal}
+                sucursals={branches}
                 handleDebt={updateSellerDebt}
                 clearSelectedProducts={() => setSelectedProducts([])}
                 isAdmin={isAdmin}
             />
-        </div>
+        </>
     );
 };
 

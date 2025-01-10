@@ -81,7 +81,8 @@ const EmptySalesTable = ({ products, onDeleteProduct, onUpdateTotalAmount, handl
             <Table
                 columns={columns}
                 dataSource={products}
-                pagination={false}
+                pagination={{pageSize: 10, pageSizeOptions: []}}
+                scroll={{x: "max-content"}}
             // footer={() => (
             //     <div style={{ textAlign: 'right' }}>
             //         <strong>Monto Total:</strong> Bs.{totalAmount.toFixed(2)}

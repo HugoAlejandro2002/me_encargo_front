@@ -58,12 +58,12 @@ const CierreCajaPage = () => {
     <div className="p-4">
       <Card>
         <div className="flex justify-between items-center mb-4">
-          <Title level={3}>Cierre de Caja Diario</Title>
+          <h1 className="text-mobile-3xl xl:text-desktop-3xl font-bold">Cierre de Caja Diario</h1>
         </div>
 
         <Row gutter={16}>
           {/* Primera columna */}
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Card className="mb-4">
               <Form layout="vertical">
                 <Form.Item label="Fecha">
@@ -129,7 +129,7 @@ const CierreCajaPage = () => {
           </Col>
 
           {/* Segunda columna */}
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Card className="mb-4">
               <Form layout="vertical">
                 <Form.Item label="Efectivo esperado">

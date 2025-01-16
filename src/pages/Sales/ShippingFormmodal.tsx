@@ -1,9 +1,8 @@
 import { Modal, Form, Input, InputNumber, Button, Radio, Col, Row, DatePicker, TimePicker, Card, message, Select } from 'antd';
-import { UserOutlined, PhoneOutlined, CommentOutlined, HomeOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
+import { UserOutlined, PhoneOutlined, CommentOutlined, PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { registerShippingAPI } from '../../api/shipping';
 import { Option } from 'antd/es/mentions';
-import ProductsPDF from '../GeneratePDF/ProductsPDF';
 import { sendMessageAPI } from '../../api/whatsapp';
 
 function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, totalAmount, handleSales, sucursals, handleDebt, clearSelectedProducts, isAdmin }: any) {
@@ -15,11 +14,12 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
     const [adelantoClienteInput, setAdelantoClienteInput] = useState<number>(0);
     const [adelantoVisible, setAdelantoVisible] = useState(false);
     const [mismoVendedor, setMismoVendedor] = useState(false);
+    const [isDeliveryPlaceInput, setIsDeliveryPlaceInput] = useState(false);
     const [form] = Form.useForm();
 
     const handleFinish = async (shippingData: any) => {
 
-        if(shippingData.lugar_entrega !== "Me Encargo"){
+        if (shippingData.lugar_entrega !== "Me Encargo") {
 
             const formattedDate = new Intl.DateTimeFormat('es-BO', {
                 weekday: 'long',
@@ -192,7 +192,36 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
                                 label="Lugar De Entrega"
                                 rules={[{ required: true, message: 'Este campo es obligatorio' }]}
                             >
-                                <Input prefix={<HomeOutlined />} />
+                                {isDeliveryPlaceInput ?
+                                    <div className='flex align-middle gap-2'>
+                                        <Input placeholder='Escriba el lugar de entrega' >
+                                        </Input>
+                                        <Button
+                                            onClick={() => { setIsDeliveryPlaceInput(false); form.resetFields(['lugar_entrega']) }}
+                                        >
+                                            Volver a seleccionar
+                                        </Button>
+                                    </div> :
+                                    <Select
+                                        placeholder="Seleccione el lugar de entrega"
+                                        allowClear
+                                        style={{ width: '100%' }}
+                                        onChange={(value) => {
+                                            if (value === 'otro') {
+                                                setIsDeliveryPlaceInput(true)
+                                            }
+                                        }}
+                                        options={[
+                                            ...sucursals.map((sucursal: any) => ({
+                                                value: sucursal.nombre,
+                                                label: sucursal.nombre,
+                                            })),
+                                            { value: "otro", label: "Otro" }
+                                        ]
+                                        }
+                                    />
+                                }
+
                             </Form.Item>
                         </Col>
                     </Row>

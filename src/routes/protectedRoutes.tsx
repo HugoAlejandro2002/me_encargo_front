@@ -12,6 +12,7 @@ import StatsPage from "../pages/Stats/StatsPage";
 import SellerInfoPageWrapper from "../pages/Seller/SellerInfo";
 import CashReconciliationPage from "../pages/BoxClose/BoxClosePage";
 import CierreCajaPage from "../pages/BoxClose/DailyBoxClose";
+import BranchPage from "../pages/Branch/BranchPage";
 
 const protectedRoutes = [
   {
@@ -107,6 +108,14 @@ const protectedRoutes = [
         element: (
           <RoleGuard allowedRoles={["admin"]}>
             <CierreCajaPage />
+          </RoleGuard>
+        ),
+      },
+      {
+        path: "/branch",
+        element: (
+          <RoleGuard allowedRoles={["admin"]}>
+            <BranchPage/>
           </RoleGuard>
         ),
       },

@@ -14,6 +14,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar,isMobile }) => {
   const { user, setUser } = useContext(UserContext)!;
+
   const handleLogout = async () => {
     try {
       const res = await logoutUserAPI();

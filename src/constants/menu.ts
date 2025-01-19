@@ -5,6 +5,7 @@ import shippingIcon from "../assets/shippingIcon.svg";
 import financeFluxIcon from "../assets/financeFluxIcon.svg";
 import stockManagementIcon from "../assets/stockManagement.svg";
 import statsIcon from "../assets/statsIcon.svg";
+import branchIcon from "../assets/branchIcon.svg";
 
 export const menu = [
   {
@@ -37,7 +38,7 @@ export const menu = [
   {
     path: "/seller-info",
     label: "Mi Información",
-    icon: sellerIcon, 
+    icon: sellerIcon,
     roles: ["seller"],
   },
   {
@@ -56,6 +57,12 @@ export const menu = [
     path: "/cierreCaja",
     label: "Reconciliación de Caja",
     icon: boxIcon,
+    roles: ["admin"],
+  },
+  {
+    path: "/branch",
+    label: "Sucursales",
+    icon: branchIcon,
     roles: ["admin"],
   },
 ];

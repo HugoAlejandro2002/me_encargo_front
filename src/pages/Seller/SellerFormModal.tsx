@@ -187,9 +187,15 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
           </Col>
         </Row>
 
-        <Form.Item name="almacen_caja" label="Almacen Caja">
-          <InputNumber />
-        </Form.Item>
+        <Col span={24}>
+            <Form.Item
+              name="comentario"
+              label="Comentario"
+              rules={[{ required: true, message: "Este campo es obligatorio" }]}
+            >
+              <Input.TextArea rows={1} />
+            </Form.Item>
+        </Col>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -198,19 +204,6 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
               rules={[{ required: true, message: "Este campo es obligatorio" }]}
             >
               <DatePicker style={{ width: "100%" }} />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="id_trabajador"
-              label="Encargado"
-              rules={[{ required: true, message: "Este campo es obligatorio" }]}
-            >
-              <Radio.Group>
-                <Radio.Button value="1">Sebas</Radio.Button>
-                <Radio.Button value="2">Mauri</Radio.Button>
-                <Radio.Button value="3">Nacho</Radio.Button>
-              </Radio.Group>
             </Form.Item>
           </Col>
         </Row>

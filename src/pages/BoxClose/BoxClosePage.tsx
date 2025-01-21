@@ -4,14 +4,17 @@ import {
   Card,
   Button,
   DatePicker,
-  Space,
   Tag,
   Tooltip,
   Modal,
   Col,
   Row,
+  Select,
+  message,
 } from "antd";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import {
   PlusOutlined,
   CheckCircleOutlined,
@@ -22,6 +25,8 @@ import { IBoxClose } from "../../models/boxClose";
 import { IDailyEffective } from "../../models/dailyEffective";
 import { getDailyEffectivesAPI } from "../../api/dailyEffective";
 import BoxCloseForm from "./BoxCloseForm";
+import { IBranch } from "../../models/branchModel";
+import { getSucursalsAPI } from "../../api/sucursal";
 
 function round(num: number) {
   return Math.round(num * 100) / 100;
@@ -29,13 +34,18 @@ function round(num: number) {
 
 const BoxClosePage = () => {
   const [boxClosings, setBoxClosings] = useState<IBoxClose[]>([]);
+  const [sucursals, setSucursals] = useState<IBranch[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [selectBranchId, setSelectedBranchId] = useState<number | null>();
   const [selectedReconciliation, setSelectedReconciliation] =
     useState<IBoxClose | null>(null);
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
     [dayjs().startOf("month"), dayjs().endOf("month")]
   );
+
+  dayjs.extend(isSameOrAfter);
+  dayjs.extend(isSameOrBefore);
 
   const fetchBoxClosings = async () => {
     setLoading(true);
@@ -63,22 +73,67 @@ const BoxClosePage = () => {
     }
   };
 
+  const filterBoxCloses = () => {
+    let filteredData = boxClosings;
+
+    if (selectBranchId) {
+      filteredData = filteredData.filter(
+        (boxClose) => selectBranchId === boxClose.id_sucursal.id_sucursal
+      );
+    }
+
+    if (dateRange) {
+      filteredData = filteredData.filter((boxClose) => {
+        const currDate = dayjs(boxClose.created_at);
+        return (
+          currDate.isSameOrAfter(dateRange[0], "day") &&
+          currDate.isSameOrBefore(dateRange[1], "day")
+        );
+      });
+    }
+
+    return filteredData;
+  };
+
+  const fetchSucursals = async () => {
+    try {
+      const response = await getSucursalsAPI();
+      setSucursals(response);
+    } catch (error) {
+      message.error("Error al obtener las sucursales");
+    }
+  };
+
+  useEffect(() => {
+    filterBoxCloses();
+  }, [dateRange, selectBranchId]);
+
   useEffect(() => {
     fetchBoxClosings();
-  }, [dateRange]);
+    fetchSucursals();
+  }, []);
 
   const columns = [
     {
       title: "Fecha",
       dataIndex: "created_at",
       key: "created_at",
+      className: "text-mobile-base xl:text-desktop-sm ",
       render: (date: string) => dayjs(date).format("DD/MM/YYYY"),
       sorter: (a: any, b: any) => dayjs(a.fecha).unix() - dayjs(b.fecha).unix(),
+    },
+    {
+      title: "Sucursal",
+      dataIndex: "id_sucursal",
+      key: "id_sucursal",
+      className: "text-mobile-base xl:text-desktop-sm ",
+      render: (sucursal: IBranch) => sucursal.nombre,
     },
     {
       title: "Responsable",
       dataIndex: "responsible",
       key: "responsible",
+      className: "text-mobile-base xl:text-desktop-sm ",
     },
     {
       title: "Efectivo",
@@ -87,24 +142,28 @@ const BoxClosePage = () => {
           title: "Inicial",
           dataIndex: "efectivo_inicial",
           key: "efectivo_inicial",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Ingresos",
           dataIndex: "ventas_efectivo",
           key: "ventas_efectivo",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Final",
           dataIndex: "efectivo_esperado",
           key: "efectivo_esperado",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Diferencia",
           dataIndex: "diferencia_efectivo",
           key: "diferencia_efectivo",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => {
             const color =
               amount === 0 ? "success" : amount > 0 ? "warning" : "error";
@@ -128,12 +187,14 @@ const BoxClosePage = () => {
           title: "Monedas",
           dataIndex: "total_coins",
           key: "total_coins",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${amount}`,
         },
         {
           title: "Billetes",
           dataIndex: "total_bills",
           key: "total_bills",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${amount}`,
         },
       ],
@@ -145,24 +206,28 @@ const BoxClosePage = () => {
           title: "Inicial",
           dataIndex: "bancario_inicial",
           key: "bancario_inicial",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Ingresos",
           dataIndex: "ventas_qr",
           key: "ventas_qr",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Final",
           dataIndex: "bancario_real",
           key: "bancario_real",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => `Bs. ${round(amount)}`,
         },
         {
           title: "Diferencia",
           dataIndex: "diferencia_bancario",
           key: "diferencia_bancario",
+          className: "text-mobile-base xl:text-desktop-sm ",
           render: (amount: number) => {
             const color =
               amount === 0 ? "success" : amount > 0 ? "warning" : "error";
@@ -183,6 +248,7 @@ const BoxClosePage = () => {
       title: "Observaciones",
       dataIndex: "observaciones",
       key: "observaciones",
+      className: "text-mobile-base xl:text-desktop-sm ",
       ellipsis: true,
       render: (text: string) => (
         <Tooltip title={text}>
@@ -209,6 +275,22 @@ const BoxClosePage = () => {
       <Card>
         <Row justify="center" align="middle" gutter={[16, 16]} className="mb-4">
           <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              placeholder="Selecciona una sucursal"
+              options={sucursals.map((branch: IBranch) => ({
+                value: branch.id_sucursal,
+                label: branch.nombre,
+              }))}
+              filterOption={(input, option: any) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
+              style={{ minWidth: 200 }}
+              onChange={(value) => setSelectedBranchId(value)}
+              showSearch
+              allowClear
+            />
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
             <DatePicker.RangePicker
               value={dateRange}
               onChange={(dates) =>
@@ -220,7 +302,14 @@ const BoxClosePage = () => {
             />
           </Col>
           <Col xs={24} sm={12} md={8} lg={6}>
-            <Button onClick={() => setDateRange(null)} type="default" block>
+            <Button
+              onClick={() => {
+                setDateRange(null);
+                setSelectedBranchId(null);
+              }}
+              type="default"
+              block
+            >
               Ver Todo
             </Button>
           </Col>
@@ -261,7 +350,7 @@ const BoxClosePage = () => {
 
         <Table
           columns={columns}
-          dataSource={boxClosings}
+          dataSource={filterBoxCloses()}
           loading={loading}
           rowKey="id_reconciliation"
           onRow={(record) => ({

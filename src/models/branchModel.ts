@@ -1,7 +1,9 @@
+import { IBoxClose } from "./boxClose";
 import { IEntry } from "./entryModel";
 import { IProduct } from "./productModel";
 import { Shipping } from "./shippingModel";
 import { IWorker } from "./workerModel";
+
 
 export interface IBranch {
   id_sucursal: number;
@@ -14,6 +16,7 @@ export interface IBranch {
   pedido?: Shipping;
   trabajador: IWorker[];
   ingreso?: IEntry[];
+  cierre_caja: IBoxClose[];
 }
 export interface IProduct_Branch {
   //las dos primeras afk

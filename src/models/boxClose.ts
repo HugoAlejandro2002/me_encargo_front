@@ -1,3 +1,4 @@
+import { IBranch } from "./branchModel";
 import { IDailyEffective } from "./dailyEffective";
 
 export interface IBoxClose {
@@ -18,4 +19,5 @@ export interface IBoxClose {
   created_at: string;
   updated_at: string;
   id_efectivo_diario: IDailyEffective;
+  id_sucursal: IBranch;
 }

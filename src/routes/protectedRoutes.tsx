@@ -40,6 +40,14 @@ const protectedRoutes = [
         ),
       },
       {
+        path: "/sellerFactura",
+        element: (
+          <RoleGuard allowedRoles={["admin"]}>
+            <Seller isFactura={true}/>
+          </RoleGuard>
+        ),
+      },
+      {
         path: "/sales",
         element: (
           <RoleGuard allowedRoles={["admin"]}>

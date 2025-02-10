@@ -5,10 +5,11 @@ import {
   InputNumber,
   Button,
   DatePicker,
-  Radio,
   message,
   Col,
   Row,
+  Checkbox,
+  Radio,
 } from "antd";
 import {
   UserOutlined,
@@ -83,8 +84,8 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
       width={800}
     >
       <Form name="sellerForm" onFinish={handleFinish} layout="vertical">
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="nombre"
               label="Nombres"
@@ -93,7 +94,7 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
               <Input prefix={<UserOutlined />} />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="apellido"
               label="Apellidos"
@@ -104,14 +105,13 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
             <Form.Item name="marca" label="Marca">
               <Input />
             </Form.Item>
           </Col>
-
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="telefono"
               label="Teléfono"
@@ -122,8 +122,23 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={8}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
+            <Form.Item
+              name="emite_factura"
+              label="¿Emite factura?"
+              rules={[{ required: true, message: "Este campo es obligatorio" }]}
+            >
+              <Radio.Group>
+                <Radio.Button value={true}>SI</Radio.Button>
+                <Radio.Button value={false}>NO</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={8}>
             <Form.Item
               name="carnet"
               label="Carnet"
@@ -135,42 +150,46 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
               />
             </Form.Item>
           </Col>
-          <Col span={16}>
+          <Col xs={24} sm={16}>
             <Form.Item name="direccion" label="Dirección">
               <Input prefix={<HomeOutlined />} />
             </Form.Item>
           </Col>
         </Row>
 
-        <Form.Item name="mail" label="Mail">
-          <Input prefix={<MailOutlined />} />
-        </Form.Item>
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
+            <Form.Item name="mail" label="Mail">
+              <Input prefix={<MailOutlined />} />
+            </Form.Item>
+          </Col>
+        </Row>
 
-        <Row gutter={16}>
-          <Col span={6}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={6}>
             <Form.Item name="alquiler" label="Alquiler">
               <InputNumber style={{ width: "100%" }} min={0} />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col xs={24} sm={6}>
             <Form.Item name="exhibicion" label="Exhibición">
               <InputNumber style={{ width: "100%" }} min={0} />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col xs={24} sm={6}>
             <Form.Item name="delivery" label="Delivery">
               <InputNumber style={{ width: "100%" }} min={0} />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col xs={24} sm={6}>
             <Form.Item name="adelanto_servicio" label="Adelanto Servicio">
               <InputNumber style={{ width: "100%" }} min={0} />
             </Form.Item>
           </Col>
         </Row>
 
-        <Row gutter={16}>
-          <Col span={12}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
             <Form.Item name="comision_porcentual" label="Comisión porcentual">
               <InputNumber
                 style={{ width: "100%" }}
@@ -180,14 +199,15 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12}>
             <Form.Item name="comision_fija" label="Comisión Fija">
               <InputNumber style={{ width: "100%" }} min={0} />
             </Form.Item>
           </Col>
         </Row>
 
-        <Col span={24}>
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
             <Form.Item
               name="comentario"
               label="Comentario"
@@ -195,9 +215,11 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
             >
               <Input.TextArea rows={1} />
             </Form.Item>
-        </Col>
-        <Row gutter={16}>
-          <Col span={12}>
+          </Col>
+        </Row>
+
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12}>
             <Form.Item
               name="fecha_vigencia"
               label="Fecha Final de Servicio"
@@ -209,7 +231,12 @@ function SellerFormModal({ visible, onCancel, onSuccess }: any) {
         </Row>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} className="text-mobile-sm xl:text-desktop-sm">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            className="text-mobile-sm xl:text-desktop-sm"
+          >
             Guardar
           </Button>
         </Form.Item>

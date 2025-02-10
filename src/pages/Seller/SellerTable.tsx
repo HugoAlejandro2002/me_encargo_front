@@ -6,7 +6,8 @@ import { EditOutlined } from "@ant-design/icons";
 import PayDebtButton from "./components/PayDebtButton";
 import { getSellerAdvancesById } from "../../helpers/sellerHelpers";
 import SellerInfoModalTry from "./SellerInfoModal";
-const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
+import { ISeller } from "../../models/sellerModels";
+const SellerTable = ({ refreshKey, setRefreshKey, isFactura }: any) => {
   const columns = [
     {
       title: "Nombre",
@@ -69,8 +70,8 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
     },
   ];
 
-  const [pendingPaymentData, setPendingPaymentData] = useState([]);
-  const [onTimePaymentData, setOnTimePaymentData] = useState([]);
+  const [pendingPaymentData, setPendingPaymentData] = useState<ISeller[]>([]);
+  const [onTimePaymentData, setOnTimePaymentData] = useState<ISeller[]>([]);
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isSellerModalVisible, setIsSellerModalVisible] = useState(false);
@@ -112,6 +113,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
             carnet: seller.carnet,
             adelanto_servicio: seller.adelanto_servicio,
             marca: seller.marca,
+            emite_factura: seller.emite_factura,
           };
         })
       );
@@ -156,16 +158,24 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
     fetchSellers();
   }, [refreshKey]);
 
+  const filteredSellers = (data: ISeller[]) => {
+    if (!isFactura) {
+      return data.filter((seller) => !seller.emite_factura);
+    } else {
+      return data.filter((seller) => seller.emite_factura);
+    }
+  };
+
   return (
     <div>
       <Table
         columns={columns}
-        dataSource={pendingPaymentData}
+        dataSource={filteredSellers(pendingPaymentData)}
         scroll={{ x: "max-content" }}
         title={() => (
           <h2 className="text-2xl font-bold justify-center">
-            Pago pendiente Bs.{" "}
-            {pendingPaymentData.reduce(
+            Pago pendiente Bs.
+            {filteredSellers(pendingPaymentData).reduce(
               (acc: number, seller: any) => acc + seller.pagoTotalInt,
               0
             )}
@@ -179,7 +189,7 @@ const SellerTable = ({ refreshKey, setRefreshKey }: any) => {
       <Table
         columns={columns}
         scroll={{ x: "max-content" }}
-        dataSource={onTimePaymentData}
+        dataSource={filteredSellers(onTimePaymentData)}
         title={() => <h2 className="text-2xl font-bold">Pago al día</h2>}
         pagination={{ pageSize: 5 }}
         onRow={(record) => ({

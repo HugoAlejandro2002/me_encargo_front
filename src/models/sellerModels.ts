@@ -22,6 +22,7 @@ export interface ISeller {
   fecha: Date;
   fecha_vigencia: Date;
   almacen_caja: number;
+  emite_factura: boolean;
   deuda: number;
   //TODO QUITAR LOS NULLS DE ID_TRABAJADOR Y DE TRABAJADOR
   id_trabajador: number;

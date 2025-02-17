@@ -15,7 +15,7 @@ export const App = () => {
           theme={{
             components: {
               Button: {
-                colorPrimary: "#8c30f5",
+                colorPrimary: "#f6863a",
                 algorithm: true,
               },
             },

@@ -7,13 +7,13 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                customPurple: '#8c30f5',
-                customPurpleLight: '#a050f7',
-                'blue': '#2C3048',
-                'neutral-blue': '#3F4A8F',
+                customPurple: '#f6863a',
+                customPurpleLight: '#f8c6a0',
+                'blue': '#094f89',
+                'neutral-blue': '#0d66a0',
                 'light-neutral-blue': '#5E67A4',
-                'light-blue': '#C3C6D9',
-                'light-gray': '#EBEDF7',
+                'light-blue': '#EEF0D1',
+                'light-gray': '#000000',
                 'dark-blue': '#171A26',
             },
             fontFamily: {

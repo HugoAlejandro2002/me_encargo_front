@@ -1,7 +1,6 @@
 import { Navigate } from "react-router-dom";
 import LoginPage from "../pages/Login/LoginPage";
 import ErrorPage from "../pages/ErrorPage";
-import CashReconciliationPage from "../pages/BoxClose/BoxClosePage";
 
 const publicRoutes = [
   {

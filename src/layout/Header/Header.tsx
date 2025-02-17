@@ -26,7 +26,7 @@ const Header = () => {
     <div className="flex justify-between items-center p-5 bg-blue h-16 border-light-gray">
       <div className="flex items-center bg-blue">
         <img src={logoImg} alt="logo" className="w-10 h-auto" />
-        <h1 className="ml-4 text-mobile-2xl xl:text-desktop-2xl  text-light-blue font-bold">ME ENCARGO</h1>
+        <h1 className="ml-4 text-mobile-2xl xl:text-desktop-2xl  text-light-blue font-bold">TU PUNTO</h1>
       </div>
 
       <Search

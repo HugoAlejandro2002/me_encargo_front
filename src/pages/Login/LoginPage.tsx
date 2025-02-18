@@ -30,7 +30,7 @@ const LoginPage = () => {
       } else {
         await sendHelloAPI("+59170186881");
 
-        navigate("/product");
+        navigate("/stock");
       }
       message.success("¡Inicio de sesión exitoso!");
     } catch (error) {

@@ -8,12 +8,12 @@ import statsIcon from "../assets/statsIcon.svg";
 import branchIcon from "../assets/branchIcon.svg";
 
 export const menu = [
-  {
-    path: "/product",
-    label: "Inventario",
-    icon: boxIcon,
-    roles: ["admin"],
-  },
+  // {
+  //   path: "/product",
+  //   label: "Inventario",
+  //   icon: boxIcon,
+  //   roles: ["admin"],
+  // },
   { path: "/seller", label: "Vendedores", icon: sellerIcon, roles: ["admin"] },
   { path: "/sellerFactura", label: "Vendedores de Factura", icon: sellerIcon, roles: ["admin"] },
   { path: "/sales", label: "Ventas", icon: cartIcon, roles: ["admin"] },

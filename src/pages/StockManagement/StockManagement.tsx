@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Row, Col } from 'antd';
 import SellerList from './SellerList';
 import ProductTable from './ProductTable';
-import { addProductFeaturesAPI, getProductsAPI, registerVariantAPI, updateProductStockAPI } from '../../api/product'; // Assuming this is where you get both sellers and products
+import { addProductFeaturesAPI, getProductsAPI, registerVariantAPI, updateProductStockAPI } from '../../api/product'; 
 import { Button, Input, Select } from 'antd';
 import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import ProductInfoModal from '../Product/ProductInfoModal';
@@ -14,6 +14,7 @@ import { getSellersAPI } from '../../api/seller';
 import { getCategoriesAPI } from '../../api/category';
 import { UserContext } from '../../context/userContext';
 import ConfirmProductsModal from './ConfirmProductsModal';
+import { createProductsFromGroup } from '../../services/createProducts';
 
 const StockManagement = () => {
     const { user }: any = useContext(UserContext);
@@ -185,7 +186,9 @@ const StockManagement = () => {
         setCriteriaGroup(index)
     }
 
-    const saveNewProducts = (productData, combinations, selectedFeatures, features) => {
+    const saveNewProducts = async (productData, combinations, selectedFeatures, features) => {
+
+        await createProductsFromGroup(productData, combinations, selectedFeatures, features)
         setProductFormVisible(false)
         setNewProducts([...newProducts, {
             productData,
@@ -252,8 +255,7 @@ const StockManagement = () => {
                 type="primary"
                 className='text-mobile-base xl:text-mobile-base'
               >
-                {" "}
-                Agregar Producto{" "}
+                Agregar Producto
               </Button>
             </Col>
           )}

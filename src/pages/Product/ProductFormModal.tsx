@@ -4,6 +4,8 @@ import { getSellersAPI } from "../../api/seller"
 import { getCategoriesAPI, registerCategoryAPI } from "../../api/category"
 import { getFeaturesAPI } from "../../api/feature"
 import FeatureInputs from "./FeatureInputs"
+import { IBranch } from "../../models/branchModel"
+import { getSucursalsAPI } from "../../api/sucursal"
 
 const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [loading, setLoading] = useState(false)
@@ -16,7 +18,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
     const [featureValues, setFeatureValues] = useState({})
     const [combinations, setCombinations] = useState([])
 
-    const branches = [{ id_sucursal: 3, nombre: 'Prado' }]
+    const [branches , setBranches] = useState<IBranch[]>([])
 
     const handleFinish = async (productData: any) => {
         setLoading(true);
@@ -45,6 +47,16 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         setNewFeature('');
         message.success('Característica agregadatemporalmente');
     };
+
+    const fetchBranches = async () => {
+        try {
+            const res = await getSucursalsAPI()
+            setBranches(res)
+        } catch (error) {
+            message.error('Error al obtener las sucursales')
+
+        }
+    }
 
 
 
@@ -79,6 +91,7 @@ const ProductFormModal = ({ visible, onCancel, onSuccess }: any) => {
         fetchSellers();
         fetchCategories();
         fetchFeatures();
+        fetchBranches();
     }, []);
 
     const uniqueFeatures = Array.from(new Set(features.map((feature: any) => feature.feature)));

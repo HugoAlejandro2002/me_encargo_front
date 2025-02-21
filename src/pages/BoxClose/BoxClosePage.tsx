@@ -127,7 +127,7 @@ const BoxClosePage = () => {
       dataIndex: "id_sucursal",
       key: "id_sucursal",
       className: "text-mobile-base xl:text-desktop-sm ",
-      render: (sucursal: IBranch) => sucursal.nombre,
+      render: (sucursal: IBranch) => sucursal ? sucursal.nombre : "Otro",
     },
     {
       title: "Responsable",

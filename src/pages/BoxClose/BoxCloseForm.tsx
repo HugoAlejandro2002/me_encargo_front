@@ -43,12 +43,12 @@ const BoxCloseForm = ({
       const summary = await getDailySummary();
       setSalesSummary(summary || { cash: 0, bank: 0, total: 0 });
       form.setFieldsValue({
-        efectivo_inicial: parseFloat(lastClosingBalance.efectivo_real),
+        efectivo_inicial: parseFloat(lastClosingBalance.efectivo_real) || 0,
         bancario_inicial: 0,
         ventas_efectivo: summary?.cash || 0,
         ventas_qr: summary?.bank || 0,
         efectivo_esperado:
-          parseInt(lastClosingBalance.efectivo_real) + summary?.cash,
+          parseInt(lastClosingBalance.efectivo_real) || 0 + summary?.cash,
         bancario_esperado: summary?.bank,
       });
     } catch (error) {
@@ -262,7 +262,7 @@ const BoxCloseForm = ({
               onChange={(value: any) => {
                 form.setFieldValue(
                   "diferencia_efectivo",
-                  value - form.getFieldValue("efectivo_esperado")
+                  value - form.getFieldValue("efectivo_esperado") || 0
                 );
               }}
               className="w-full bg-gray-300 text-gray-500 pointer-events-none"
@@ -516,7 +516,10 @@ const BoxCloseForm = ({
 
       <Card>
         <Title level={5}>Observaciones</Title>
-        <Form.Item name="observaciones">
+        <Form.Item
+          name="observaciones"
+          rules={[{ required: true, message: "Campo requerido" }]}
+        >
           <Input.TextArea rows={4} />
         </Form.Item>
       </Card>

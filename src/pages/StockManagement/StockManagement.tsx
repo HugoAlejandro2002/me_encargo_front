@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Row, Col } from 'antd';
 import SellerList from './SellerList';
 import ProductTable from './ProductTable';
-import { addProductFeaturesAPI, getProductsAPI, registerVariantAPI, updateProductStockAPI } from '../../api/product'; 
+import { addProductFeaturesAPI, getProductsAPI, registerVariantAPI, updateProductStockAPI } from '../../api/product';
 import { Button, Input, Select } from 'antd';
 import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import ProductInfoModal from '../Product/ProductInfoModal';
@@ -109,7 +109,7 @@ const StockManagement = () => {
         const newList = products.filter(product =>
             filter(product, selectedSeller)
         )
-        setFilteredProducts(newList)  
+        setFilteredProducts(newList)
     }
     // TODO: This updates the inforamtion of the product, but it restores the filters to the default
     // so, try to improve this to mantain the filters
@@ -196,154 +196,154 @@ const StockManagement = () => {
             selectedFeatures,
             features
         }])
-        setPrevKey(key => key+1)
+        setPrevKey(key => key + 1)
     }
 
     const controlSpan = isSeller ? { xs: 24, sm: 12, lg: 8 } : { xs: 24, sm: 12, lg: 6 };
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-        <div className="block xl:flex justify-center">
-            <h2 className='text-mobile-3xl xl:text-mobile-3xl mr-4'>Lista de</h2>
-            <Select
-              style={{ width: 200 }}
-              placeholder="Select an option"
-              onChange={handleChangeFilter}
-              defaultValue={0}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div className="block xl:flex justify-center">
+                <h2 className='text-mobile-3xl xl:text-mobile-3xl mr-4'>Lista de</h2>
+                <Select
+                    style={{ width: 200 }}
+                    placeholder="Select an option"
+                    onChange={handleChangeFilter}
+                    defaultValue={0}
+                >
+                    {options.map((option, index) => (
+                        <Option key={option.option} value={index}>
+                            {option.option}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
+            <Row gutter={[16, 16]} justify="center" align="middle">
+                <Col xs={24} md={8} style={{ marginBottom: "16px" }}>
+                    <SellerList
+                        filterSelected={criteriaFilter}
+                        onSelectSeller={handleSelectSeller}
+                    />
+                </Col>
+            </Row>
+
+            <Row
+                gutter={[16, 16]}
+                justify="center"
+                align="middle"
+                style={{ marginBottom: "16px" }}
             >
-              {options.map((option, index) => (
-                <Option key={option.option} value={index}>
-                  {option.option}
-                </Option>
-              ))}
-            </Select>
-        </div>
-        <Row gutter={[16, 16]} justify="center" align="middle">
-            <Col xs={24} md={8} style={{ marginBottom: "16px" }}>
-              <SellerList
-                filterSelected={criteriaFilter}
-                onSelectSeller={handleSelectSeller}
-              />
-            </Col>
-        </Row>
+                <Col {...controlSpan}>
+                    <Select
+                        style={{ width: 200 }}
+                        placeholder="Select an option"
+                        onChange={handleChangeGroup}
+                        defaultValue={0}
+                    >
+                        {options.map((option, index) => (
+                            <Option key={option.option} value={index}>
+                                {option.option}
+                            </Option>
+                        ))}
+                    </Select>
+                </Col>
 
-        <Row
-          gutter={[16, 16]}
-          justify="center"
-          align="middle"
-          style={{ marginBottom: "16px" }}
-        >
-          <Col {...controlSpan}>
-            <Select
-              style={{ width: 200 }}
-              placeholder="Select an option"
-              onChange={handleChangeGroup}
-              defaultValue={0}
-            >
-              {options.map((option, index) => (
-                <Option key={option.option} value={index}>
-                  {option.option}
-                </Option>
-              ))}
-            </Select>
-          </Col>
+                {!isSeller && (
+                    <Col xs={24} sm={12} lg={6}>
+                        <Button
+                            onClick={() => setProductFormVisible(true)}
+                            type="primary"
+                            className='text-mobile-base xl:text-mobile-base'
+                        >
+                            Agregar Producto
+                        </Button>
+                    </Col>
+                )}
 
-          {!isSeller && (
-            <Col xs={24} sm={12} lg={6}>
-              <Button
-                onClick={() => setProductFormVisible(true)}
-                type="primary"
-                className='text-mobile-base xl:text-mobile-base'
-              >
-                Agregar Producto
-              </Button>
-            </Col>
-          )}
+                <Col {...controlSpan}>
+                    <Button
+                        onClick={() => {
+                            const newStock = [];
+                            for (const productId in productsToUpdate) {
+                                const product = products.find(
+                                    (product) => product.id_producto == productId
+                                );
 
-          <Col {...controlSpan}>
-            <Button
-              onClick={() => {
-                const newStock = [];
-                for (const productId in productsToUpdate) {
-                  const product = products.find(
-                    (product) => product.id_producto == productId
-                  );
+                                if (product.producto_sucursal[0]) {
+                                    // product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
+                                    product.entrance = productsToUpdate[productId];
+                                }
 
-                  if (product.producto_sucursal[0]) {
-                    // product.producto_sucursal[0].cantidad_por_sucursal += productsToUpdate[productId]
-                    product.entrance = productsToUpdate[productId];
-                  }
+                                newStock.push({
+                                    product,
+                                    newStock: {
+                                        productId,
+                                        sucursalId: 3,
+                                        stock: productsToUpdate[productId],
+                                    },
+                                });
+                            }
+                            setStock(newStock);
+                            setIsConfirmModalVisible(true);
+                        }}
+                        className='text-mobile-base xl:text-mobile-base'
+                    >
+                        Actualizar Stock
+                    </Button>
+                </Col>
+            </Row>
 
-                  newStock.push({
-                    product,
-                    newStock: {
-                      productId,
-                      sucursalId: 3,
-                      stock: productsToUpdate[productId],
-                    },
-                  });
+            <ProductTable
+                groupList={options[criteriaGroup].group}
+                groupCriteria={options[criteriaGroup].groupFunction}
+                showModal={showModal}
+                showVariantModal={showVariantModal}
+                productsList={
+                    isSeller
+                        ? products.filter((product) => product.id_vendedor === user.id)
+                        : filteredProducts
                 }
-                setStock(newStock);
-                setIsConfirmModalVisible(true);
-              }}
-              className='text-mobile-base xl:text-mobile-base'
-            >
-              Actualizar Stock
-            </Button>
-          </Col>
-        </Row>
+                handleUpdate={(ingresoData: { [key: number]: number }) => {
+                    setProductsToUpdate(ingresoData);
+                }}
+            />
 
-        <ProductTable
-          groupList={options[criteriaGroup].group}
-          groupCriteria={options[criteriaGroup].groupFunction}
-          showModal={showModal}
-          showVariantModal={showVariantModal}
-          productsList={
-            isSeller
-              ? products.filter((product) => product.id_vendedor === user.id)
-              : filteredProducts
-          }
-          handleUpdate={(ingresoData: { [key: number]: number }) => {
-            setProductsToUpdate(ingresoData);
-          }}
-        />
+            {infoModalVisible && (
+                <ProductInfoModal
+                    visible={infoModalVisible}
+                    onClose={closeModal}
+                    product={selectedProduct}
+                // onSaveSuccess={handleSaveSuccess}
+                />
+            )}
 
-        {infoModalVisible && (
-          <ProductInfoModal
-            visible={infoModalVisible}
-            onClose={closeModal}
-            product={selectedProduct}
-            // onSaveSuccess={handleSaveSuccess}
-          />
-        )}
+            {isProductFormVisible && (
+                <ProductFormModal
+                    visible={isProductFormVisible}
+                    onCancel={() => setProductFormVisible(false)}
+                    onSuccess={saveNewProducts}
+                />
+            )}
 
-        {isProductFormVisible && (
-          <ProductFormModal
-            visible={isProductFormVisible}
-            onCancel={() => setProductFormVisible(false)}
-            onSuccess={saveNewProducts}
-          />
-        )}
-
-        {isVariantModalVisible && (
-          <AddVariantModal
-            group={selectedGroup}
-            onAdd={succesAddVariant}
-            onCancel={closeModal}
-            visible={isVariantModalVisible}
-          />
-        )}
-        {isConfirmModalVisible && (
-          <ConfirmProductsModal
-            visible={isConfirmModalVisible}
-            onClose={cancelConfirmProduct}
-            onSuccess={() => closeConfirmProduct()}
-            newVariants={newVariants}
-            newProducts={newProducts}
-            newStock={stock}
-          />
-        )}
-      </div>
+            {isVariantModalVisible && (
+                <AddVariantModal
+                    group={selectedGroup}
+                    onAdd={succesAddVariant}
+                    onCancel={closeModal}
+                    visible={isVariantModalVisible}
+                />
+            )}
+            {isConfirmModalVisible && (
+                <ConfirmProductsModal
+                    visible={isConfirmModalVisible}
+                    onClose={cancelConfirmProduct}
+                    onSuccess={() => closeConfirmProduct()}
+                    newVariants={newVariants}
+                    newProducts={newProducts}
+                    newStock={stock}
+                />
+            )}
+        </div>
     );
 };
 

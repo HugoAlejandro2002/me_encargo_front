@@ -1,17 +1,17 @@
 import { message } from "antd"
 import { addProductFeaturesAPI, addProductStockAPI, registerProductAPI, registerVariantAPI } from "../api/product"
 
-export const createVariant = async (newVariant) =>{
-    const {product,  featuresFilter:features} = newVariant
+export const createVariant = async (newVariant) => {
+    const { product, featuresFilter: features } = newVariant
     const stock = {
         cantidad_por_sucursal: product.stock,
         //TODO Add Sucursal Field in the form
         id_sucursal: 3
     }
 
-    const response = await registerVariantAPI({product,stock})
-    const {newProduct} = response
-    await addProductFeaturesAPI({productId: newProduct.id_producto, features})
+    const response = await registerVariantAPI({ product, stock })
+    const { newProduct } = response
+    await addProductFeaturesAPI({ productId: newProduct.id_producto, features })
 }
 
 const createProductFeatures = async (products: any, features: any) => {
@@ -106,9 +106,7 @@ export const createProductsFromGroup = async (productData, combinations, selecte
         "id_sucursal": productData.sucursal
     }
     const res = await registerProductAPI(formattedProductData)
-    console.log(res)
     res.products = res.products.map((product) => product.newProduct)
-    console.log({products: res.products, res})
     if (res.products) {
         message.success('Producto registrado con variantes')
 

@@ -1,9 +1,10 @@
-import  { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Button, Input, Table } from 'antd';
-import {updateProductStockAPI } from '../../api/product';
 import { InfoCircleOutlined, PlusOutlined } from '@ant-design/icons';
+import { updateProductStockAPI } from '../../api/product';
 import ProductSearcher from './ProductSearcher';
 import { UserContext } from '../../context/userContext';
+import { IProduct } from '../../models/productModel';
 
 const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, productsList, handleUpdate }: any) => {
 
@@ -15,20 +16,6 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
     const isSeller = user?.role === 'seller';
 
 
-    for (const product of productsList) {
-        //TODO: Check if this will be used later because it overwrites always and shows "Sin categoria" 
-        // product.categoria = product.categoria.categoria || "Sin categoria"
-        product.infoButton = (
-            <Button type="primary" onClick={() => showModal(product)}>
-                <InfoCircleOutlined />
-            </Button>
-        )
-        product.addVariant = (
-            <Button type='primary' onClick={() => showVariantModal(product)}>
-                <PlusOutlined />
-            </Button>
-        )
-    }
 
 
     const handleIngresoChange = (productId: number, value: number) => {
@@ -37,7 +24,7 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
     useEffect(() => {
         handleUpdate(ingresoData)
     }, [ingresoData])
-    
+
     const handleStockUpdate = async () => {
 
         const updatedProducts = products
@@ -56,7 +43,7 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
             }
         }
 
-        
+
         await updateProductStockAPI(newStock)
 
         handleUpdate()
@@ -70,13 +57,24 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
             title: "",
             dataIndex: "infoButton",
             key: "infoButton",
-            width: "5%"
+            width: "5%",
+            render: (_: any, product: IProduct) => (
+                <Button type="primary" onClick={() => showModal(product)}>
+                    <InfoCircleOutlined />
+                </Button>
+            )
         },
         !isSeller && {
             title: "",
             dataIndex: "addVariant",
             key: "addVariant",
-            width: "5%"
+            width: "5%",
+            render: (_: any, product: IProduct) => (
+
+                <Button type='primary' onClick={() => showVariantModal(product)}>
+                    <PlusOutlined />
+                </Button>
+            )
         },
         {
             title: 'Producto',
@@ -167,14 +165,14 @@ const ProductTable = ({ groupList, groupCriteria, showModal, showVariantModal, p
                             <Table
                                 columns={columns}
                                 dataSource={group.products}
-                                pagination={{pageSize: 5}}
-                                scroll={{x: "max-content"}}
+                                pagination={{ pageSize: 5 }}
+                                scroll={{ x: "max-content" }}
                                 rowClassName={(record) => {
                                     const ingreso = ingresoData[record.id_producto] || 0;
                                     return ingreso !== 0 ? 'highlight-row' : '';
                                 }}
-                                
-                                
+
+
                             />
                         </div>
                     </div>

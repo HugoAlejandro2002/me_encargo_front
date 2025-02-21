@@ -43,7 +43,7 @@ const protectedRoutes = [
         path: "/sellerFactura",
         element: (
           <RoleGuard allowedRoles={["admin"]}>
-            <Seller isFactura={true}/>
+            <Seller isFactura={true} />
           </RoleGuard>
         ),
       },
@@ -123,7 +123,7 @@ const protectedRoutes = [
         path: "/branch",
         element: (
           <RoleGuard allowedRoles={["admin"]}>
-            <BranchPage/>
+            <BranchPage />
           </RoleGuard>
         ),
       },

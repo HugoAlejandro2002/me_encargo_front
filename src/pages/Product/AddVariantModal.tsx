@@ -1,43 +1,60 @@
-import { Modal, Form, Input, InputNumber} from 'antd';
-import { useState } from 'react';
+import { Select, Modal, Form, Input, InputNumber, Button, message } from 'antd';
+import { useState, useEffect } from 'react';
+import { IBranch } from '../../models/branchModel';
+import { getSucursalsAPI } from '../../api/sucursal';
+import { addProductFeaturesAPI, registerVariantAPI } from '../../api/product';
 
-const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
+const AddVariantModal = ({ visible, onCancel, group }) => {
     const [form] = Form.useForm();
-    
-    const example = group.products
-    const [features, setFeatures] = useState(group.features)
 
-    const handleVariantAdd = async (newVariant) => {
-        onAdd(newVariant)
+    const example = group.product
+    const [sucursals, setSucursals] = useState<IBranch[]>([])
+    const [features, setFeatures] = useState(example.features)
+
+
+    const fetchSucursals = async () => {
+        try {
+            const response = await getSucursalsAPI();
+            setSucursals(response);
+        } catch (error) {
+            message.error("Error al obtener las sucursales");
+        }
     };
 
-    const handleOk = async () => {
+    useEffect(() => {
+        fetchSucursals()
+    }, [])
+
+
+    const handleFinish = async (values: any) => {
         try {
-            const values = await form.validateFields();
-            const featuresFilter = features.filter(feat => feat.feature!== "")
+            const featuresFilter = features.filter((feat: any) => feat.feature !== "")
 
             const variant = {
-                product:{
+                product: {
                     ...values,
                     groupId: group.id,
                     id_categoria: example.id_categoria,
                     id_vendedor: example.id_vendedor,
                     categoria: example.categoria,
-                    producto_sucursal: [{cantidad_por_sucursal: values.stock}]
                 },
-                featuresFilter
+                stock: { id_sucursal: values.id_sucursal, cantidad_por_sucursal: values.stock }
             }
+            const prodRes = await registerVariantAPI(variant)
+            await addProductFeaturesAPI({ id_producto: prodRes.newProduct.id_producto, feats: featuresFilter })
+            message.success('Variante agregada con exito')
 
-            handleVariantAdd(variant);
-            
+
             form.resetFields();
+            onCancel()
         } catch (error) {
             console.error('Failed to add variant:', error);
+            message.error('Error al agregar la variante')
         }
     };
 
 
-    const handleValueChange = (index, value) => {
+    const handleValueChange = (index, value: any) => {
         const newFeatures = [...features];
         newFeatures[index].value = value;
         setFeatures(newFeatures);
@@ -46,11 +63,11 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
     return (
         <Modal
             visible={visible}
+            footer={null}
             title="Agregar Nueva Variante"
             onCancel={onCancel}
-            onOk={handleOk}
         >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" onFinish={handleFinish}>
                 <Form.Item
                     label="Nombre del Producto"
                     name="nombre_producto"
@@ -65,26 +82,43 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                     rules={[{ required: true, message: 'Por favor ingrese el precio' }]}
                     initialValue={example.precio}
                 >
-                    <InputNumber min={0} style={{ width: '100%' }} className='text-mobile-sm xl:text-desktop-sm'/>
+                    <InputNumber min={0} style={{ width: '100%' }} className='text-mobile-sm xl:text-desktop-sm' />
                 </Form.Item>
                 <Form.Item
                     label="Cantidad Inicial"
                     name="stock"
                     rules={[{ required: true, message: 'Por favor ingrese la cantidad inicial' }]}
                 >
-                    <InputNumber min={0} style={{ width: '100%' }} className='text-mobile-sm xl:text-desktop-sm'/>
+                    <InputNumber min={0} style={{ width: '100%' }} className='text-mobile-sm xl:text-desktop-sm' />
                 </Form.Item>
-                
+                <Form.Item
+                    name='id_sucursal'
+                    label="Sucursal"
+                    rules={[{ required: true, message: 'Por favor seleccione una sucursal' }]}
+                >
+                    <Select
+                        placeholder='Selecciona una sucursal'
+                        options={sucursals.map((branch: any) => ({
+                            value: branch.id_sucursal,
+                            label: branch.nombre
+                        }))}
+                        showSearch
+                        filterOption={(input, option: any) =>
+                            option.label.toLocaleLowerCase().includes(input.toLocaleLowerCase())}
+                    />
+
+                </Form.Item>
+
                 <Form.Item
                     label="Características"
                 >
-                    {features.map((feature, index) => (
+                    {example.features.map((feat: any, index: number) => (
                         <div key={index} style={{ display: 'flex', marginBottom: 8 }}>
-                          
-                            <h3 style={{margin: 10}}>{feature}</h3>
+
+                            <h3 style={{ margin: 10 }}>{feat.feature}</h3>
                             <Input
                                 placeholder="Valor"
-                                value={feature.value}
+                                value={feat.value}
                                 style={{ flex: 1 }}
                                 onChange={(e) => handleValueChange(index, e.target.value)}
                                 className='text-mobile-sm xl:text-desktop-sm'
@@ -92,9 +126,13 @@ const AddVariantModal = ({ visible, onCancel, onAdd, group }) => {
                         </div>
                     ))}
                 </Form.Item>
+                <Form.Item className='text-right'>
+                    <Button htmlType='submit' type='primary'>Confirmar</Button>
+                </Form.Item>
+
 
             </Form>
-        </Modal>
+        </Modal >
     );
 };
 

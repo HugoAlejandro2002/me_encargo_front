@@ -58,7 +58,7 @@ function ShippingFormModal({ visible, onCancel, onSuccess, selectedProducts, tot
             "costo_delivery": parseInt(shippingData.costo_delivery) || 0,
             "cargo_delivery": parseInt(shippingData.cargo_delivery) || 0,
             "estado_pedido": estadoPedidoMap[intEstadoPedido] || "En espera",
-            "id_trabajador": 1,
+            //"id_trabajador": 1,
             //TODO: Change the 3 when the new database is used for 1 or the one that is needed and check the shippingFormModal too
             "id_sucursal": parseInt(form.getFieldValue('sucursal')) || 3,
         }

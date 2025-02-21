@@ -35,7 +35,7 @@ function SalesFormModal({ visible, onCancel, onSuccess, selectedProducts, totalA
             "pagado_al_vendedor": false,
             "subtotal_qr": 0,
             "subtotal_efectivo": 0,
-            "id_trabajador": 1,
+            // "id_trabajador": 1,
             // ToDo: SUCURSAL PRADO POR DEFECTO, CAMBIAR CUANDO EXISTAN MAS SUCURSALES
             "id_sucursal": parseInt(form.getFieldValue('sucursal')),
             "cliente": salesData.cliente || "",

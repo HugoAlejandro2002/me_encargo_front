@@ -29,11 +29,9 @@ export const registerProductAPI = async (productData: any) => {
 }
 
 export const registerVariantAPI = async (productData: any) => {
-    try{
-        const {addVariant, infoButton, producto_sucursal, ...product} = productData.product
-        
+    try {
         const res = await apiClient.post('/product/registerVariant', {
-            product, 
+            product: productData.product,
             stock: productData.stock
         })
         return res.data
@@ -87,9 +85,15 @@ export const getProductFeaturesAPI = async (productId: any) => {
     }
 }
 
-export const addProductFeaturesAPI = async (featureValue: any) => {
+export const addProductFeaturesAPI = async (featsData: any) => {
     try {
-        const res = await apiClient.post(`/product/addFeatures`, featureValue)
+        const { id_producto, feats } = featsData
+
+        const res = await apiClient.post(`/product/addFeatures`, {
+            productId: id_producto,
+            features: feats
+
+        })
         return res.data
     } catch (error) {
         const err = error as AxiosError
@@ -114,7 +118,7 @@ export const addProductStockAPI = async (productStockValues: any) => {
 }
 export const updateProductStockAPI = async (newStock: any) => {
     try {
-        const res = await apiClient.put('/product/updateStock', {newStock})
+        const res = await apiClient.put('/product/updateStock', { newStock })
         return res.data
     } catch (error) {
         parseError(error as AxiosError)

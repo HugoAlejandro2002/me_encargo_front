@@ -31,7 +31,7 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
       message.error("Error al obtener las sucursales");
     }
   };
-  
+
   useEffect(() => {
     fetchSucursals();
   }, []);
@@ -150,9 +150,8 @@ const ProductInfoModal = ({ visible, onClose, product }) => {
           return (
             <Descriptions.Item
               key={index}
-              label={`Stock en el ${
-                sucursal ? sucursal.nombre : "Sucursal desconocida"
-              }`}
+              label={`Stock en el ${sucursal ? sucursal.nombre : "Sucursal desconocida"
+                }`}
             >
               {prodSuc.cantidad_por_sucursal}
             </Descriptions.Item>

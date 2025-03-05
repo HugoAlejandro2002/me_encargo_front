@@ -1,4 +1,4 @@
-import { Form, Modal, Input, Button, InputNumber, message } from "antd";
+import { Form, Modal, Input, Button, message } from "antd";
 import React, { useEffect } from "react";
 import { IBranch } from "../../models/branchModel";
 import { registerSucursalAPI, updateSucursalAPI } from "../../api/sucursal";
@@ -93,9 +93,11 @@ const BranchFormModal: React.FC<{
           label="Teléfono"
           rules={[
             { required: true, message: "Por favor ingrese el teléfono!" },
+            { pattern: /^[0-9]+$/, message: "Solo se permiten números" },
           ]}
         >
-          <InputNumber className="w-full" />
+          <Input className="w-full" type="tel" maxLength={13} />
+
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">

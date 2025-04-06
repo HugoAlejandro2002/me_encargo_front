@@ -12,7 +12,11 @@ interface SidebarProps {
   isMobile: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar,isMobile }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  toggleSidebar,
+  isMobile,
+}) => {
   const { user, setUser } = useContext(UserContext)!;
 
   const handleLogout = async () => {
@@ -49,7 +53,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar,isMobile }) => 
             key={item.path}
           >
             <img src={item.icon} alt={item.label} className="w-6 h-6 mx-3" />
-            {isOpen && <span className="ml-2 text-mobile-sm xl:text-desktop-sm">{item.label}</span>}
+            {isOpen && (
+              <span className="ml-2 text-mobile-sm xl:text-desktop-sm whitespace-normal break-words text-left">
+                {item.label}
+              </span>
+            )}
           </Link>
         ))}
       </div>
